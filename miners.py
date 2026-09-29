@@ -241,7 +241,7 @@ def build_miner_page(B, mc, ep, c):
 <div class="kpi"><div class="k">Median miner</div><div class="v">{fnum(mc['median_day'], 2) if mc['median_day'] else '—'} TSC/day</div><div class="s">≈ {fusd(mc['median_day'] * price, 2) if mc['median_day'] and price else '—'}/day · 7-day average of active miners</div></div>
 </div>"""
 
-    lookup = f"""<section class="hero"><h1>Miner dashboard</h1>
+    lookup = f"""<section class="hero"><h1>Miner <em>dashboard</em>.</h1>
 <p class="lead">Paste a TSC address: a pool payout address or a solo miner's coinbase address. You get earnings per day, estimated proof rate and the last 30 days. Pool miners are tracked through the pools' on-chain payouts.</p>
 <form id="mlook" class="look" autocomplete="off"><input id="maddr" placeholder="tc1q…" spellcheck="false" aria-label="TSC address"><button type="submit">Look up</button></form>
 <div id="mres" class="mres"></div></section>"""
@@ -282,7 +282,7 @@ def build_calc_page(B, c, ep, price):
               "reward": ep["reward"] if ep else None, "left": ep["left"] if ep else None,
               "blocks_day": ep["blocks_day"] if ep else 144, "gpus": gpus, "elec": costs.ELEC_USD_KWH}
     opts = "".join(f'<option value="{i}"{" selected" if g["name"] == costs.REF_GPU else ""}>{B.esc(g["name"])} · {B.fnum(g["poi"], 1)} PoI/s</option>' for i, g in enumerate(gpus))
-    return f"""<section class="hero"><h1>Mining profitability calculator</h1>
+    return f"""<section class="hero"><h1>Mining <em>profitability</em> calculator.</h1>
 <p class="lead">Estimate what your GPUs earn on TensorCash today and after the next reward cut. Network data is taken from the chain (last 24 hours) and refreshed with the site. Change any number.</p></section>
 <div class="calc"><section class="card"><h2>Your setup</h2>
 <label>GPU<select id="c_gpu">{opts}<option value="custom">Custom</option></select></label>
@@ -347,9 +347,9 @@ async function data(){if(!D){R.innerHTML='<p class="note">Loading miner data…<
 function bars(daily,day0){const W=900,H=200,pl=58,pr=16,pt=14,pb=30,n=30,bw=(W-pl-pr)/n;const v=Array(n).fill(0);daily.forEach(([k,x])=>{if(k>=0&&k<n)v[k]+=x});
  const mx=Math.max(...v,0.0001)*1.08;const Y=y=>pt+(H-pt-pb)-y/mx*(H-pt-pb);let s='<svg viewBox="0 0 '+W+' '+H+'" class="chart" role="img">';
  for(let i=0;i<=4;i++){const t=mx*i/4,y=Y(t);s+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'" class="grid"/><text x="'+(pl-6)+'" y="'+(y+4)+'" class="tick" text-anchor="end">'+f2(t,t<10?1:0)+'</text>'}
- const bs=[];v.forEach((x,i)=>{const X=pl+i*bw;s+='<rect x="'+(X+bw*.12)+'" y="'+Y(x)+'" width="'+(bw*.76)+'" height="'+(pt+(H-pt-pb)-Y(x))+'" fill="#2f5bea" opacity=".85"/>';
+ const bs=[];v.forEach((x,i)=>{const X=pl+i*bw;s+='<rect x="'+(X+bw*.12)+'" y="'+Y(x)+'" width="'+(bw*.76)+'" height="'+(pt+(H-pt-pb)-Y(x))+'" fill="#731D30" opacity=".85"/>';
   if(i%5===0){const d=new Date((day0+i*86400)*1000);s+='<text x="'+(X+bw/2)+'" y="'+(H-8)+'" class="tick" text-anchor="middle">'+d.getUTCDate()+' '+MON[d.getUTCMonth()]+'</text>'}
-  bs.push([+(X+bw/2).toFixed(1),day0+i*86400,[['TSC',  '#2f5bea',f2(x,3)+' TSC ≈ '+usd(x*D.price)]]])});
+  bs.push([+(X+bw/2).toFixed(1),day0+i*86400,[['TSC',  '#731D30',f2(x,3)+' TSC ≈ '+usd(x*D.price)]]])});
  s+='</svg>';const w=document.createElement('div');w.className='cw';w.innerHTML=s;const svg=w.firstChild;
  svg.setAttribute('data-tip',JSON.stringify({d:1,b:[pt,H-pb],l:pl,r:W-pr,bw:+bw.toFixed(1),bars:bs}));return w}
 async function show(a){a=(a||'').trim();if(!a)return;const d=await data();const m=d.miners[a];
@@ -359,7 +359,7 @@ async function show(a){a=(a||'').trim();if(!a)return;const d=await data();const 
  const k=[['TSC per day, 7-day avg',f2(perDay,3),usd(perDay*d.price)+' per day at '+usd(d.price,3)],['Estimated proof rate',est?rate(est):'—',est?'≈ '+f2(est/d.ref_gpu.poi,1)+' × '+d.ref_gpu.name:'no income in the last 7 days'],
   ['Earned since first seen',f2(total,2)+' TSC','≈ '+usd(total*d.price,0)+' at today\'s price'],[kind===1?'Payouts received':'Blocks found',f2(n,0),'first '+dt(first)+' · last '+dt(last)]];
  R.innerHTML='<div class="mcard"><div class="mhead"><span class="badge">'+via+'</span> <a class="mono" href="https://tscscan.xyz/address/'+encodeURIComponent(a)+'" target="_blank" rel="noopener noreferrer">'+esc(a)+' ↗</a></div><div class="kpis">'+
-  k.map(r=>'<div class="kpi"><div class="k">'+r[0]+'</div><div class="v">'+r[1]+'</div><div class="s">'+r[2]+'</div></div>').join('')+'</div><h3>'+(kind===1?'Payouts':'Block rewards')+' per UTC day, last 30 days</h3><div class="legend"><span class="lg"><i style="background:#2f5bea"></i>TSC</span></div></div>';
+  k.map(r=>'<div class="kpi"><div class="k">'+r[0]+'</div><div class="v">'+r[1]+'</div><div class="s">'+r[2]+'</div></div>').join('')+'</div><h3>'+(kind===1?'Payouts':'Block rewards')+' per UTC day, last 30 days</h3><div class="legend"><span class="lg"><i style="background:#731D30"></i>TSC</span></div></div>';
  const c=bars(daily,d.day0);R.querySelector('.mcard').appendChild(c);window.tscTip&&window.tscTip(c.querySelector('svg'));
  R.querySelector('.mcard').insertAdjacentHTML('beforeend','<p class="note">'+(kind===1?'Pools pay in batches, so single days jump around; the 7-day average is the fairer number. Proof rate is grossed up by the pool fee.':'Block rewards at the epoch reward; luck makes daily numbers noisy.')+'</p>')}
 F.addEventListener('submit',e=>{e.preventDefault();const a=document.getElementById('maddr').value.trim();if(a){history.replaceState(null,'','#'+a);show(a)}});
@@ -375,16 +375,17 @@ document.querySelectorAll('[data-left]').forEach(e=>{const t=+e.dataset.left;con
 
 CSS = """
 [hidden]{display:none!important}
-.look{display:flex;gap:8px;margin:6px 0 16px;flex-wrap:wrap}.look input{flex:1;min-width:220px;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font:14px ui-monospace,SFMono-Regular,Menlo,monospace}
-.look input::placeholder{color:#9fb0da}.look button{padding:12px 20px;border:0;border-radius:10px;background:#fff;color:var(--navy);font-weight:700;cursor:pointer}
-.mres .mcard{background:#fff;color:var(--ink);border-radius:14px;padding:18px 20px;margin-bottom:18px}.mres .note{color:var(--mute)}.mres a{color:var(--acc)}
+.look{display:flex;gap:8px;margin:6px 0 18px;flex-wrap:wrap}.look input{flex:1;min-width:220px;padding:12px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);font:14px var(--mono)}
+.look input:focus{outline:none;border-color:rgba(115,29,48,.5);box-shadow:0 0 0 3px var(--acc-tint)}.look input::placeholder{color:var(--soft)}
+.look button{padding:12px 22px;border:1px solid rgba(115,29,48,.35);border-radius:999px;background:var(--acc-tint);color:var(--acc);font:12px var(--mono);text-transform:uppercase;letter-spacing:.1em;cursor:pointer}.look button:hover{background:rgba(115,29,48,.14)}
+.mres .mcard{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:18px}.mres .note{color:var(--mute)}
 .mhead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-size:13px;word-break:break-all}
 .small{font-size:11px;color:var(--mute)}tr.muted td{color:var(--mute)}
-.epoch{display:flex;gap:20px;justify-content:space-between;flex-wrap:wrap}.ekpis{display:flex;gap:28px;flex-wrap:wrap}.ekpis .k{font-size:13px;color:var(--mute)}.ekpis .v{font-size:22px;font-weight:800}.ekpis .s{font-size:12px;color:var(--mute)}
+.epoch{display:flex;gap:20px;justify-content:space-between;flex-wrap:wrap}.ekpis{display:flex;gap:28px;flex-wrap:wrap}.ekpis .v{font-size:22px;font-weight:600;letter-spacing:-.02em}.ekpis .s{font-size:12px;color:var(--mute)}
 .bar{height:8px;background:var(--bg);border-radius:99px;overflow:hidden;margin:14px 0 6px}.bar i{display:block;height:100%;background:var(--acc)}
 .calc{display:grid;grid-template-columns:minmax(280px,1fr) 2fr;gap:16px;align-items:start}@media(max-width:900px){.calc{grid-template-columns:1fr}}
-.calc label{display:block;font-size:13px;color:var(--mute);margin:0 0 10px}.calc input,.calc select{display:block;width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:15px;color:var(--ink);background:#fff}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.seg{display:inline-flex;gap:4px;background:var(--bg);padding:4px;border-radius:8px;margin:4px 0 12px}
-.seg button{border:0;background:transparent;padding:6px 12px;border-radius:6px;font-weight:600;color:var(--mute);cursor:pointer}.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.calc label{display:block;font:10.5px/1.5 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--soft);margin:0 0 10px}.calc input,.calc select{display:block;width:100%;margin-top:4px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font:15px var(--sans);text-transform:none;letter-spacing:0;color:var(--ink);background:#fff}.calc input:focus,.calc select:focus{outline:none;border-color:rgba(115,29,48,.5);box-shadow:0 0 0 3px var(--acc-tint)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.seg{display:inline-flex;gap:6px;margin:4px 0 14px}
+.seg button{border:1px solid var(--line);background:#fff;padding:6px 13px;border-radius:999px;font:11px var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--mute);cursor:pointer}.seg button.on{background:var(--acc-tint);border-color:rgba(115,29,48,.35);color:var(--acc)}
 .res .v{font-size:22px}
 """

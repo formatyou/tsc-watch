@@ -110,7 +110,7 @@ def signed(x, d=0):
 
 # ---------------------------------------------------------------- SVG charts
 
-PALETTE = ["#2f5bea", "#e8a33d", "#2fa872", "#c94f7c", "#7b61ff", "#20a4b8", "#8d8d8d"]
+PALETTE = ["#731D30", "#C07A2C", "#2F7A55", "#8A5A9E", "#3F6FA0", "#1F8A8A", "#969BA1"]
 
 
 def _ticks(lo, hi, n=4):
@@ -415,44 +415,46 @@ def miner_name(d, addr):
 # ---------------------------------------------------------------- HTML
 
 CSS = """
-:root{--navy:#0f1b3d;--ink:#101828;--mute:#5b6478;--line:#e4e7ef;--bg:#eef1f7;--card:#fff;--acc:#2f5bea}
-*{box-sizing:border-box}body{margin:0;font-family:-apple-system,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
-a{color:var(--acc)}
-header{background:#fff;border-bottom:1px solid var(--line)}
+:root{--acc:#731D30;--acc-deep:#501421;--acc-tint:rgba(115,29,48,.08);--bg:#F7F8F9;--paper:#EEF0F2;--line:#D8DCDF;--ink:#0F1115;--mute:#5B6168;--soft:#969BA1;--card:#FFFFFF;
+--sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"JetBrains Mono","SF Mono",Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01"}
+a{color:var(--acc);text-decoration-color:rgba(115,29,48,.35);text-underline-offset:3px}a:hover{color:var(--acc-deep)}
+header{position:sticky;top:0;z-index:50;background:rgba(247,248,249,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .top{max-width:1100px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.brand{font-weight:800;font-size:20px;letter-spacing:-.3px;text-decoration:none;color:var(--ink)}.brand span{color:var(--acc)}
-nav{display:flex;gap:4px}nav a{padding:8px 14px;border-radius:8px;text-decoration:none;color:var(--mute);font-weight:600}nav a.on{background:var(--bg);color:var(--ink)}
+.brand{font-weight:700;font-size:19px;letter-spacing:-.02em;text-decoration:none;color:var(--ink)}.brand span{color:var(--acc)}
+nav{display:flex;gap:2px;flex-wrap:wrap}nav a{padding:6px 10px;border-radius:999px;text-decoration:none;color:var(--acc);font-size:13.5px;font-weight:500}nav a:hover{background:var(--acc-tint)}nav a.on{background:var(--acc-tint);color:var(--acc-deep);font-weight:600}
 main{max-width:1100px;margin:0 auto;padding:16px}
-.hero{background:var(--navy);color:#fff;border-radius:16px;padding:28px 28px 8px;margin-bottom:16px}
-.hero h1{margin:0 0 6px;font-size:34px;letter-spacing:-.5px}.hero p.lead{margin:0 0 14px;color:#c9d2ea;max-width:760px}.hero a{color:#fff}
-.hero .snap{display:inline-block;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 12px;font-size:13px;color:#c9d2ea;margin-bottom:14px}.hero .snap b{color:#fff}
-.hero .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));border-top:1px solid rgba(255,255,255,.14)}
-.hero .cell{padding:18px 14px 18px 0;border-bottom:1px solid rgba(255,255,255,.1)}
-.hero .cell .k{font-size:13px;color:#aab6d8}.hero .cell .v{font-size:32px;font-weight:800;letter-spacing:-.5px;margin:2px 0}.hero .cell .s{font-size:13px;color:#c9d2ea}
-.up{color:#4cd18a}.down{color:#ff7b7b}.warn{color:#ffc86b}.card .up{color:#1f9d55}.card .down{color:#d64545}.kpi .up{color:#1f9d55}.kpi .down{color:#d64545}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:16px}
-.card h2{margin:0 0 4px;font-size:20px}.card h3{margin:16px 0 6px;font-size:16px}.card p.sub{margin:0 0 12px;color:var(--mute);font-size:14px}
+.hero{padding:34px 0 10px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.hero h1 em{font-style:normal;color:var(--acc)}.hero h1{margin:0 0 10px;font-size:44px;line-height:1.08;font-weight:600;letter-spacing:-.035em;color:var(--ink);max-width:900px}
+.hero p.lead{margin:0 0 16px;color:var(--mute);font-size:17px;max-width:760px}
+.hero .snap{display:inline-block;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font:11px/1.4 var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--soft);margin-bottom:16px}.hero .snap b{color:var(--acc);font-weight:500}
+.hero .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));border-top:1px solid var(--line)}
+.hero .cell{padding:18px 16px 18px 0;border-bottom:1px solid var(--line)}
+.k,.hero .cell .k,.kpi .k,.ekpis .k{font:11px/1.4 var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--soft)}
+.hero .cell .v{font-size:34px;font-weight:600;letter-spacing:-.03em;margin:4px 0;font-variant-numeric:tabular-nums}.hero .cell .s{font-size:13px;color:var(--mute)}
+.up{color:#2F7A55}.down{color:#B42318}.warn{color:#B26A00}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin-bottom:16px}
+.card h2{margin:0 0 4px;font-size:21px;font-weight:600;letter-spacing:-.02em}.card h3{margin:18px 0 6px;font-size:16px;font-weight:600;letter-spacing:-.01em}.card p.sub{margin:0 0 14px;color:var(--mute);font-size:14.5px}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}.kpi .k{font-size:13px;color:var(--mute)}.kpi .v{font-size:26px;font-weight:800;letter-spacing:-.4px}.kpi .s{font-size:12px;color:var(--mute)}
-.chart{width:100%;height:auto;display:block}.grid{stroke:#e9ecf3;stroke-width:1}.tick{font-size:11px;fill:#6b7280}.marker{stroke:#c98a1a;stroke-width:1;stroke-dasharray:3 3}.mlabel{font-size:11px;fill:#c98a1a}.line50{stroke:#d64545;stroke-width:1.2;stroke-dasharray:5 4}
-.cw{position:relative}.xh{stroke:#101828;stroke-width:1;opacity:.35}.xb{fill:#101828;opacity:.07}
-.tip{position:absolute;display:none;pointer-events:none;z-index:5;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 20px rgba(16,24,40,.14);padding:8px 10px;font-size:12px;line-height:1.5;white-space:nowrap;color:var(--ink)}
-.tip .th{font-weight:700;margin-bottom:2px}.tip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}.tip b{font-variant-numeric:tabular-nums}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}.kpi .v{font-size:26px;font-weight:600;letter-spacing:-.03em;margin:4px 0 2px;font-variant-numeric:tabular-nums}.kpi .s{font-size:12.5px;color:var(--mute)}
+.chart{width:100%;height:auto;display:block}.grid{stroke:#E6E8EB;stroke-width:1}.tick{font:10.5px var(--mono);fill:var(--soft)}.marker{stroke:#B26A00;stroke-width:1;stroke-dasharray:3 3}.mlabel{font:10.5px var(--mono);fill:#B26A00}.line50{stroke:#B42318;stroke-width:1.2;stroke-dasharray:5 4}
+.cw{position:relative}.xh{stroke:var(--ink);stroke-width:1;opacity:.3}.xb{fill:var(--acc);opacity:.07}
+.tip{position:absolute;display:none;pointer-events:none;z-index:5;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(15,17,21,.10);padding:8px 11px;font-size:12px;line-height:1.55;white-space:nowrap;color:var(--ink)}
+.tip .th{font:11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--soft);margin-bottom:3px}.tip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}.tip b{font-weight:600;font-variant-numeric:tabular-nums}
 .links{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
-.lnk{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;text-decoration:none;color:var(--ink);transition:border-color .15s,box-shadow .15s}
-.lnk:hover{border-color:var(--acc);box-shadow:0 2px 10px rgba(47,91,234,.12)}.lt{font-weight:700}.ext{color:var(--acc);font-weight:600}.ld{font-size:13px;color:var(--mute)}.lu{font-size:12px;color:var(--acc);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-nav{flex-wrap:wrap}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin:4px 0 6px}.lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
-table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th{color:var(--mute);font-weight:600;font-size:12px}td:first-child,th:first-child{text-align:left}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
-.tabs{display:inline-flex;gap:4px;background:var(--bg);padding:4px;border-radius:8px;margin-bottom:8px}.tabs button{border:0;background:transparent;padding:6px 12px;border-radius:6px;font-weight:600;color:var(--mute);cursor:pointer}.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.lnk{display:flex;flex-direction:column;gap:3px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;text-decoration:none;color:var(--ink);background:var(--card);transition:border-color .15s,background .15s}
+.lnk:hover{border-color:rgba(115,29,48,.45);background:#FCFAFA}.lt{font-weight:600}.ext{color:var(--acc);font-weight:500}.ld{font-size:13px;color:var(--mute)}.lu{font:11.5px var(--mono);color:var(--acc)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin:4px 0 8px}.lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th{font:10.5px/1.4 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--soft);font-weight:400}td:first-child,th:first-child{text-align:left}
+.mono,code{font-family:var(--mono);font-size:12.5px}
+.tabs{display:inline-flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}.tabs button{border:1px solid var(--line);background:var(--card);padding:5px 12px;border-radius:999px;font:11px var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--mute);cursor:pointer}.tabs button:hover{border-color:rgba(115,29,48,.4)}.tabs button.on{background:var(--acc-tint);border-color:rgba(115,29,48,.35);color:var(--acc)}
 .pane{display:none}.pane.on{display:block}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:800px){.two{grid-template-columns:1fr}.hero h1{font-size:26px}.hero .cell .v{font-size:26px}}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:800px){.two{grid-template-columns:1fr}.hero h1{font-size:32px}.hero .cell .v{font-size:27px}}
 .donut{width:180px;height:180px}.donutwrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
 .note{font-size:13px;color:var(--mute)}.empty{padding:30px;text-align:center;color:var(--mute)}
-footer{max-width:1100px;margin:0 auto;padding:20px 16px 40px;color:var(--mute);font-size:13px}
-.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;background:#eef1f7;color:var(--mute)}
-dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;font-size:14px}dt{color:var(--mute)}dd{margin:0}@media(max-width:600px){dl{grid-template-columns:1fr}}
+footer{max-width:1100px;margin:28px auto 0;padding:22px 16px 44px;color:var(--soft);font:11px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.08em;border-top:1px solid var(--line)}footer a{color:var(--mute)}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font:10.5px var(--mono);text-transform:uppercase;letter-spacing:.08em;background:var(--acc-tint);color:var(--acc)}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:8px 18px;font-size:14px}dt{color:var(--mute)}dd{margin:0}@media(max-width:600px){dl{grid-template-columns:1fr}}
 """
 
 JS = """
@@ -517,7 +519,7 @@ def page(title, active, body, gen_ts, tip_h, tip_ts):
                                           ("holders", "holders.html", "Holders"), ("links", "links.html", "Official links"),
                                           ("about", "about.html", "About the data")))
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{esc(title)} · {esc(name)}</title>{og}<style>{CSS}{miners.CSS}</style></head><body>
+<title>{esc(title)} · {esc(name)}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><meta name="theme-color" content="#F7F8F9">{og}<style>{CSS}{miners.CSS}</style></head><body>
 <header><div class="top"><a class="brand" href="index.html">{brand(dom)}</a><nav>{nav}</nav></div></header>
 <main>{body}</main>
 <footer>Generated {fdt(gen_ts)} · on-chain data through block #{fnum(tip_h)} ({fdt(tip_ts)}) · sources: tscscan.xyz, SafeTrade · independent project, not investment advice · <a href="about.html">methodology</a></footer>
@@ -562,7 +564,7 @@ def build_market(d, c):
     ath = max(p1440, key=lambda r: r[2]) if p1440 else None
 
     hero = f"""
-<section class="hero"><h1>TensorCash (TSC) — market and issuance</h1>
+<section class="hero"><h1>TensorCash (TSC) <em>market</em> and <em>issuance</em>.</h1>
 <p class="lead">Price and volume from SafeTrade (the only exchange with a TSC/USDT pair); supply and issuance computed from the chain. Every number has a source under <a href="about.html">About the data</a>.</p>
 <div class="snap">On-chain snapshot: <b>block #{fnum(c['tip_h'])}</b> · {fdt(c['tip_ts'])} · price read {fdt(snap_val(d,'ts'))}</div>
 <div class="grid">
@@ -599,7 +601,7 @@ def build_market(d, c):
         close = next((r[4] for r in p1440 if r[0] == day), None)
         if close and day >= (p1440[0][0] if p1440 else 0):
             emis_pts.append((day, x["new_tsc"] * close))
-    vol_card = f"""<section class="card"><h2>Daily volume vs. issuance</h2><p class="sub">Blue: daily traded volume in USD (TSC × daily close). Orange: USD value of the TSC mined that day. When issuance approaches volume, miner supply alone can dominate the order book.</p>
+    vol_card = f"""<section class="card"><h2>Daily volume vs. issuance</h2><p class="sub">Maroon: daily traded volume in USD (TSC × daily close). Amber: USD value of the TSC mined that day. When issuance approaches volume, miner supply alone can dominate the order book.</p>
 {svg_line([{"name": "daily volume, USD", "points": vol_pts, "color": PALETTE[0]}, {"name": "daily issuance, USD", "points": emis_pts, "color": PALETTE[1], "area": False, "width": 2}], yfmt=lambda v: fusd(v, 0))}
 </section>"""
 
@@ -660,7 +662,7 @@ def build_mining(d, c):
     n_active_24 = len(w24["miners"])
 
     hero = f"""
-<section class="hero"><h1>TensorCash network work rate &amp; who finds the blocks</h1>
+<section class="hero"><h1>Network <em>work rate</em> and who finds the <em>blocks</em>.</h1>
 <p class="lead">How much proof-of-inference work secures the network, who finds the blocks and what mining earns. Everything computed from the chain (difficulty × blocks), refreshed hourly.</p>
 <div class="snap">On-chain snapshot: <b>block #{fnum(c['tip_h'])}</b> · {fdt(c['tip_ts'])} · 24h window ends {fdt(c['ref'])}</div>
 <div class="grid">
@@ -680,15 +682,15 @@ def build_mining(d, c):
     roll, rh = c["rate_24h_roll"], c["rate_hourly"]
     markers = [(ath_ts, "highest 24h avg")] if ath_ts else []
     panes = [
-        ("all", "since genesis", svg_line([{"name": "24-hour average", "points": roll, "width": 2, "scale": True}, {"name": "hourly estimate (noisy, clipped to scale)", "points": rh, "color": "#9aa6c8", "width": 0.8, "area": False, "opacity": .7}], yfmt=lambda v: fshort(v, 0), markers=markers, tipfmt=frate)),
-        ("30d", "30 days", svg_line([{"name": "24-hour average", "points": [p for p in roll if p[0] >= roll[-1][0] - 30 * DAY], "width": 2}, {"name": "hourly estimate", "points": [p for p in rh if p[0] >= rh[-1][0] - 30 * DAY], "color": "#9aa6c8", "width": 0.8, "area": False, "opacity": .7}], yfmt=lambda v: fshort(v, 0), tipfmt=frate)),
-        ("7d", "7 days", svg_line([{"name": "24-hour average", "points": [p for p in roll if p[0] >= roll[-1][0] - 7 * DAY], "width": 2}, {"name": "hourly estimate", "points": [p for p in rh if p[0] >= rh[-1][0] - 7 * DAY], "color": "#9aa6c8", "width": 1, "area": False}], yfmt=lambda v: fshort(v, 0), xfmt=lambda x: fdt(x, "%d %b"), tipfmt=frate)),
+        ("all", "since genesis", svg_line([{"name": "24-hour average", "points": roll, "width": 2, "scale": True}, {"name": "hourly estimate (noisy, clipped to scale)", "points": rh, "color": "#C9A6AF", "width": 0.8, "area": False, "opacity": .7}], yfmt=lambda v: fshort(v, 0), markers=markers, tipfmt=frate)),
+        ("30d", "30 days", svg_line([{"name": "24-hour average", "points": [p for p in roll if p[0] >= roll[-1][0] - 30 * DAY], "width": 2}, {"name": "hourly estimate", "points": [p for p in rh if p[0] >= rh[-1][0] - 30 * DAY], "color": "#C9A6AF", "width": 0.8, "area": False, "opacity": .7}], yfmt=lambda v: fshort(v, 0), tipfmt=frate)),
+        ("7d", "7 days", svg_line([{"name": "24-hour average", "points": [p for p in roll if p[0] >= roll[-1][0] - 7 * DAY], "width": 2}, {"name": "hourly estimate", "points": [p for p in rh if p[0] >= rh[-1][0] - 7 * DAY], "color": "#C9A6AF", "width": 1, "area": False}], yfmt=lambda v: fshort(v, 0), xfmt=lambda x: fdt(x, "%d %b"), tipfmt=frate)),
     ]
     rate_card = f"""<section class="card"><h2>Network work rate</h2><p class="sub">Combined work of all miners in proof/s (sum of effective block difficulty ÷ time). The hourly estimate is inherently noisy — at ~6 blocks per hour, luck dominates; the 24-hour average is the reliable line.</p>{tabs_block('rate', panes, 0)}</section>"""
 
     tops = sorted(w7["miners"].items(), key=lambda kv: -kv[1]["blocks"])
     top_addrs = [a for a, _ in tops[:5]]
-    cols = PALETTE[:5] + ["#b9c0d4"]
+    cols = PALETTE[:5] + ["#D8DCDF"]
     donut_items = [(miner_name(d, a), m["blocks"] / w7["blocks"] * 100, cols[i]) for i, (a, m) in enumerate(tops[:5])]
     donut_items.append(("Solo & other miners", 100 - sum(x[1] for x in donut_items), cols[5]))
     dl = "".join(f'<tr><td><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:{col};margin-right:6px"></i>{esc(n)}</td><td>{fnum(s,1)}%</td></tr>' for n, s, col in donut_items)
@@ -759,7 +761,7 @@ def build_holders(d, c):
     dist7 = sum(1 for h in hs if (h[3] or 0) < 0)
     net7 = sum((h[3] or 0) for h in hs)
     net30 = sum((h[4] or 0) for h in hs)
-    hero = f"""<section class="hero"><h1>Largest TSC holders</h1>
+    hero = f"""<section class="hero"><h1>Largest <em>TSC holders</em>.</h1>
 <p class="lead">Top {len(hs)} addresses by balance with 7- and 30-day net flow. This is the seed of a “who's accumulating” view — without exchange labels an exchange wallet cannot yet be told apart from an investor, so read it as a watchlist.</p>
 <div class="snap">Holder snapshot: <b>{fdt(d['holders_ts'])}</b> · balances and flows from the explorer</div>
 <div class="grid">
