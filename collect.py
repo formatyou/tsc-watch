@@ -76,6 +76,13 @@ def _fixture(url):
         period = q.get("period", ["60"])[0]
         f = os.path.join(FIXTURES, f"kline_{period}.json")
         return json.load(open(f)) if os.path.exists(f) else []
+    if path.startswith("/api/address/"):
+        addr = path.rsplit("/", 1)[1]
+        page = int(q.get("page", ["1"])[0])
+        f = os.path.join(FIXTURES, f"addr_{addr[:12]}_p{page}.json")
+        if not os.path.exists(f):
+            return {"address": {"address": addr}, "transactions": [], "pagination": {"has_next": False, "page": page}}
+        return json.load(open(f))
     if path.startswith("/api/block/"):
         return {"items": [], "block": None}
     raise RuntimeError("no fixture for " + url)
@@ -158,6 +165,27 @@ CREATE TABLE IF NOT EXISTS aliases (
   source TEXT,
   updated_ts INTEGER
 );
+
+CREATE TABLE IF NOT EXISTS pool_txs (
+  txid TEXT NOT NULL,
+  pool TEXT NOT NULL,        -- pool (coinbase) address
+  height INTEGER,
+  ts INTEGER,
+  sent REAL,                 -- TSC sent by the pool in this tx (0 = incoming / coinbase)
+  PRIMARY KEY (txid, pool)
+);
+
+CREATE TABLE IF NOT EXISTS payouts (
+  txid TEXT NOT NULL,
+  pool TEXT NOT NULL,
+  address TEXT NOT NULL,     -- recipient (miner)
+  amount REAL,               -- TSC
+  height INTEGER,
+  ts INTEGER,
+  PRIMARY KEY (txid, pool, address)
+);
+CREATE INDEX IF NOT EXISTS payouts_addr ON payouts(address);
+CREATE INDEX IF NOT EXISTS payouts_ts ON payouts(ts);
 
 CREATE TABLE IF NOT EXISTS meta (
   key TEXT PRIMARY KEY,
@@ -370,6 +398,68 @@ def sync_holders(con, ts, pages=4):
     return n
 
 
+# ---------------------------------------------------------------- pool payouts
+
+def pool_addresses(con, min_share=0.01):
+    """Addresses labelled as pools by the explorer (Tigerpool, Luckypool, ...) plus every address
+    that found ≥1% of blocks in the last 7 days (unlabelled pools are detected later by their
+    batch payouts; plain transfers of solo miners are ignored at build time)."""
+    out = [r[0] for r in con.execute("SELECT address FROM aliases WHERE lower(alias) LIKE '%pool%'")]
+    tip = con.execute("SELECT MAX(timestamp) FROM blocks").fetchone()[0] or 0
+    rows = con.execute("SELECT miner, COUNT(*) FROM blocks WHERE timestamp > ? GROUP BY miner", (tip - 7 * 86400,)).fetchall()
+    total = sum(n for _, n in rows) or 1
+    out += [m for m, n in sorted(rows, key=lambda r: -r[1]) if m and n / total >= min_share and m not in out]
+    return out
+
+
+def sync_pool_payouts(con, pool, page_size=100, max_pages=400):
+    """Walk the pool address history (newest first). Every tx the pool sends is a payout batch:
+    each output to another address = one miner payout. Stops at the first fully known page."""
+    known = set(r[0] for r in con.execute("SELECT txid FROM pool_txs WHERE pool=?", (pool,)))
+    fresh = not known or meta_get(con, "payouts_done_" + pool) != "1"   # full history not walked yet
+    page, new_tx, new_pay = 1, 0, 0
+    while page <= max_pages:
+        d = http_json(f"{EXPLORER}/api/address/{pool}?page={page}&page_size={page_size}")
+        txs = d.get("transactions") or []
+        if not txs:
+            break
+        unseen = [t for t in txs if t.get("txid") not in known]
+        for t in unseen:
+            sent = (t.get("sent_sats") or 0) / SATS
+            con.execute("INSERT OR IGNORE INTO pool_txs VALUES (?,?,?,?,?)",
+                        (t["txid"], pool, t.get("block_height"), t.get("timestamp"), sent))
+            new_tx += 1
+            if sent <= 0 or t.get("is_coinbase"):
+                continue
+            for o in t.get("to_addresses") or []:
+                a = o.get("address")
+                if not a or a == pool:
+                    continue
+                con.execute("INSERT OR IGNORE INTO payouts VALUES (?,?,?,?,?,?)",
+                            (t["txid"], pool, a, (o.get("value_sats") or 0) / SATS, t.get("block_height"), t.get("timestamp")))
+                new_pay += 1
+        con.commit()
+        pag = d.get("pagination") or {}
+        if not unseen and not fresh:
+            break
+        if not pag.get("has_next"):
+            meta_set(con, "payouts_done_" + pool, "1")
+            con.commit()
+            break
+        page += 1
+        time.sleep(0.12)
+    return new_tx, new_pay
+
+
+def sync_all_payouts(con):
+    for pool in pool_addresses(con):
+        try:
+            t, p = sync_pool_payouts(con, pool)
+            log(f"  payouts {pool[:12]}…: +{t} txs, +{p} payouts")
+        except Exception as e:
+            log(f"  payouts {pool[:12]}…: {e}")
+
+
 # ---------------------------------------------------------------- state kept in the repo (state.json)
 
 STATE_PATH = os.path.join(DATA_DIR, "state.json")
@@ -412,7 +502,7 @@ def import_state(con):
         con.executemany(f"INSERT OR IGNORE INTO {t} ({','.join(cols)}) VALUES ({','.join('?'*len(cols))})", spec["rows"])
         n += len(spec["rows"])
     for k, v in (st.get("meta") or {}).items():
-        if k != "last_collect_ts":
+        if k != "last_collect_ts" and not k.startswith("payouts_done_"):
             con.execute("INSERT OR IGNORE INTO meta(key,value) VALUES(?,?)", (k, v))
     con.commit()
     if have == 0:
@@ -458,6 +548,11 @@ def main(argv):
             log(f"holders: {k} addresses")
     except Exception as e:
         log(f"ERROR snapshot: {e}")
+
+    try:
+        sync_all_payouts(con)
+    except Exception as e:
+        log(f"ERROR payouts: {e}")
 
     meta_set(con, "last_collect_ts", int(time.time()))
     con.commit()

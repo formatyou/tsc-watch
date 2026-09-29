@@ -13,6 +13,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 
 import costs
+import miners
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(ROOT, "data", "tsc.db")
@@ -459,7 +460,7 @@ JS = """
 function fd(ts,daily){const d=new Date(ts*1000);let s=z(d.getUTCDate())+' '+MON[d.getUTCMonth()]+' '+d.getUTCFullYear();return daily?s:s+', '+z(d.getUTCHours())+':'+z(d.getUTCMinutes())+' UTC'}
 function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e}
 function near(a,x){let lo=0,hi=a.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(a[m][0]<x)lo=m;else hi=m}return Math.abs(a[lo][0]-x)<=Math.abs(a[hi][0]-x)?a[lo]:a[hi]}
-document.querySelectorAll('svg[data-tip]').forEach(svg=>{
+window.tscTip=function(svg){if(!svg||svg.__tip)return;svg.__tip=1;
  const T=JSON.parse(svg.dataset.tip),wrap=svg.parentNode,g=el('g',{'pointer-events':'none'});g.style.display='none';
  const vl=T.bw?el('rect',{class:'xb',y:T.b[0],height:T.b[1]-T.b[0],width:T.bw}):el('line',{class:'xh',y1:T.b[0],y2:T.b[1]});g.appendChild(vl);
  const dots=(T.s||[]).map(s=>{const c=el('circle',{r:3.5,fill:s[1],stroke:'#fff','stroke-width':1.5});g.appendChild(c);return c});
@@ -477,7 +478,7 @@ document.querySelectorAll('svg[data-tip]').forEach(svg=>{
   const wr=wrap.getBoundingClientRect();tip.style.left=(r.left-wr.left+left)+'px';tip.style.top=(r.top-wr.top+6)+'px'}
  svg.addEventListener('mousemove',e=>move(e.clientX));svg.addEventListener('mouseleave',hide);
  svg.addEventListener('touchstart',e=>move(e.touches[0].clientX),{passive:true});svg.addEventListener('touchmove',e=>move(e.touches[0].clientX),{passive:true});
-});})();
+};document.querySelectorAll('svg[data-tip]').forEach(window.tscTip);})();
 document.querySelectorAll('.tabs').forEach(t=>{t.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
  t.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
  const g=t.dataset.group;document.querySelectorAll('.pane[data-group="'+g+'"]').forEach(p=>p.classList.toggle('on',p.dataset.key===b.dataset.key));}))});
@@ -512,14 +513,15 @@ def page(title, active, body, gen_ts, tip_h, tip_ts):
         og += f'<link rel="canonical" href="https://{esc(dom)}/{"" if active == "market" else active + ".html"}">'
     nav = "".join(f'<a href="{href}" class="{"on" if key == active else ""}">{lbl}</a>'
                   for key, href, lbl in (("market", "index.html", "Market"), ("mining", "mining.html", "Mining"),
+                                          ("miners", "miner.html", "Miners"), ("calc", "calc.html", "Calculator"),
                                           ("holders", "holders.html", "Holders"), ("links", "links.html", "Official links"),
                                           ("about", "about.html", "About the data")))
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{esc(title)} · {esc(name)}</title>{og}<style>{CSS}</style></head><body>
+<title>{esc(title)} · {esc(name)}</title>{og}<style>{CSS}{miners.CSS}</style></head><body>
 <header><div class="top"><a class="brand" href="index.html">{brand(dom)}</a><nav>{nav}</nav></div></header>
 <main>{body}</main>
 <footer>Generated {fdt(gen_ts)} · on-chain data through block #{fnum(tip_h)} ({fdt(tip_ts)}) · sources: tscscan.xyz, SafeTrade · independent project, not investment advice · <a href="about.html">methodology</a></footer>
-<script>{JS}</script></body></html>"""
+<script>{JS}{miners.CALC_JS}{miners.MINER_JS}{miners.EPOCH_JS}</script></body></html>"""
 
 
 def tabs_block(group, panes, default=0):
@@ -741,7 +743,7 @@ def build_mining(d, c):
 <div class="kpi"><div class="k">Blocks with multiplier &gt; 1</div><div class="v">{fpct(sum(1 for m in mults if m > 1.0001)/len(mults)*100 if mults else None,0,False)}</div><div class="s">of {fnum(len(mults))} blocks in 24h</div></div></div></section>"""
 
     cost_card = costs.mining_card(sys.modules[__name__], c['costs'], price)
-    return hero + kpis + rate_card + cost_card + who_card + stack_card + diff_card + earn_card + poi_card
+    return hero + kpis + miners.epoch_card(sys.modules[__name__], c.get('epoch'), price) + rate_card + cost_card + who_card + stack_card + diff_card + earn_card + poi_card
 
 
 # ---------------------------------------------------------------- page: Holders
@@ -859,6 +861,7 @@ def export_json(d, c):
         "miners_7d": [{"address": a, "alias": d["aliases"].get(a), "blocks": m["blocks"], "share": m["blocks"] / w7["blocks"] * 100 if w7["blocks"] else 0}
                       for a, m in sorted(w7["miners"].items(), key=lambda kv: -kv[1]["blocks"])],
         "mining_cost": costs.export(c["costs"]),
+        "reward_epoch": c.get("epoch"),
         "daily": [{"day": day, "blocks": x["blocks"], "work_rate": x["work"] / DAY, "new_tsc": x["new_tsc"],
                    "avg_difficulty": x["diff"] / x["blocks"] if x["blocks"] else None} for day, x in c["daily"].items()],
     }
@@ -871,11 +874,17 @@ def main():
     d = load(con)
     c = compute(d)
     c["costs"] = costs.compute_costs(d, c, reward_at)
+    price = snap_val(d, "price_usdt") or (d["p60"][-1][4] if d["p60"] else None)
+    mc = miners.compute(con, d, c, reward_at, price)
+    ep = miners.epoch_info(c, reward_at)
+    c["epoch"] = ep
     os.makedirs(SITE, exist_ok=True)
     gen = int(time.time())
     pages = {
         "index.html": ("TSC market", "market", build_market(d, c)),
         "mining.html": ("TSC mining", "mining", build_mining(d, c)),
+        "miner.html": ("TSC miner dashboard & pools", "miners", miners.build_miner_page(sys.modules[__name__], mc, ep, c)),
+        "calc.html": ("TSC mining calculator", "calc", miners.build_calc_page(sys.modules[__name__], c, ep, price)),
         "holders.html": ("TSC holders", "holders", build_holders(d, c)),
         "links.html": ("Official TensorCash links", "links", build_links(d, c)),
         "about.html": ("About the data", "about", build_about(d, c)),
@@ -885,6 +894,8 @@ def main():
             f.write(page(title, key, body, gen, c["tip_h"], c["tip_ts"]))
     with open(os.path.join(SITE, "data.json"), "w", encoding="utf-8") as f:
         json.dump(export_json(d, c), f, ensure_ascii=False, indent=1)
+    with open(os.path.join(SITE, "miners.json"), "w", encoding="utf-8") as f:
+        json.dump(miners.export_json(mc, c), f, separators=(",", ":"))
     open(os.path.join(SITE, ".nojekyll"), "w").close()
     dom = site_domain()
     if dom:
