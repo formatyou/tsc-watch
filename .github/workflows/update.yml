@@ -1,0 +1,65 @@
+name: update tsc-watch
+on:
+  schedule:
+    - cron: "*/20 * * * *"   # backup schedule; primary trigger is an external workflow_dispatch call
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["*.py", ".github/workflows/update.yml"]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: tsc-watch
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 1 }
+
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      # SQLite database (blocks, prices) lives in the Actions cache; if lost it is rebuilt from the APIs (~5 min)
+      - name: restore db cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/tsc.db
+          key: tsc-db-${{ github.run_id }}
+          restore-keys: tsc-db-
+
+      - name: collect
+        run: python3 collect.py
+
+      - name: build site
+        env:
+          SITE_DOMAIN: ${{ vars.SITE_DOMAIN || 'tsc.watch' }}
+        run: python3 build.py
+
+      - name: save db cache
+        uses: actions/cache/save@v4
+        with:
+          path: data/tsc.db
+          key: tsc-db-${{ github.run_id }}
+
+      # own history (snapshots, holders) is committed back to the repo, at most once per hour
+      - name: commit state
+        run: |
+          if [ "$(date -u +%M)" -ge 20 ] && [ "${{ github.event_name }}" != "push" ]; then echo "skip state commit this run"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/state.json
+          git diff --cached --quiet || (git commit -m "update state" && git push)
+
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: site }
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
