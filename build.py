@@ -1,0 +1,809 @@
+#!/usr/bin/env python3
+"""
+tsc-watch — static dashboard generator: data/tsc.db → site/.
+Standard library only; charts are inline SVG.
+"""
+import html
+import json
+import os
+import sqlite3
+import sys
+import time
+from collections import defaultdict
+from datetime import datetime, timezone
+
+import costs
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(ROOT, "data", "tsc.db")
+SITE = os.path.join(ROOT, "site")
+SATS = 100_000_000
+DAY = 86400
+
+# reward epochs (fallback when snapshots are missing); [start_height, end_height, reward_TSC]
+EPOCHS_FALLBACK = [(0, 715, 715.0), (715, 2145, 429.0), (2145, 5005, 257.4), (5005, 10725, 154.44),
+                   (10725, 22165, 92.664), (22165, 45045, 55.5984)]
+
+
+# ---------------------------------------------------------------- formatting (EN, UTC)
+
+def fnum(x, d=0):
+    if x is None:
+        return "—"
+    return f"{x:,.{d}f}"
+
+
+def fshort(x, d=1):
+    """1234567 → 1.23M ; 12345 → 12.3K"""
+    if x is None:
+        return "—"
+    a = abs(x)
+    if a >= 1e9:
+        return fnum(x / 1e9, 2) + "B"
+    if a >= 1e6:
+        return fnum(x / 1e6, 2) + "M"
+    if a >= 1e3:
+        return fnum(x / 1e3, d) + "K"
+    return fnum(x, d if a < 100 else 0)
+
+
+def fusd(x, d=None):
+    if x is None:
+        return "—"
+    if d is None:
+        d = 4 if abs(x) < 10 else (2 if abs(x) < 1000 else 0)
+    return "$" + fnum(x, d)
+
+
+def fpct(x, d=1, sign=True):
+    if x is None:
+        return "—"
+    s = fnum(x, d) + "%"
+    if sign and x > 0:
+        s = "+" + s
+    return s
+
+
+def frate(x):
+    """proof/s → 'K proof/s'"""
+    if x is None:
+        return "—"
+    if x >= 1e6:
+        return fnum(x / 1e6, 2) + " M proof/s"
+    if x >= 1e3:
+        return fnum(x / 1e3, 1) + " K proof/s"
+    return fnum(x, 0) + " proof/s"
+
+
+def fdt(ts, fmt="%d %b %Y, %H:%M UTC"):
+    return datetime.fromtimestamp(ts, timezone.utc).strftime(fmt) if ts else "—"
+
+
+def fday(ts):
+    return datetime.fromtimestamp(ts, timezone.utc).strftime("%d %b")
+
+
+def fdur(sec):
+    if sec is None:
+        return "—"
+    if sec < 90:
+        return f"{sec:.0f} s"
+    if sec < 3600:
+        return f"{sec/60:.1f} min"
+    return f"{sec/3600:.1f} h"
+
+
+def short_addr(a):
+    return a[:8] + "…" + a[-6:] if a and len(a) > 20 else (a or "—")
+
+
+def esc(s):
+    return html.escape(str(s))
+
+
+def signed(x, d=0):
+    if x is None:
+        return "—"
+    return ("+" if x > 0 else "") + fnum(x, d)
+
+
+# ---------------------------------------------------------------- SVG charts
+
+PALETTE = ["#2f5bea", "#e8a33d", "#2fa872", "#c94f7c", "#7b61ff", "#20a4b8", "#8d8d8d"]
+
+
+def _ticks(lo, hi, n=4):
+    if hi <= lo:
+        hi = lo + 1
+    import math
+    span = hi - lo
+    raw = span / n
+    mag = 10 ** math.floor(math.log10(raw))
+    for m in (1, 2, 2.5, 5, 10):
+        step = m * mag
+        if span / step <= n + 1:
+            break
+    start = math.floor(lo / step) * step
+    t = []
+    v = start
+    while v <= hi + step * 0.001:
+        if v >= lo - step * 0.001:
+            t.append(v)
+        v += step
+    return t
+
+
+def svg_line(series, width=900, height=260, yfmt=fshort, xfmt=fday, area=True, y0=True, markers=None):
+    """series: list of dict(name, points=[(x,y)], color, width, dash, area, scale). Shared X axis (unix ts)."""
+    pad_l, pad_r, pad_t, pad_b = 58, 16, 14, 30
+    pts_all = [p for s in series for p in s["points"] if p[1] is not None]
+    if not pts_all:
+        return '<div class="empty">No data yet</div>'
+    xs = [p[0] for p in pts_all]
+    scale_series = [s for s in series if s.get("scale")] or series
+    ys = [p[1] for s in scale_series for p in s["points"] if p[1] is not None] or [p[1] for p in pts_all]
+    x0, x1 = min(xs), max(xs)
+    ylo = 0 if y0 else min(ys)
+    yhi = max(ys)
+    if yhi == ylo:
+        yhi = ylo + 1
+    yhi *= 1.06
+    W = width - pad_l - pad_r
+    H = height - pad_t - pad_b
+
+    def X(x):
+        return pad_l + (x - x0) / max(1, (x1 - x0)) * W
+
+    def Y(y):
+        y = min(max(y, ylo), yhi)
+        return pad_t + H - (y - ylo) / (yhi - ylo) * H
+
+    out = [f'<svg viewBox="0 0 {width} {height}" class="chart" role="img">']
+    for t in _ticks(ylo, yhi):
+        y = Y(t)
+        out.append(f'<line x1="{pad_l}" x2="{width-pad_r}" y1="{y:.1f}" y2="{y:.1f}" class="grid"/>')
+        out.append(f'<text x="{pad_l-6}" y="{y+4:.1f}" class="tick" text-anchor="end">{esc(yfmt(t))}</text>')
+    n = 6
+    for i in range(n + 1):
+        x = x0 + (x1 - x0) * i / n
+        out.append(f'<text x="{X(x):.1f}" y="{height-8}" class="tick" text-anchor="middle">{esc(xfmt(x))}</text>')
+    for k, s in enumerate(series):
+        pts = [(X(x), Y(y)) for x, y in s["points"] if y is not None]
+        if len(pts) < 2:
+            continue
+        col = s.get("color", PALETTE[k % len(PALETTE)])
+        d = " ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+        if area and s.get("area", k == 0):
+            out.append(f'<polygon points="{pts[0][0]:.1f},{pad_t+H} {d} {pts[-1][0]:.1f},{pad_t+H}" fill="{col}" opacity="0.10"/>')
+        dash = ' stroke-dasharray="4 3"' if s.get("dash") else ""
+        out.append(f'<polyline points="{d}" fill="none" stroke="{col}" stroke-width="{s.get("width",1.8)}" opacity="{s.get("opacity",1)}"{dash} stroke-linejoin="round"/>')
+    for m in markers or []:
+        x = X(m[0])
+        out.append(f'<line x1="{x:.1f}" x2="{x:.1f}" y1="{pad_t}" y2="{pad_t+H}" class="marker"/>')
+        anchor = "end" if x > pad_l + W * 0.8 else "start"
+        out.append(f'<text x="{x + (-4 if anchor == "end" else 4):.1f}" y="{pad_t+12}" class="mlabel" text-anchor="{anchor}">{esc(m[1])}</text>')
+    out.append("</svg>")
+    legend = "".join(f'<span class="lg"><i style="background:{s.get("color", PALETTE[k % len(PALETTE)])}"></i>{esc(s["name"])}</span>'
+                     for k, s in enumerate(series) if s.get("name"))
+    return f'<div class="legend">{legend}</div>' + "".join(out)
+
+
+def svg_bars(points, width=900, height=220, yfmt=fshort, xfmt=fday, color=PALETTE[0], name="daily value"):
+    pad_l, pad_r, pad_t, pad_b = 58, 16, 14, 30
+    if not points:
+        return '<div class="empty">No data yet</div>'
+    ys = [p[1] for p in points]
+    yhi = max(ys) * 1.06 or 1
+    W = width - pad_l - pad_r
+    H = height - pad_t - pad_b
+    n = len(points)
+    bw = W / n
+
+    def Y(y):
+        return pad_t + H - y / yhi * H
+
+    out = [f'<svg viewBox="0 0 {width} {height}" class="chart" role="img">']
+    for t in _ticks(0, yhi):
+        y = Y(t)
+        out.append(f'<line x1="{pad_l}" x2="{width-pad_r}" y1="{y:.1f}" y2="{y:.1f}" class="grid"/>')
+        out.append(f'<text x="{pad_l-6}" y="{y+4:.1f}" class="tick" text-anchor="end">{esc(yfmt(t))}</text>')
+    step = max(1, n // 6)
+    for i, (x, y) in enumerate(points):
+        xx = pad_l + i * bw
+        out.append(f'<rect x="{xx+bw*0.12:.1f}" y="{Y(y):.1f}" width="{bw*0.76:.1f}" height="{pad_t+H-Y(y):.1f}" fill="{color}" opacity="0.85"><title>{esc(xfmt(x))}: {esc(yfmt(y))}</title></rect>')
+        if i % step == 0:
+            out.append(f'<text x="{xx+bw/2:.1f}" y="{height-8}" class="tick" text-anchor="middle">{esc(xfmt(x))}</text>')
+    out.append("</svg>")
+    return f'<div class="legend"><span class="lg"><i style="background:{color}"></i>{esc(name)}</span></div>' + "".join(out)
+
+
+def svg_stacked(days, keys, labels, colors, width=900, height=240, xfmt=fday, line50=True):
+    """days: list of (ts, {key: share_pct}) — 100% stacked bars."""
+    pad_l, pad_r, pad_t, pad_b = 44, 16, 14, 30
+    if not days:
+        return '<div class="empty">No data yet</div>'
+    W = width - pad_l - pad_r
+    H = height - pad_t - pad_b
+    n = len(days)
+    bw = W / n
+    out = [f'<svg viewBox="0 0 {width} {height}" class="chart" role="img">']
+    for t in (0, 25, 50, 75, 100):
+        y = pad_t + H - t / 100 * H
+        out.append(f'<line x1="{pad_l}" x2="{width-pad_r}" y1="{y:.1f}" y2="{y:.1f}" class="grid"/>')
+        out.append(f'<text x="{pad_l-6}" y="{y+4:.1f}" class="tick" text-anchor="end">{t}%</text>')
+    step = max(1, n // 7)
+    for i, (ts, shares) in enumerate(days):
+        xx = pad_l + i * bw
+        acc = 0.0
+        for k, key in enumerate(keys):
+            v = shares.get(key, 0.0)
+            if v <= 0:
+                continue
+            y1 = pad_t + H - (acc + v) / 100 * H
+            hgt = v / 100 * H
+            out.append(f'<rect x="{xx+bw*0.08:.1f}" y="{y1:.1f}" width="{bw*0.84:.1f}" height="{hgt:.1f}" fill="{colors[k]}"><title>{esc(xfmt(ts))} · {esc(labels[k])}: {fnum(v,1)}%</title></rect>')
+            acc += v
+        if i % step == 0:
+            out.append(f'<text x="{xx+bw/2:.1f}" y="{height-8}" class="tick" text-anchor="middle">{esc(xfmt(ts))}</text>')
+    if line50:
+        y = pad_t + H / 2
+        out.append(f'<line x1="{pad_l}" x2="{width-pad_r}" y1="{y:.1f}" y2="{y:.1f}" class="line50"/>')
+    out.append("</svg>")
+    lg = "".join(f'<span class="lg"><i style="background:{colors[k]}"></i>{esc(labels[k])}</span>' for k in range(len(keys)))
+    return f'<div class="legend">{lg}</div>' + "".join(out)
+
+
+def svg_donut(items, size=180):
+    """items: [(label, pct, color)]"""
+    import math
+    r, cx, cy, sw = 62, size / 2, size / 2, 26
+    out = [f'<svg viewBox="0 0 {size} {size}" class="donut" role="img">']
+    a0 = -math.pi / 2
+    for label, pct, col in items:
+        if pct <= 0:
+            continue
+        a1 = a0 + 2 * math.pi * pct / 100
+        x0, y0 = cx + r * math.cos(a0), cy + r * math.sin(a0)
+        x1, y1 = cx + r * math.cos(a1), cy + r * math.sin(a1)
+        large = 1 if (a1 - a0) > math.pi else 0
+        out.append(f'<path d="M{x0:.1f},{y0:.1f} A{r},{r} 0 {large} 1 {x1:.1f},{y1:.1f}" fill="none" stroke="{col}" stroke-width="{sw}"><title>{esc(label)}: {fnum(pct,1)}%</title></path>')
+        a0 = a1
+    out.append(f'<line x1="{cx}" y1="{cy-r-sw/2-4}" x2="{cx}" y2="{cy+r+sw/2+4}" class="line50"/>')
+    out.append("</svg>")
+    return "".join(out)
+
+
+# ---------------------------------------------------------------- data
+
+def load(con):
+    d = {}
+    d["blocks"] = con.execute("SELECT height,timestamp,miner,difficulty,base_difficulty,multiplier,tx_count FROM blocks ORDER BY height").fetchall()
+    d["snap"] = con.execute("SELECT * FROM snapshots ORDER BY ts DESC LIMIT 1").fetchone()
+    d["snap_cols"] = [c[1] for c in con.execute("PRAGMA table_info(snapshots)")]
+    d["snaps"] = con.execute("SELECT ts,price_usdt,holders,work_rate_24h,market_cap,mempool FROM snapshots ORDER BY ts").fetchall()
+    d["p60"] = con.execute("SELECT ts,open,high,low,close,volume FROM prices WHERE period=60 ORDER BY ts").fetchall()
+    d["p1440"] = con.execute("SELECT ts,open,high,low,close,volume FROM prices WHERE period=1440 ORDER BY ts").fetchall()
+    d["activity"] = con.execute("SELECT day,blocks,transactions,transfers,new_addresses,fees_sats,gross_output_sats FROM daily_activity ORDER BY day").fetchall()
+    d["aliases"] = dict(con.execute("SELECT address,alias FROM aliases").fetchall())
+    hs = con.execute("SELECT MAX(ts) FROM holders_snapshots").fetchone()[0]
+    d["holders_ts"] = hs
+    d["holders"] = con.execute("SELECT rank,address,balance,net_flow_7d,net_flow_30d,supply_share,tx_count,last_seen_ts FROM holders_snapshots WHERE ts=? ORDER BY rank", (hs,)).fetchall() if hs else []
+    d["meta"] = dict(con.execute("SELECT key,value FROM meta").fetchall())
+    return d
+
+
+def snap_val(d, key):
+    if not d["snap"]:
+        return None
+    return d["snap"][d["snap_cols"].index(key)]
+
+
+def epochs_from_snapshot(d):
+    try:
+        raw = json.loads(snap_val(d, "raw") or "{}")
+        eps = raw.get("supply", {}).get("epochs") or []
+        out = [(e["start_height"], e["end_height"], e["reward_sats"] / SATS) for e in eps]
+        return out or EPOCHS_FALLBACK
+    except Exception:
+        return EPOCHS_FALLBACK
+
+
+def reward_at(epochs, h):
+    for s, e, r in epochs:
+        if s <= h < e:
+            return r
+    return epochs[-1][2] / 2 if epochs else 0.0
+
+
+def compute(d):
+    blocks = d["blocks"]
+    if not blocks:
+        raise SystemExit("No blocks in the database — run collect.py first")
+    epochs = epochs_from_snapshot(d)
+    tip_h, tip_ts = blocks[-1][0], blocks[-1][1]
+    now = int(time.time())
+    ref = max(tip_ts, now - 3600)  # window end: now (never earlier than the tip)
+    c = {"tip_h": tip_h, "tip_ts": tip_ts, "now": now, "ref": ref, "epochs": epochs, "genesis_ts": blocks[0][1]}
+
+    def window(sec, end=None):
+        t0 = (end or ref) - sec
+        w = [b for b in blocks if b[1] > t0]
+        work = sum(b[3] for b in w)
+        n = len(w)
+        bt = None
+        if n >= 2:
+            bt = (w[-1][1] - w[0][1]) / (n - 1)
+        return {"blocks": n, "work": work, "rate": work / sec, "block_time": bt,
+                "new_tsc": sum(reward_at(epochs, b[0]) for b in w),
+                "miners": defaultdict(lambda: {"blocks": 0, "work": 0.0, "last": None}), "_list": w}
+
+    for name, sec in (("1h", 3600), ("24h", DAY), ("7d", 7 * DAY), ("30d", 30 * DAY)):
+        w = window(sec, tip_ts if name == "1h" else None)
+        for b in w["_list"]:
+            m = w["miners"][b[2]]
+            m["blocks"] += 1
+            m["work"] += b[3]
+            m["last"] = b
+        c[name] = w
+    total_work = sum(b[3] for b in blocks)
+    all_m = defaultdict(lambda: {"blocks": 0, "work": 0.0})
+    for b in blocks:
+        all_m[b[2]]["blocks"] += 1
+        all_m[b[2]]["work"] += b[3]
+    c["all"] = {"blocks": len(blocks), "work": total_work, "miners": all_m,
+                "rate": total_work / max(1, tip_ts - blocks[0][1])}
+
+    # hourly series: work per hour → rate; plus rolling 24h
+    hourly = defaultdict(float)
+    for b in blocks:
+        hourly[b[1] // 3600 * 3600] += b[3]
+    h0 = blocks[0][1] // 3600 * 3600
+    h1 = ref // 3600 * 3600
+    hours = list(range(h0, h1 + 1, 3600))
+    rate_h = [(h, hourly.get(h, 0.0) / 3600) for h in hours]
+    roll = []
+    acc = 0.0
+    q = []
+    for h in hours:
+        acc += hourly.get(h, 0.0)
+        q.append(h)
+        while q and q[0] <= h - DAY:
+            acc -= hourly.get(q.pop(0), 0.0)
+        roll.append((h, acc / DAY))
+    c["rate_hourly"] = rate_h
+    c["rate_24h_roll"] = roll
+    full = [p for p in roll if p[0] >= h0 + DAY]
+    c["ath_24h"] = max(full, key=lambda p: p[1]) if full else (None, None)
+
+    # daily (UTC): blocks, work, avg difficulty, block time, new TSC, miner shares
+    daily = defaultdict(lambda: {"blocks": 0, "work": 0.0, "diff": 0.0, "new_tsc": 0.0, "miners": defaultdict(int), "first": None, "last": None})
+    for b in blocks:
+        x = daily[b[1] // DAY * DAY]
+        x["blocks"] += 1
+        x["work"] += b[3]
+        x["diff"] += b[4]
+        x["new_tsc"] += reward_at(epochs, b[0])
+        x["miners"][b[2]] += 1
+        x["first"] = x["first"] or b[1]
+        x["last"] = b[1]
+    c["daily"] = dict(sorted(daily.items()))
+    return c
+
+
+def miner_name(d, addr):
+    return d["aliases"].get(addr) or short_addr(addr)
+
+
+# ---------------------------------------------------------------- HTML
+
+CSS = """
+:root{--navy:#0f1b3d;--ink:#101828;--mute:#5b6478;--line:#e4e7ef;--bg:#eef1f7;--card:#fff;--acc:#2f5bea}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+a{color:var(--acc)}
+header{background:#fff;border-bottom:1px solid var(--line)}
+.top{max-width:1100px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-weight:800;font-size:20px;letter-spacing:-.3px;text-decoration:none;color:var(--ink)}.brand span{color:var(--acc)}
+nav{display:flex;gap:4px}nav a{padding:8px 14px;border-radius:8px;text-decoration:none;color:var(--mute);font-weight:600}nav a.on{background:var(--bg);color:var(--ink)}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.hero{background:var(--navy);color:#fff;border-radius:16px;padding:28px 28px 8px;margin-bottom:16px}
+.hero h1{margin:0 0 6px;font-size:34px;letter-spacing:-.5px}.hero p.lead{margin:0 0 14px;color:#c9d2ea;max-width:760px}.hero a{color:#fff}
+.hero .snap{display:inline-block;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 12px;font-size:13px;color:#c9d2ea;margin-bottom:14px}.hero .snap b{color:#fff}
+.hero .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));border-top:1px solid rgba(255,255,255,.14)}
+.hero .cell{padding:18px 14px 18px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+.hero .cell .k{font-size:13px;color:#aab6d8}.hero .cell .v{font-size:32px;font-weight:800;letter-spacing:-.5px;margin:2px 0}.hero .cell .s{font-size:13px;color:#c9d2ea}
+.up{color:#4cd18a}.down{color:#ff7b7b}.warn{color:#ffc86b}.card .up{color:#1f9d55}.card .down{color:#d64545}.kpi .up{color:#1f9d55}.kpi .down{color:#d64545}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:16px}
+.card h2{margin:0 0 4px;font-size:20px}.card h3{margin:16px 0 6px;font-size:16px}.card p.sub{margin:0 0 12px;color:var(--mute);font-size:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}.kpi .k{font-size:13px;color:var(--mute)}.kpi .v{font-size:26px;font-weight:800;letter-spacing:-.4px}.kpi .s{font-size:12px;color:var(--mute)}
+.chart{width:100%;height:auto;display:block}.grid{stroke:#e9ecf3;stroke-width:1}.tick{font-size:11px;fill:#6b7280}.marker{stroke:#c98a1a;stroke-width:1;stroke-dasharray:3 3}.mlabel{font-size:11px;fill:#c98a1a}.line50{stroke:#d64545;stroke-width:1.2;stroke-dasharray:5 4}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin:4px 0 6px}.lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th{color:var(--mute);font-weight:600;font-size:12px}td:first-child,th:first-child{text-align:left}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+.tabs{display:inline-flex;gap:4px;background:var(--bg);padding:4px;border-radius:8px;margin-bottom:8px}.tabs button{border:0;background:transparent;padding:6px 12px;border-radius:6px;font-weight:600;color:var(--mute);cursor:pointer}.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.pane{display:none}.pane.on{display:block}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:800px){.two{grid-template-columns:1fr}.hero h1{font-size:26px}.hero .cell .v{font-size:26px}}
+.donut{width:180px;height:180px}.donutwrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.note{font-size:13px;color:var(--mute)}.empty{padding:30px;text-align:center;color:var(--mute)}
+footer{max-width:1100px;margin:0 auto;padding:20px 16px 40px;color:var(--mute);font-size:13px}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;background:#eef1f7;color:var(--mute)}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;font-size:14px}dt{color:var(--mute)}dd{margin:0}@media(max-width:600px){dl{grid-template-columns:1fr}}
+"""
+
+JS = """
+document.querySelectorAll('.tabs').forEach(t=>{t.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+ t.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+ const g=t.dataset.group;document.querySelectorAll('.pane[data-group="'+g+'"]').forEach(p=>p.classList.toggle('on',p.dataset.key===b.dataset.key));}))});
+"""
+
+DOMAIN_FILE = os.path.join(ROOT, "data", "domain.txt")
+DESC = "Independent TensorCash (TSC) dashboard: SafeTrade price and volume, issuance, network work rate, mining pools, top holders. Computed from the chain, refreshed hourly."
+
+
+def site_domain():
+    if os.environ.get("SITE_DOMAIN"):
+        return os.environ["SITE_DOMAIN"].strip()
+    try:
+        return open(DOMAIN_FILE).read().strip() or None
+    except OSError:
+        return None
+
+
+def brand(dom):
+    if dom:
+        parts = dom.split(".")
+        return f'{esc(".".join(parts[:-1]))}<span>.{esc(parts[-1])}</span>'
+    return 'tsc<span>.watch</span>'
+
+
+def page(title, active, body, gen_ts, tip_h, tip_ts):
+    dom = site_domain()
+    name = dom or "tsc.watch"
+    og = (f'<meta property="og:title" content="{esc(title)} · {esc(name)}"><meta property="og:description" content="{esc(DESC)}">'
+          f'<meta name="description" content="{esc(DESC)}"><meta name="twitter:card" content="summary">')
+    if dom:
+        og += f'<link rel="canonical" href="https://{esc(dom)}/{"" if active == "market" else active + ".html"}">'
+    nav = "".join(f'<a href="{href}" class="{"on" if key == active else ""}">{lbl}</a>'
+                  for key, href, lbl in (("market", "index.html", "Market"), ("mining", "mining.html", "Mining"),
+                                          ("holders", "holders.html", "Holders"), ("about", "about.html", "About the data")))
+    return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{esc(title)} · {esc(name)}</title>{og}<style>{CSS}</style></head><body>
+<header><div class="top"><a class="brand" href="index.html">{brand(dom)}</a><nav>{nav}</nav></div></header>
+<main>{body}</main>
+<footer>Generated {fdt(gen_ts)} · on-chain data through block #{fnum(tip_h)} ({fdt(tip_ts)}) · sources: tscscan.xyz, SafeTrade · independent project, not investment advice · <a href="about.html">methodology</a></footer>
+<script>{JS}</script></body></html>"""
+
+
+def tabs_block(group, panes, default=0):
+    btns = "".join(f'<button data-key="{k}" class="{"on" if i == default else ""}">{esc(l)}</button>' for i, (k, l, _) in enumerate(panes))
+    ps = "".join(f'<div class="pane {"on" if i == default else ""}" data-group="{group}" data-key="{k}">{h}</div>' for i, (k, l, h) in enumerate(panes))
+    return f'<div class="tabs" data-group="{group}">{btns}</div>{ps}'
+
+
+def cls_pct(x):
+    return "up" if (x or 0) > 0 else ("down" if (x or 0) < 0 else "")
+
+
+# ---------------------------------------------------------------- page: Market
+
+def build_market(d, c):
+    p60, p1440 = d["p60"], d["p1440"]
+    price = snap_val(d, "price_usdt") or (p60[-1][4] if p60 else None)
+    ch24 = None
+    if len(p60) >= 25 and p60[-25][4]:
+        ch24 = (p60[-1][4] / p60[-25][4] - 1) * 100
+    if ch24 is None:
+        ch24 = snap_val(d, "change_24h")
+    vol_usd = snap_val(d, "volume_24h_usdt")
+    vol_tsc = snap_val(d, "volume_24h_tsc")
+    if vol_tsc is None and len(p60) >= 24:
+        vol_tsc = sum(r[5] for r in p60[-24:])
+        vol_usd = sum(r[5] * r[4] for r in p60[-24:])
+    circ = snap_val(d, "circ_supply")
+    total = snap_val(d, "total_supply")
+    mc = snap_val(d, "market_cap") or (price * circ if price and circ else None)
+    fdv = snap_val(d, "fdv") or (price * total if price and total else None)
+    holders = snap_val(d, "holders")
+    new_tsc_24h = c["24h"]["new_tsc"]
+    emis_usd = new_tsc_24h * price if price else None
+    emis_ratio = (emis_usd / vol_usd * 100) if emis_usd and vol_usd else None
+    price_7d = (p1440[-1][4] / p1440[-8][4] - 1) * 100 if len(p1440) >= 8 else None
+    price_30d = (p1440[-1][4] / p1440[-31][4] - 1) * 100 if len(p1440) >= 31 else None
+    ath = max(p1440, key=lambda r: r[2]) if p1440 else None
+
+    hero = f"""
+<section class="hero"><h1>TensorCash (TSC) — market and issuance</h1>
+<p class="lead">Price and volume from SafeTrade (the only exchange with a TSC/USDT pair); supply and issuance computed from the chain. Every number has a source under <a href="about.html">About the data</a>.</p>
+<div class="snap">On-chain snapshot: <b>block #{fnum(c['tip_h'])}</b> · {fdt(c['tip_ts'])} · price read {fdt(snap_val(d,'ts'))}</div>
+<div class="grid">
+<div class="cell"><div class="k">TSC price (SafeTrade)</div><div class="v">{fusd(price)}</div><div class="s"><span class="{cls_pct(ch24)}">{fpct(ch24,2)}</span> in 24h · 7d: <span class="{cls_pct(price_7d)}">{fpct(price_7d,1)}</span> · 30d: <span class="{cls_pct(price_30d)}">{fpct(price_30d,0)}</span></div></div>
+<div class="cell"><div class="k">24h volume</div><div class="v">{fusd(vol_usd,0)}</div><div class="s">{fnum(vol_tsc,0)} TSC · SafeTrade ticker, rolling 24 hours</div></div>
+<div class="cell"><div class="k">Market cap (circulating)</div><div class="v">{fusd(mc,0)}</div><div class="s">{fshort(circ)} TSC issued = {fpct(circ/total*100 if circ and total else None,2,False)} of max supply · FDV {fusd(fdv,0)}</div></div>
+<div class="cell"><div class="k">Daily issuance vs. volume</div><div class="v">{fpct(emis_ratio,0,False)}</div><div class="s">{fnum(new_tsc_24h,0)} TSC mined in 24h ≈ {fusd(emis_usd,0)} — the supply miners can bring to market every day at today's price</div></div>
+</div></section>"""
+
+    kpis = f"""<div class="kpis">
+<div class="kpi"><div class="k">Funded addresses</div><div class="v">{fnum(holders)}</div><div class="s">per explorer (addresses with a balance)</div></div>
+<div class="kpi"><div class="k">Top 10 / top 100 addresses</div><div class="v">{fpct(snap_val(d,'top10_pct'),1,False)} / {fpct(snap_val(d,'top100_pct'),1,False)}</div><div class="s">share of issued supply</div></div>
+<div class="kpi"><div class="k">All-time high (daily high)</div><div class="v">{fusd(ath[2]) if ath else '—'}</div><div class="s">{fdt(ath[0],'%d %b %Y') if ath else ''} · from ATH: {fpct((price/ath[2]-1)*100,0) if ath and price else '—'}</div></div>
+<div class="kpi"><div class="k">Mempool</div><div class="v">{fnum(snap_val(d,'mempool'))}</div><div class="s">pending transactions</div></div>
+{costs.market_tile(sys.modules[__name__], c['costs'], price)}
+</div>"""
+
+    def line_pts(rows, key=4):
+        return [(r[0], r[key]) for r in rows]
+    panes = []
+    if p60:
+        last24 = [r for r in p60 if r[0] >= p60[-1][0] - DAY]
+        last7 = [r for r in p60 if r[0] >= p60[-1][0] - 7 * DAY]
+        panes.append(("24h", "24h", svg_line([{"name": "price, 1h candles", "points": line_pts(last24)}], yfmt=lambda v: fusd(v, 2), xfmt=lambda x: fdt(x, "%H:%M"), y0=False)))
+        panes.append(("7d", "7 days", svg_line([{"name": "price, 1h candles", "points": line_pts(last7)}], yfmt=lambda v: fusd(v, 2), xfmt=lambda x: fdt(x, "%d %b"), y0=False)))
+    if p1440:
+        panes.append(("30d", "30 days", svg_line([{"name": "daily close", "points": line_pts(p1440[-30:])}], yfmt=lambda v: fusd(v, 2), xfmt=fday, y0=False)))
+        panes.append(("all", "since listing", svg_line([{"name": "daily close", "points": line_pts(p1440)}], yfmt=lambda v: fusd(v, 2), xfmt=fday, y0=True)))
+    price_card = f"""<section class="card"><h2>TSC/USDT price</h2><p class="sub">SafeTrade OHLC candles. Hourly for 24h/7d, daily for longer ranges (UTC days). Times in UTC.</p>{tabs_block('price', panes, 2 if len(panes) > 2 else 0)}</section>"""
+
+    vol_pts = [(r[0], r[5] * r[4]) for r in p1440]
+    emis_pts = []
+    for day, x in c["daily"].items():
+        close = next((r[4] for r in p1440 if r[0] == day), None)
+        if close and day >= (p1440[0][0] if p1440 else 0):
+            emis_pts.append((day, x["new_tsc"] * close))
+    vol_card = f"""<section class="card"><h2>Daily volume vs. issuance</h2><p class="sub">Blue: daily traded volume in USD (TSC × daily close). Orange: USD value of the TSC mined that day. When issuance approaches volume, miner supply alone can dominate the order book.</p>
+{svg_line([{"name": "daily volume, USD", "points": vol_pts, "color": PALETTE[0]}, {"name": "daily issuance, USD", "points": emis_pts, "color": PALETTE[1], "area": False, "width": 2}], yfmt=lambda v: fusd(v, 0))}
+</section>"""
+
+    act = d["activity"]
+    act_card = ""
+    if act:
+        tx = svg_bars([(r[0], r[2]) for r in act], width=560, yfmt=lambda v: fshort(v, 0), color=PALETTE[4])
+        na = svg_bars([(r[0], r[4]) for r in act], width=560, yfmt=lambda v: fshort(v, 0), color=PALETTE[5])
+        act_card = f"""<section class="card"><h2>Network activity (30 days)</h2><p class="sub">From the explorer: transactions and new addresses per UTC day. With exchange volume this thin, a high count of new addresses is mostly pool payouts, not new buyers.</p>
+<div class="two"><div><b>Transactions / day</b>{tx}</div><div><b>New addresses / day</b>{na}</div></div></section>"""
+
+    hist_card = ""
+    snaps = d["snaps"]
+    if len(snaps) >= 3:
+        hist_card = f"""<section class="card"><h2>Trend: funded addresses and market cap</h2><p class="sub">From this site's own snapshots (one per collector run). The series grows with every day of operation.</p>
+<div class="two"><div>{svg_line([{"name": "funded addresses", "points": [(s[0], s[2]) for s in snaps if s[2]]}], width=560, y0=False, xfmt=lambda x: fdt(x, "%d %b %H:%M"))}</div>
+<div>{svg_line([{"name": "market cap, USD", "points": [(s[0], s[4]) for s in snaps if s[4]], "color": PALETTE[2]}], width=560, yfmt=lambda v: fusd(v, 0), xfmt=lambda x: fdt(x, "%d %b %H:%M"))}</div></div></section>"""
+
+    epochs = c["epochs"]
+    cur = next((e for e in epochs if e[0] <= c["tip_h"] < e[1]), epochs[-1])
+    remaining = cur[1] - c["tip_h"]
+    bt = c["7d"]["block_time"] or 600
+    eta = c["tip_ts"] + remaining * bt
+    rows = "".join(f"<tr><td>{i+1}</td><td>{fnum(s)}–{fnum(e-1)}</td><td>{fnum(r,4).rstrip('0').rstrip('.')} TSC</td><td>{'<span class=badge>current</span>' if s == cur[0] else ('completed' if e <= c['tip_h'] else 'upcoming')}</td></tr>"
+                   for i, (s, e, r) in enumerate(epochs))
+    supply_card = f"""<section class="card"><h2>Monetary policy</h2><p class="sub">The block reward drops 40% each epoch while epochs get longer. Max supply {fshort(total)} TSC.</p>
+<div class="kpis">
+<div class="kpi"><div class="k">Block reward</div><div class="v">{fnum(cur[2],4)} TSC</div><div class="s">next: {fnum(cur[2]*0.6,4)} TSC from block #{fnum(cur[1])}</div></div>
+<div class="kpi"><div class="k">Until the next reward cut</div><div class="v">{fnum(remaining)} blocks</div><div class="s">≈ {fdt(eta,'%d %b %Y')} at {fdur(bt)}/block (7-day avg)</div></div>
+<div class="kpi"><div class="k">New TSC per day</div><div class="v">{fnum(new_tsc_24h,0)}</div><div class="s">{fnum(c['24h']['blocks'])} blocks in 24h · 7-day avg: {fnum(c['7d']['new_tsc']/7,0)}/day</div></div>
+<div class="kpi"><div class="k">Issued so far</div><div class="v">{fpct(circ/total*100 if circ and total else None,2,False)}</div><div class="s">{fshort(circ)} of {fshort(total)} TSC</div></div>
+</div>
+<table><thead><tr><th>Epoch</th><th>Blocks</th><th>Reward</th><th>Status</th></tr></thead><tbody>{rows}</tbody></table></section>"""
+
+    return hero + kpis + price_card + vol_card + supply_card + act_card + hist_card
+
+
+# ---------------------------------------------------------------- page: Mining
+
+def build_mining(d, c):
+    w24, w7, w1, wall = c["24h"], c["7d"], c["1h"], c["all"]
+    price = snap_val(d, "price_usdt") or (d["p60"][-1][4] if d["p60"] else None)
+    rate24 = w24["rate"]
+    expl24 = snap_val(d, "work_rate_24h")
+    rew_1k = (w24["new_tsc"] * 1000 / rate24) if rate24 else None
+    rew_1k_usd = rew_1k * price if rew_1k and price else None
+    shares7 = sorted(((a, m["blocks"] / w7["blocks"] * 100) for a, m in w7["miners"].items()), key=lambda x: -x[1]) if w7["blocks"] else []
+    acc, need, names = 0.0, 0, []
+    for a, s in shares7:
+        acc += s
+        need += 1
+        names.append(f"{miner_name(d, a)} {fnum(s,0)}%")
+        if acc > 50:
+            break
+    top1_24 = max(((m["blocks"] / w24["blocks"] * 100, a) for a, m in w24["miners"].items()), default=(0, None)) if w24["blocks"] else (0, None)
+    diff_now = d["blocks"][-1][4]
+    ath_ts, ath_v = c["ath_24h"]
+    n_active_24 = len(w24["miners"])
+
+    hero = f"""
+<section class="hero"><h1>TensorCash network work rate &amp; who finds the blocks</h1>
+<p class="lead">How much proof-of-inference work secures the network, who finds the blocks and what mining earns. Everything computed from the chain (difficulty × blocks), refreshed hourly.</p>
+<div class="snap">On-chain snapshot: <b>block #{fnum(c['tip_h'])}</b> · {fdt(c['tip_ts'])} · 24h window ends {fdt(c['ref'])}</div>
+<div class="grid">
+<div class="cell"><div class="k">Network work rate, 24h</div><div class="v">{frate(rate24)}</div><div class="s">last hour to tip: {frate(w1['rate'])} · explorer: {frate(expl24)} · highest 24h avg: {frate(ath_v)} ({fdt(ath_ts,'%d %b') if ath_ts else '—'})</div></div>
+<div class="cell"><div class="k">Reward per 1 K proof/s a day</div><div class="v">{fnum(rew_1k,2) if rew_1k else '—'} TSC</div><div class="s">≈ {fusd(rew_1k_usd,2)} at {fusd(price)} · before pool fees, electricity and luck · last 24 hours</div></div>
+<div class="cell"><div class="k">New TSC per day</div><div class="v">{fshort(w24['new_tsc'],2)}</div><div class="s">{fnum(w24['blocks'])} blocks × {fnum(reward_at(c['epochs'], c['tip_h']),4)} TSC · SafeTrade traded {fshort(snap_val(d,'volume_24h_tsc'),1)} TSC in 24h</div></div>
+<div class="cell"><div class="k">Pools needed for a majority</div><div class="v {'down' if need == 1 else ('warn' if need == 2 else '')}">{need}</div><div class="s">{' + '.join(names)} of blocks, 7 days · share of blocks, not measured hashrate</div></div>
+</div></section>"""
+
+    kpis = f"""<div class="kpis">
+<div class="kpi"><div class="k">Average block time, 24h</div><div class="v">{fdur(w24['block_time'])}</div><div class="s">protocol target ~10 min · 7d: {fdur(w7['block_time'])}</div></div>
+<div class="kpi"><div class="k">Blocks, 24h</div><div class="v">{fnum(w24['blocks'])}</div><div class="s">7d: {fnum(w7['blocks'])} · since genesis: {fnum(wall['blocks'])}</div></div>
+<div class="kpi"><div class="k">Difficulty now</div><div class="v">{fshort(diff_now,2)}</div><div class="s">base (bits) · PoI multiplier of the latest block ×{fnum(d['blocks'][-1][5],3)}</div></div>
+<div class="kpi"><div class="k">Active miners, 24h</div><div class="v">{fnum(n_active_24)}</div><div class="s">payout addresses · largest: {fnum(top1_24[0],1)}% of blocks</div></div>
+</div>"""
+
+    roll, rh = c["rate_24h_roll"], c["rate_hourly"]
+    markers = [(ath_ts, "highest 24h avg")] if ath_ts else []
+    panes = [
+        ("all", "since genesis", svg_line([{"name": "24-hour average", "points": roll, "width": 2, "scale": True}, {"name": "hourly estimate (noisy, clipped to scale)", "points": rh, "color": "#9aa6c8", "width": 0.8, "area": False, "opacity": .7}], yfmt=lambda v: fshort(v, 0), markers=markers)),
+        ("30d", "30 days", svg_line([{"name": "24-hour average", "points": [p for p in roll if p[0] >= roll[-1][0] - 30 * DAY], "width": 2}, {"name": "hourly estimate", "points": [p for p in rh if p[0] >= rh[-1][0] - 30 * DAY], "color": "#9aa6c8", "width": 0.8, "area": False, "opacity": .7}], yfmt=lambda v: fshort(v, 0))),
+        ("7d", "7 days", svg_line([{"name": "24-hour average", "points": [p for p in roll if p[0] >= roll[-1][0] - 7 * DAY], "width": 2}, {"name": "hourly estimate", "points": [p for p in rh if p[0] >= rh[-1][0] - 7 * DAY], "color": "#9aa6c8", "width": 1, "area": False}], yfmt=lambda v: fshort(v, 0), xfmt=lambda x: fdt(x, "%d %b"))),
+    ]
+    rate_card = f"""<section class="card"><h2>Network work rate</h2><p class="sub">Combined work of all miners in proof/s (sum of effective block difficulty ÷ time). The hourly estimate is inherently noisy — at ~6 blocks per hour, luck dominates; the 24-hour average is the reliable line.</p>{tabs_block('rate', panes, 0)}</section>"""
+
+    tops = sorted(w7["miners"].items(), key=lambda kv: -kv[1]["blocks"])
+    top_addrs = [a for a, _ in tops[:5]]
+    cols = PALETTE[:5] + ["#b9c0d4"]
+    donut_items = [(miner_name(d, a), m["blocks"] / w7["blocks"] * 100, cols[i]) for i, (a, m) in enumerate(tops[:5])]
+    donut_items.append(("Solo & other miners", 100 - sum(x[1] for x in donut_items), cols[5]))
+    dl = "".join(f'<tr><td><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:{col};margin-right:6px"></i>{esc(n)}</td><td>{fnum(s,1)}%</td></tr>' for n, s, col in donut_items)
+
+    def share(win, a):
+        return win["miners"][a]["blocks"] / win["blocks"] * 100 if win["blocks"] and a in win["miners"] else 0.0
+    rows = []
+    for a, m in sorted(w24["miners"].items(), key=lambda kv: -kv[1]["blocks"]):
+        rows.append(f"""<tr><td>{esc(miner_name(d,a))}{' <span class="badge">pool</span>' if a in d['aliases'] else ''}<div class="mono note">{esc(a)}</div></td>
+<td>{fnum(m['blocks'])}</td><td>{fnum(share(w24,a),1)}%</td><td>{fnum(share(w7,a),1)}%</td><td>{fnum(wall['miners'][a]['blocks']/wall['blocks']*100,1) if a in wall['miners'] else '0.0'}%</td>
+<td>{frate(m['work']/DAY)}</td><td>{fdt(m['last'][1],'%d %b %H:%M')}</td></tr>""")
+    idle = [a for a in w7["miners"] if a not in w24["miners"]]
+    idle_rows = "".join(f"""<tr><td>{esc(miner_name(d,a))}<div class="mono note">{esc(a)}</div></td><td>0</td><td>0.0%</td><td>{fnum(share(w7,a),1)}%</td><td>{fnum(wall['miners'][a]['blocks']/wall['blocks']*100,1)}%</td><td>—</td><td>{fdt(w7['miners'][a]['last'][1],'%d %b %H:%M')}</td></tr>""" for a in sorted(idle, key=lambda a: -w7["miners"][a]["blocks"])[:10])
+    who_card = f"""<section class="card"><h2>Who finds the blocks?</h2><p class="sub">Every block records the payout address that produced it. Over many blocks, share of blocks ≈ share of work. Red line = 50%: one pool above it could in principle rewrite recent blocks; two pools together only by coordinating.</p>
+<div class="donutwrap">{svg_donut(donut_items)}<div><b>Last 7 days, {fnum(w7['blocks'])} blocks</b><table>{dl}</table></div></div>
+<table style="margin-top:14px"><thead><tr><th>Miner</th><th>Blocks, 24h</th><th>Share, 24h</th><th>Share, 7 days</th><th>Since genesis</th><th>Work rate, 24h</th><th>Latest block</th></tr></thead><tbody>{''.join(rows)}{idle_rows}</tbody></table>
+<p class="note">Work rate per miner = sum of effective difficulty of its blocks in 24h ÷ 86,400 s. Over one day, ±3–5 points of share is ordinary luck. Pool aliases come from the explorer; unlabelled addresses are probably solo miners or unlabelled pools.</p></section>"""
+
+    days = list(c["daily"].items())[-45:]
+    keys = top_addrs + ["_other"]
+    labels = [miner_name(d, a) for a in top_addrs] + ["Solo & other miners"]
+    sd = []
+    for day, x in days:
+        tot = x["blocks"] or 1
+        sh = {a: x["miners"].get(a, 0) / tot * 100 for a in top_addrs}
+        sh["_other"] = 100 - sum(sh.values())
+        sd.append((day, sh))
+    stack_card = f"""<section class="card"><h2>Share of blocks per UTC day</h2><p class="sub">Last {len(days)} days, top 5 addresses of the past 7 days. Today is a partial day.</p>{svg_stacked(sd, keys, labels, cols)}</section>"""
+
+    dd = [(day, x["diff"] / x["blocks"]) for day, x in c["daily"].items() if x["blocks"]]
+    bt = [(day, (x["last"] - x["first"]) / (x["blocks"] - 1)) for day, x in c["daily"].items() if x["blocks"] > 2]
+    diff_card = f"""<section class="card"><div class="two"><div><h2>Base difficulty</h2><p class="sub">Daily average from the bits field.</p>{svg_line([{"name": "difficulty (daily avg)", "points": dd, "color": PALETTE[3]}], width=560, yfmt=lambda v: fshort(v, 1))}</div>
+<div><h2>Block time</h2><p class="sub">Average interval between blocks per UTC day; target ~600 s.</p>{svg_line([{"name": "seconds per block", "points": bt, "color": PALETTE[2]}, {"name": "600 s target", "points": [(bt[0][0], 600), (bt[-1][0], 600)] if bt else [], "color": "#999", "dash": True, "area": False}], width=560, yfmt=lambda v: fnum(v, 0))}</div></div></section>"""
+
+    earn, earn_usd = [], []
+    p1440 = {r[0]: r[4] for r in d["p1440"]}
+    for day, x in list(c["daily"].items())[1:]:
+        r = x["work"] / DAY
+        if r > 0 and x["blocks"] > 0:
+            v = x["new_tsc"] * 1000 / r
+            earn.append((day, v))
+            if day in p1440:
+                earn_usd.append((day, v * p1440[day]))
+    earn_card = f"""<section class="card"><h2>What does mining earn?</h2><p class="sub">What 1 K proof/s would earn running for a whole UTC day at that day's difficulty, before pool fees, electricity and luck. Multiply by your miner's speed. USD uses that day's SafeTrade close — it shows scale, not income anyone can count on.</p>
+<div class="two"><div><b>TSC / day</b>{svg_line([{"name": "TSC per 1 K proof/s", "points": earn[-60:], "color": PALETTE[1]}], width=560, yfmt=lambda v: fnum(v, 2))}</div><div><b>USD / day</b>{svg_line([{"name": "USD per 1 K proof/s", "points": earn_usd[-60:], "color": PALETTE[2]}], width=560, yfmt=lambda v: fusd(v, 2))}</div></div>
+<p class="note">The reward falls when more miners join and rises when they leave; the second driver is the shrinking block reward (epochs).</p></section>"""
+
+    mults = [b[5] for b in c["24h"]["_list"]]
+    avg_m = sum(mults) / len(mults) if mults else None
+    poi_card = f"""<section class="card"><h2>Proof-of-inference — work multiplier</h2><p class="sub">In TSC a block can count as more work than its bits imply if the miner attached a “useful” inference proof (multiplier &gt; 1). A high average multiplier means miners are actually running inference, not just hashing.</p>
+<div class="kpis"><div class="kpi"><div class="k">Average multiplier, 24h</div><div class="v">×{fnum(avg_m,3) if avg_m else '—'}</div><div class="s">max in 24h: ×{fnum(max(mults),3) if mults else '—'}</div></div>
+<div class="kpi"><div class="k">Blocks with multiplier &gt; 1</div><div class="v">{fpct(sum(1 for m in mults if m > 1.0001)/len(mults)*100 if mults else None,0,False)}</div><div class="s">of {fnum(len(mults))} blocks in 24h</div></div></div></section>"""
+
+    cost_card = costs.mining_card(sys.modules[__name__], c['costs'], price)
+    return hero + kpis + rate_card + cost_card + who_card + stack_card + diff_card + earn_card + poi_card
+
+
+# ---------------------------------------------------------------- page: Holders
+
+def build_holders(d, c):
+    hs = d["holders"]
+    circ = snap_val(d, "circ_supply")
+    price = snap_val(d, "price_usdt")
+    if not hs:
+        return '<section class="card"><h2>Largest holders</h2><p class="sub">No holder snapshot yet — it appears after the first full collector run.</p></section>'
+    tot100 = sum(h[2] for h in hs)
+    acc7 = sum(1 for h in hs if (h[3] or 0) > 0)
+    dist7 = sum(1 for h in hs if (h[3] or 0) < 0)
+    net7 = sum((h[3] or 0) for h in hs)
+    net30 = sum((h[4] or 0) for h in hs)
+    hero = f"""<section class="hero"><h1>Largest TSC holders</h1>
+<p class="lead">Top {len(hs)} addresses by balance with 7- and 30-day net flow. This is the seed of a “who's accumulating” view — without exchange labels an exchange wallet cannot yet be told apart from an investor, so read it as a watchlist.</p>
+<div class="snap">Holder snapshot: <b>{fdt(d['holders_ts'])}</b> · balances and flows from the explorer</div>
+<div class="grid">
+<div class="cell"><div class="k">Top {len(hs)} addresses hold</div><div class="v">{fpct(tot100/circ*100 if circ else None,1,False)}</div><div class="s">{fshort(tot100)} TSC of {fshort(circ)} circulating</div></div>
+<div class="cell"><div class="k">Net flow, 7 days (top {len(hs)})</div><div class="v {cls_pct(net7)}">{('+' if net7 > 0 else '')+fshort(net7,1)} TSC</div><div class="s">30 days: {('+' if net30 > 0 else '')+fshort(net30,1)} TSC</div></div>
+<div class="cell"><div class="k">Accumulating / distributing, 7d</div><div class="v"><span class="up">{acc7}</span> / <span class="down">{dist7}</span></div><div class="s">addresses with positive / negative net flow</div></div>
+</div></section>"""
+    rows = []
+    for r, a, bal, n7, n30, sh, txc, last in hs:
+        tag = f' <span class="badge">{esc(d["aliases"][a])}</span>' if a in d["aliases"] else ""
+        rows.append(f"""<tr><td>{r}</td><td class="mono">{esc(short_addr(a))}{tag}</td><td>{fnum(bal,0)}</td><td>{fusd(bal*price,0) if price else '—'}</td><td>{fnum(sh,2)}%</td>
+<td class="{cls_pct(n7)}">{signed(n7)}</td><td class="{cls_pct(n30)}">{signed(n30)}</td><td>{fnum(txc)}</td><td>{fdt(last,'%d %b %H:%M')}</td></tr>""")
+    table = f"""<section class="card"><h2>Top {len(hs)} addresses</h2><p class="sub">Balance in TSC, value at the current price, share of circulating supply, net flow (inflows − outflows) over 7 and 30 days.</p>
+<div style="overflow:auto"><table><thead><tr><th>#</th><th>Address</th><th>Balance, TSC</th><th>Value</th><th>Share</th><th>Net 7d</th><th>Net 30d</th><th>Tx</th><th>Last activity</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>
+<p class="note">Pool addresses (Tigerpool, Luckypool) are payout wallets, not investors. Next step: exchange labels (SafeTrade) and clustering of linked wallets — only then can “withdrawn from the exchange” be counted the way quantus.watch does.</p></section>"""
+    return hero + table
+
+
+# ---------------------------------------------------------------- page: About the data
+
+def build_about(d, c):
+    mn = d["meta"]
+    return f"""<section class="card"><h2>About the data</h2><p class="sub">Definitions, sources and limitations — so that every number can be reproduced.</p>
+<h3>Sources</h3><dl>
+<dt>Blocks</dt><dd><code>tscscan.xyz/api/blocks</code> — height, time, miner address, base and effective difficulty, PoI multiplier. In the database: {fnum(c['all']['blocks'])} blocks (0–{fnum(c['tip_h'])}), full history since genesis ({fdt(c['genesis_ts'],'%d %b %Y')}).</dd>
+<dt>Price and volume</dt><dd>SafeTrade public k-line API (1h and 1d candles, TSC/USDT pair, 1 USDT ≈ $1). A thin, unsanctioned exchange — the only one with this pair. Current price and 24h volume also from <code>tscscan.xyz/api/market-summary</code>.</dd>
+<dt>Supply, holders, concentration, daily activity</dt><dd><code>tscscan.xyz/api/analytics</code> and <code>/api/home</code>; top addresses from <code>/api/holders</code>; pool aliases from <code>/api/address-aliases</code>.</dd>
+</dl>
+<h3>Definitions</h3><dl>
+<dt>Work rate</dt><dd>Sum of effective block difficulty in the window ÷ window length in seconds (proof/s). Same method as the explorer (checked: over 24h the only difference comes from the window end).</dd>
+<dt>Pool share</dt><dd>Blocks found by an address ÷ all blocks in the window. Over 24h, ±3–5 points is random noise.</dd>
+<dt>Pool work rate</dt><dd>Sum of effective difficulty of its blocks ÷ 86,400 s.</dd>
+<dt>New TSC per day</dt><dd>Blocks in the window × block reward for the epoch (the reward drops 40% each epoch; currently {fnum(reward_at(c['epochs'], c['tip_h']),4)} TSC).</dd>
+<dt>Issuance vs. volume</dt><dd>New TSC over 24h × current price ÷ 24h volume in USD. Shows how much of the turnover miner reward sales alone could account for.</dd>
+<dt>Reward per 1 K proof/s</dt><dd>New TSC in the day × (1000 ÷ the day's work rate). Before pool fees (~1%), electricity and variance.</dd>
+{costs.about_dl()}
+<dt>Pools needed for a majority</dt><dd>The smallest number of addresses whose combined 7-day share of blocks exceeds 50%.</dd>
+<dt>Days and times</dt><dd>Daily aggregates use UTC days; all timestamps are shown in UTC.</dd>
+</dl>
+<h3>Limitations</h3>
+<p>Unlabelled miner addresses are not necessarily solo — they may be pools without an alias. Share of blocks approximates share of work only over a large sample. Top-holder flows come from the explorer and do not distinguish exchanges from investors. A price from one thin exchange can be easy to move. This dashboard is not investment advice.</p>
+<h3>Collector status</h3><dl><dt>Last collection</dt><dd>{fdt(int(mn.get('last_collect_ts',0)))}</dd><dt>Snapshots in database</dt><dd>{fnum(len(d['snaps']))}</dd><dt>Price candles</dt><dd>{fnum(len(d['p60']))} × 1h, {fnum(len(d['p1440']))} × 1d</dd></dl>
+<p class="note">Code: <code>collect.py</code> (collection into SQLite) and <code>build.py</code> (generates these pages). Data export: <a href="data.json">data.json</a>.</p></section>"""
+
+
+# ---------------------------------------------------------------- JSON export
+
+def export_json(d, c):
+    w24, w7 = c["24h"], c["7d"]
+    return {
+        "generated_at": c["now"], "tip_height": c["tip_h"], "tip_timestamp": c["tip_ts"],
+        "price_usdt": snap_val(d, "price_usdt"), "volume_24h_usdt": snap_val(d, "volume_24h_usdt"),
+        "market_cap": snap_val(d, "market_cap"), "circ_supply": snap_val(d, "circ_supply"), "holders": snap_val(d, "holders"),
+        "work_rate_24h": w24["rate"], "work_rate_1h": c["1h"]["rate"], "blocks_24h": w24["blocks"],
+        "block_time_24h": w24["block_time"], "new_tsc_24h": w24["new_tsc"],
+        "miners_24h": [{"address": a, "alias": d["aliases"].get(a), "blocks": m["blocks"], "share": m["blocks"] / w24["blocks"] * 100 if w24["blocks"] else 0}
+                       for a, m in sorted(w24["miners"].items(), key=lambda kv: -kv[1]["blocks"])],
+        "miners_7d": [{"address": a, "alias": d["aliases"].get(a), "blocks": m["blocks"], "share": m["blocks"] / w7["blocks"] * 100 if w7["blocks"] else 0}
+                      for a, m in sorted(w7["miners"].items(), key=lambda kv: -kv[1]["blocks"])],
+        "mining_cost": costs.export(c["costs"]),
+        "daily": [{"day": day, "blocks": x["blocks"], "work_rate": x["work"] / DAY, "new_tsc": x["new_tsc"],
+                   "avg_difficulty": x["diff"] / x["blocks"] if x["blocks"] else None} for day, x in c["daily"].items()],
+    }
+
+
+# ---------------------------------------------------------------- main
+
+def main():
+    con = sqlite3.connect(DB_PATH)
+    d = load(con)
+    c = compute(d)
+    c["costs"] = costs.compute_costs(d, c, reward_at)
+    os.makedirs(SITE, exist_ok=True)
+    gen = int(time.time())
+    pages = {
+        "index.html": ("TSC market", "market", build_market(d, c)),
+        "mining.html": ("TSC mining", "mining", build_mining(d, c)),
+        "holders.html": ("TSC holders", "holders", build_holders(d, c)),
+        "about.html": ("About the data", "about", build_about(d, c)),
+    }
+    for fn, (title, key, body) in pages.items():
+        with open(os.path.join(SITE, fn), "w", encoding="utf-8") as f:
+            f.write(page(title, key, body, gen, c["tip_h"], c["tip_ts"]))
+    with open(os.path.join(SITE, "data.json"), "w", encoding="utf-8") as f:
+        json.dump(export_json(d, c), f, ensure_ascii=False, indent=1)
+    open(os.path.join(SITE, ".nojekyll"), "w").close()
+    dom = site_domain()
+    if dom:
+        with open(os.path.join(SITE, "CNAME"), "w") as f:
+            f.write(dom + "\n")
+    with open(os.path.join(SITE, "robots.txt"), "w") as f:
+        f.write("User-agent: *\nAllow: /\n")
+    print(time.strftime("%Y-%m-%d %H:%M:%S"), f"build ok → {SITE} (block {c['tip_h']}, {len(pages)} pages)")
+
+
+if __name__ == "__main__":
+    main()
