@@ -437,6 +437,10 @@ main{max-width:1100px;margin:0 auto;padding:16px}
 .cw{position:relative}.xh{stroke:#101828;stroke-width:1;opacity:.35}.xb{fill:#101828;opacity:.07}
 .tip{position:absolute;display:none;pointer-events:none;z-index:5;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 20px rgba(16,24,40,.14);padding:8px 10px;font-size:12px;line-height:1.5;white-space:nowrap;color:var(--ink)}
 .tip .th{font-weight:700;margin-bottom:2px}.tip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}.tip b{font-variant-numeric:tabular-nums}
+.links{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.lnk{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;text-decoration:none;color:var(--ink);transition:border-color .15s,box-shadow .15s}
+.lnk:hover{border-color:var(--acc);box-shadow:0 2px 10px rgba(47,91,234,.12)}.lt{font-weight:700}.ext{color:var(--acc);font-weight:600}.ld{font-size:13px;color:var(--mute)}.lu{font-size:12px;color:var(--acc);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+nav{flex-wrap:wrap}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin:4px 0 6px}.lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th{color:var(--mute);font-weight:600;font-size:12px}td:first-child,th:first-child{text-align:left}
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
@@ -508,7 +512,8 @@ def page(title, active, body, gen_ts, tip_h, tip_ts):
         og += f'<link rel="canonical" href="https://{esc(dom)}/{"" if active == "market" else active + ".html"}">'
     nav = "".join(f'<a href="{href}" class="{"on" if key == active else ""}">{lbl}</a>'
                   for key, href, lbl in (("market", "index.html", "Market"), ("mining", "mining.html", "Mining"),
-                                          ("holders", "holders.html", "Holders"), ("about", "about.html", "About the data")))
+                                          ("holders", "holders.html", "Holders"), ("links", "links.html", "Official links"),
+                                          ("about", "about.html", "About the data")))
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)} · {esc(name)}</title>{og}<style>{CSS}</style></head><body>
 <header><div class="top"><a class="brand" href="index.html">{brand(dom)}</a><nav>{nav}</nav></div></header>
@@ -798,6 +803,47 @@ def build_about(d, c):
 <p class="note">Code: <code>collect.py</code> (collection into SQLite) and <code>build.py</code> (generates these pages). Data export: <a href="data.json">data.json</a>.</p></section>"""
 
 
+# ---------------------------------------------------------------- official links
+
+LINKS = [
+    ("Website & Docs", [
+        ("Website", "https://tensorcash.org/", "Project homepage"),
+        ("Verifiable-inference whitepaper", "https://tensorcash.org/whitepapers/verifiable-inference/", "How proof-of-inference works"),
+        ("Block explorer", "https://explorer.tensorcash.org/", "Official explorer"),
+        ("Release verification", "https://verify.tensorcash.org/", "Check release hashes and signatures"),
+    ]),
+    ("Mining & Running the Network", [
+        ("How to mine", "https://tensorcash.org/blog/how-to-mine/", "Official mining guide"),
+        ("How to run a node", "https://tensorcash.org/blog/how-to-run-a-node/", "Full node setup"),
+        ("How to run a verifier", "https://tensorcash.org/blog/how-to-run-a-verifier/", "Verifier setup"),
+        ("How to run the wallet", "https://tensorcash.org/blog/how-to-run-the-wallet/", "Wallet setup"),
+        ("Latest releases", "https://github.com/tensorcash/tensorcash/releases", "Always verify signatures before running"),
+    ]),
+    ("Socials", [
+        ("X", "https://x.com/Tensorcash", "@Tensorcash"),
+        ("Telegram", "https://t.me/TensorCash_org", "t.me/TensorCash_org"),
+        ("Reddit", "https://reddit.com/r/TensorCash", "r/TensorCash"),
+        ("Nostr", "https://njump.me/npub1pft0lcdaznczfhjflu5n3t3j7argg355aj2dhm8u2t9avmdwwnfqlp0kv6", "npub1pft0lcd…lp0kv6"),
+        ("GitHub", "https://github.com/tensorcash", "github.com/tensorcash"),
+        ("Discord", "https://discord.gg/xR6CjKm4EY", "Official Discord server"),
+    ]),
+]
+
+
+def build_links(d, c):
+    from urllib.parse import urlparse
+    groups = "".join(
+        f'<section class="card"><h2>{esc(g)}</h2><div class="links">'
+        + "".join(f'<a class="lnk" href="{esc(u)}" target="_blank" rel="noopener noreferrer nofollow">'
+                  f'<span class="lt">{esc(t)} <span class="ext">↗</span></span><span class="ld">{esc(desc)}</span>'
+                  f'<span class="lu">{esc(urlparse(u).netloc.removeprefix("www."))}</span></a>' for t, u, desc in items)
+        + "</div></section>" for g, items in LINKS)
+    return (f'<section class="card"><h2>Official TensorCash links</h2><p class="sub">Project websites, guides, releases and community channels. '
+            f'tsc.watch is an independent dashboard and is not affiliated with the TensorCash team. Before downloading software, check the domain in your '
+            f'address bar and verify release signatures at <a href="https://verify.tensorcash.org/" target="_blank" rel="noopener noreferrer nofollow">verify.tensorcash.org</a>. '
+            f'Never share your seed phrase, and treat unsolicited DMs offering “support” as scams.</p></section>' + groups)
+
+
 # ---------------------------------------------------------------- JSON export
 
 def export_json(d, c):
@@ -831,6 +877,7 @@ def main():
         "index.html": ("TSC market", "market", build_market(d, c)),
         "mining.html": ("TSC mining", "mining", build_mining(d, c)),
         "holders.html": ("TSC holders", "holders", build_holders(d, c)),
+        "links.html": ("Official TensorCash links", "links", build_links(d, c)),
         "about.html": ("About the data", "about", build_about(d, c)),
     }
     for fn, (title, key, body) in pages.items():
