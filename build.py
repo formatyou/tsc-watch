@@ -133,7 +133,7 @@ def _ticks(lo, hi, n=4):
     return t
 
 
-def svg_line(series, width=900, height=260, yfmt=fshort, xfmt=fday, area=True, y0=True, markers=None):
+def svg_line(series, width=900, height=260, yfmt=fshort, xfmt=fday, area=True, y0=True, markers=None, tipfmt=None):
     """series: list of dict(name, points=[(x,y)], color, width, dash, area, scale). Shared X axis (unix ts)."""
     pad_l, pad_r, pad_t, pad_b = 58, 16, 14, 30
     pts_all = [p for s in series for p in s["points"] if p[1] is not None]
@@ -158,7 +158,18 @@ def svg_line(series, width=900, height=260, yfmt=fshort, xfmt=fday, area=True, y
         y = min(max(y, ylo), yhi)
         return pad_t + H - (y - ylo) / (yhi - ylo) * H
 
-    out = [f'<svg viewBox="0 0 {width} {height}" class="chart" role="img">']
+    tf = tipfmt or yfmt
+    tip_s = []
+    for k, s in enumerate(series):
+        raw = sorted((x, y) for x, y in s["points"] if y is not None)
+        if not raw:
+            continue
+        step = max(1, -(-len(raw) // 700))
+        keep = raw[::step] + ([raw[-1]] if (len(raw) - 1) % step else [])
+        tip_s.append([esc(s.get("name", "")), s.get("color", PALETTE[k % len(PALETTE)]),
+                      [[round(X(x), 1), round(Y(y), 1), int(x), tf(y)] for x, y in keep]])
+    tip = {"d": int(all(x % DAY == 0 for x in xs)), "b": [pad_t, pad_t + H], "l": pad_l, "r": width - pad_r, "s": tip_s}
+    out = [f'<svg viewBox="0 0 {width} {height}" class="chart" role="img" data-tip="{esc(json.dumps(tip, separators=(",", ":")))}">']
     for t in _ticks(ylo, yhi):
         y = Y(t)
         out.append(f'<line x1="{pad_l}" x2="{width-pad_r}" y1="{y:.1f}" y2="{y:.1f}" class="grid"/>')
@@ -185,7 +196,7 @@ def svg_line(series, width=900, height=260, yfmt=fshort, xfmt=fday, area=True, y
     out.append("</svg>")
     legend = "".join(f'<span class="lg"><i style="background:{s.get("color", PALETTE[k % len(PALETTE)])}"></i>{esc(s["name"])}</span>'
                      for k, s in enumerate(series) if s.get("name"))
-    return f'<div class="legend">{legend}</div>' + "".join(out)
+    return f'<div class="legend">{legend}</div><div class="cw">' + "".join(out) + "</div>"
 
 
 def svg_bars(points, width=900, height=220, yfmt=fshort, xfmt=fday, color=PALETTE[0], name="daily value"):
@@ -202,7 +213,9 @@ def svg_bars(points, width=900, height=220, yfmt=fshort, xfmt=fday, color=PALETT
     def Y(y):
         return pad_t + H - y / yhi * H
 
-    out = [f'<svg viewBox="0 0 {width} {height}" class="chart" role="img">']
+    tip = {"d": int(all(p[0] % DAY == 0 for p in points)), "b": [pad_t, pad_t + H], "l": pad_l, "r": width - pad_r, "bw": round(bw, 1),
+           "bars": [[round(pad_l + i * bw + bw / 2, 1), int(x), [[esc(name), color, yfmt(y)]]] for i, (x, y) in enumerate(points)]}
+    out = [f'<svg viewBox="0 0 {width} {height}" class="chart" role="img" data-tip="{esc(json.dumps(tip, separators=(",", ":")))}">']
     for t in _ticks(0, yhi):
         y = Y(t)
         out.append(f'<line x1="{pad_l}" x2="{width-pad_r}" y1="{y:.1f}" y2="{y:.1f}" class="grid"/>')
@@ -210,11 +223,11 @@ def svg_bars(points, width=900, height=220, yfmt=fshort, xfmt=fday, color=PALETT
     step = max(1, n // 6)
     for i, (x, y) in enumerate(points):
         xx = pad_l + i * bw
-        out.append(f'<rect x="{xx+bw*0.12:.1f}" y="{Y(y):.1f}" width="{bw*0.76:.1f}" height="{pad_t+H-Y(y):.1f}" fill="{color}" opacity="0.85"><title>{esc(xfmt(x))}: {esc(yfmt(y))}</title></rect>')
+        out.append(f'<rect x="{xx+bw*0.12:.1f}" y="{Y(y):.1f}" width="{bw*0.76:.1f}" height="{pad_t+H-Y(y):.1f}" fill="{color}" opacity="0.85"/>')
         if i % step == 0:
             out.append(f'<text x="{xx+bw/2:.1f}" y="{height-8}" class="tick" text-anchor="middle">{esc(xfmt(x))}</text>')
     out.append("</svg>")
-    return f'<div class="legend"><span class="lg"><i style="background:{color}"></i>{esc(name)}</span></div>' + "".join(out)
+    return f'<div class="legend"><span class="lg"><i style="background:{color}"></i>{esc(name)}</span></div><div class="cw">' + "".join(out) + "</div>"
 
 
 def svg_stacked(days, keys, labels, colors, width=900, height=240, xfmt=fday, line50=True):
@@ -226,7 +239,11 @@ def svg_stacked(days, keys, labels, colors, width=900, height=240, xfmt=fday, li
     H = height - pad_t - pad_b
     n = len(days)
     bw = W / n
-    out = [f'<svg viewBox="0 0 {width} {height}" class="chart" role="img">']
+    tip = {"d": int(all(ts % DAY == 0 for ts, _ in days)), "b": [pad_t, pad_t + H], "l": pad_l, "r": width - pad_r, "bw": round(bw, 1),
+           "bars": [[round(pad_l + i * bw + bw / 2, 1), int(ts),
+                     [[esc(labels[k]), colors[k], fnum(sh.get(key, 0.0), 1) + "%"] for k, key in enumerate(keys) if sh.get(key, 0.0) > 0]]
+                    for i, (ts, sh) in enumerate(days)]}
+    out = [f'<svg viewBox="0 0 {width} {height}" class="chart" role="img" data-tip="{esc(json.dumps(tip, separators=(",", ":")))}">']
     for t in (0, 25, 50, 75, 100):
         y = pad_t + H - t / 100 * H
         out.append(f'<line x1="{pad_l}" x2="{width-pad_r}" y1="{y:.1f}" y2="{y:.1f}" class="grid"/>')
@@ -241,7 +258,7 @@ def svg_stacked(days, keys, labels, colors, width=900, height=240, xfmt=fday, li
                 continue
             y1 = pad_t + H - (acc + v) / 100 * H
             hgt = v / 100 * H
-            out.append(f'<rect x="{xx+bw*0.08:.1f}" y="{y1:.1f}" width="{bw*0.84:.1f}" height="{hgt:.1f}" fill="{colors[k]}"><title>{esc(xfmt(ts))} · {esc(labels[k])}: {fnum(v,1)}%</title></rect>')
+            out.append(f'<rect x="{xx+bw*0.08:.1f}" y="{y1:.1f}" width="{bw*0.84:.1f}" height="{hgt:.1f}" fill="{colors[k]}"/>')
             acc += v
         if i % step == 0:
             out.append(f'<text x="{xx+bw/2:.1f}" y="{height-8}" class="tick" text-anchor="middle">{esc(xfmt(ts))}</text>')
@@ -250,7 +267,7 @@ def svg_stacked(days, keys, labels, colors, width=900, height=240, xfmt=fday, li
         out.append(f'<line x1="{pad_l}" x2="{width-pad_r}" y1="{y:.1f}" y2="{y:.1f}" class="line50"/>')
     out.append("</svg>")
     lg = "".join(f'<span class="lg"><i style="background:{colors[k]}"></i>{esc(labels[k])}</span>' for k in range(len(keys)))
-    return f'<div class="legend">{lg}</div>' + "".join(out)
+    return f'<div class="legend">{lg}</div><div class="cw">' + "".join(out) + "</div>"
 
 
 def svg_donut(items, size=180):
@@ -417,6 +434,9 @@ main{max-width:1100px;margin:0 auto;padding:16px}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}.kpi .k{font-size:13px;color:var(--mute)}.kpi .v{font-size:26px;font-weight:800;letter-spacing:-.4px}.kpi .s{font-size:12px;color:var(--mute)}
 .chart{width:100%;height:auto;display:block}.grid{stroke:#e9ecf3;stroke-width:1}.tick{font-size:11px;fill:#6b7280}.marker{stroke:#c98a1a;stroke-width:1;stroke-dasharray:3 3}.mlabel{font-size:11px;fill:#c98a1a}.line50{stroke:#d64545;stroke-width:1.2;stroke-dasharray:5 4}
+.cw{position:relative}.xh{stroke:#101828;stroke-width:1;opacity:.35}.xb{fill:#101828;opacity:.07}
+.tip{position:absolute;display:none;pointer-events:none;z-index:5;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 20px rgba(16,24,40,.14);padding:8px 10px;font-size:12px;line-height:1.5;white-space:nowrap;color:var(--ink)}
+.tip .th{font-weight:700;margin-bottom:2px}.tip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}.tip b{font-variant-numeric:tabular-nums}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin:4px 0 6px}.lg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th{color:var(--mute);font-weight:600;font-size:12px}td:first-child,th:first-child{text-align:left}
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
@@ -431,6 +451,29 @@ dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;font-size:14p
 """
 
 JS = """
+(function(){const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],NS='http://www.w3.org/2000/svg',z=n=>String(n).padStart(2,'0');
+function fd(ts,daily){const d=new Date(ts*1000);let s=z(d.getUTCDate())+' '+MON[d.getUTCMonth()]+' '+d.getUTCFullYear();return daily?s:s+', '+z(d.getUTCHours())+':'+z(d.getUTCMinutes())+' UTC'}
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e}
+function near(a,x){let lo=0,hi=a.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(a[m][0]<x)lo=m;else hi=m}return Math.abs(a[lo][0]-x)<=Math.abs(a[hi][0]-x)?a[lo]:a[hi]}
+document.querySelectorAll('svg[data-tip]').forEach(svg=>{
+ const T=JSON.parse(svg.dataset.tip),wrap=svg.parentNode,g=el('g',{'pointer-events':'none'});g.style.display='none';
+ const vl=T.bw?el('rect',{class:'xb',y:T.b[0],height:T.b[1]-T.b[0],width:T.bw}):el('line',{class:'xh',y1:T.b[0],y2:T.b[1]});g.appendChild(vl);
+ const dots=(T.s||[]).map(s=>{const c=el('circle',{r:3.5,fill:s[1],stroke:'#fff','stroke-width':1.5});g.appendChild(c);return c});
+ svg.appendChild(g);const tip=document.createElement('div');tip.className='tip';wrap.appendChild(tip);
+ const row=(n,c,v)=>'<div><i style="background:'+c+'"></i>'+n+': <b>'+v+'</b></div>';
+ function hide(){g.style.display='none';tip.style.display='none'}
+ function move(cx){const r=svg.getBoundingClientRect(),k=svg.viewBox.baseVal.width/r.width,x=(cx-r.left)*k;
+  if(x<T.l-4||x>T.r+4)return hide();let hx=null,ts=null,rows='';
+  if(T.bars){const b=near(T.bars,x);hx=b[0];ts=b[1];rows=b[2].map(q=>row(q[0],q[1],q[2])).join('');vl.setAttribute('x',hx-T.bw/2)}
+  else{T.s.forEach((s,i)=>{const a=s[2];if(!a.length||x<a[0][0]-8||x>a[a.length-1][0]+8){dots[i].style.display='none';return}
+   const p=near(a,x);if(hx===null){hx=p[0];ts=p[2]}dots[i].style.display='';dots[i].setAttribute('cx',p[0]);dots[i].setAttribute('cy',p[1]);rows+=row(s[0],s[1],p[3])});
+   if(hx===null)return hide();vl.setAttribute('x1',hx);vl.setAttribute('x2',hx)}
+  g.style.display='';tip.innerHTML='<div class="th">'+fd(ts,T.d)+'</div>'+rows;tip.style.display='block';
+  const px=hx/k,w=tip.offsetWidth;let left=px+14;if(left+w>r.width)left=px-w-14;if(left<0)left=0;
+  const wr=wrap.getBoundingClientRect();tip.style.left=(r.left-wr.left+left)+'px';tip.style.top=(r.top-wr.top+6)+'px'}
+ svg.addEventListener('mousemove',e=>move(e.clientX));svg.addEventListener('mouseleave',hide);
+ svg.addEventListener('touchstart',e=>move(e.touches[0].clientX),{passive:true});svg.addEventListener('touchmove',e=>move(e.touches[0].clientX),{passive:true});
+});})();
 document.querySelectorAll('.tabs').forEach(t=>{t.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
  t.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
  const g=t.dataset.group;document.querySelectorAll('.pane[data-group="'+g+'"]').forEach(p=>p.classList.toggle('on',p.dataset.key===b.dataset.key));}))});
@@ -630,9 +673,9 @@ def build_mining(d, c):
     roll, rh = c["rate_24h_roll"], c["rate_hourly"]
     markers = [(ath_ts, "highest 24h avg")] if ath_ts else []
     panes = [
-        ("all", "since genesis", svg_line([{"name": "24-hour average", "points": roll, "width": 2, "scale": True}, {"name": "hourly estimate (noisy, clipped to scale)", "points": rh, "color": "#9aa6c8", "width": 0.8, "area": False, "opacity": .7}], yfmt=lambda v: fshort(v, 0), markers=markers)),
-        ("30d", "30 days", svg_line([{"name": "24-hour average", "points": [p for p in roll if p[0] >= roll[-1][0] - 30 * DAY], "width": 2}, {"name": "hourly estimate", "points": [p for p in rh if p[0] >= rh[-1][0] - 30 * DAY], "color": "#9aa6c8", "width": 0.8, "area": False, "opacity": .7}], yfmt=lambda v: fshort(v, 0))),
-        ("7d", "7 days", svg_line([{"name": "24-hour average", "points": [p for p in roll if p[0] >= roll[-1][0] - 7 * DAY], "width": 2}, {"name": "hourly estimate", "points": [p for p in rh if p[0] >= rh[-1][0] - 7 * DAY], "color": "#9aa6c8", "width": 1, "area": False}], yfmt=lambda v: fshort(v, 0), xfmt=lambda x: fdt(x, "%d %b"))),
+        ("all", "since genesis", svg_line([{"name": "24-hour average", "points": roll, "width": 2, "scale": True}, {"name": "hourly estimate (noisy, clipped to scale)", "points": rh, "color": "#9aa6c8", "width": 0.8, "area": False, "opacity": .7}], yfmt=lambda v: fshort(v, 0), markers=markers, tipfmt=frate)),
+        ("30d", "30 days", svg_line([{"name": "24-hour average", "points": [p for p in roll if p[0] >= roll[-1][0] - 30 * DAY], "width": 2}, {"name": "hourly estimate", "points": [p for p in rh if p[0] >= rh[-1][0] - 30 * DAY], "color": "#9aa6c8", "width": 0.8, "area": False, "opacity": .7}], yfmt=lambda v: fshort(v, 0), tipfmt=frate)),
+        ("7d", "7 days", svg_line([{"name": "24-hour average", "points": [p for p in roll if p[0] >= roll[-1][0] - 7 * DAY], "width": 2}, {"name": "hourly estimate", "points": [p for p in rh if p[0] >= rh[-1][0] - 7 * DAY], "color": "#9aa6c8", "width": 1, "area": False}], yfmt=lambda v: fshort(v, 0), xfmt=lambda x: fdt(x, "%d %b"), tipfmt=frate)),
     ]
     rate_card = f"""<section class="card"><h2>Network work rate</h2><p class="sub">Combined work of all miners in proof/s (sum of effective block difficulty ÷ time). The hourly estimate is inherently noisy — at ~6 blocks per hour, luck dominates; the 24-hour average is the reliable line.</p>{tabs_block('rate', panes, 0)}</section>"""
 
@@ -670,7 +713,7 @@ def build_mining(d, c):
 
     dd = [(day, x["diff"] / x["blocks"]) for day, x in c["daily"].items() if x["blocks"]]
     bt = [(day, (x["last"] - x["first"]) / (x["blocks"] - 1)) for day, x in c["daily"].items() if x["blocks"] > 2]
-    diff_card = f"""<section class="card"><div class="two"><div><h2>Base difficulty</h2><p class="sub">Daily average from the bits field.</p>{svg_line([{"name": "difficulty (daily avg)", "points": dd, "color": PALETTE[3]}], width=560, yfmt=lambda v: fshort(v, 1))}</div>
+    diff_card = f"""<section class="card"><div class="two"><div><h2>Base difficulty</h2><p class="sub">Daily average from the bits field.</p>{svg_line([{"name": "difficulty (daily avg)", "points": dd, "color": PALETTE[3]}], width=560, yfmt=lambda v: fshort(v, 1), tipfmt=lambda v: fnum(v, 0))}</div>
 <div><h2>Block time</h2><p class="sub">Average interval between blocks per UTC day; target ~600 s.</p>{svg_line([{"name": "seconds per block", "points": bt, "color": PALETTE[2]}, {"name": "600 s target", "points": [(bt[0][0], 600), (bt[-1][0], 600)] if bt else [], "color": "#999", "dash": True, "area": False}], width=560, yfmt=lambda v: fnum(v, 0))}</div></div></section>"""
 
     earn, earn_usd = [], []
