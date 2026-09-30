@@ -682,7 +682,7 @@ def build_market(d, c):
     hist_card = ""
     snaps = d["snaps"]
     if len(snaps) >= 3:
-        hist_card = f"""<section class="card"><h2>Trend: funded addresses and market cap</h2><p class="sub">From this site's own snapshots (one per collector run). The series grows with every day of operation.</p>
+        hist_card = f"""<section class="card"><h2>Trend: funded addresses and market cap</h2><p class="sub">Based on tsc.watch snapshots, one per data refresh. The chart grows longer every day.</p>
 <div class="two"><div>{svg_line([{"name": "funded addresses", "points": [(s[0], s[2]) for s in snaps if s[2]]}], width=560, y0=False, xfmt=lambda x: fdt(x, "%d %b %H:%M"))}</div>
 <div>{svg_line([{"name": "market cap, USD", "points": [(s[0], s[4]) for s in snaps if s[4]], "color": PALETTE[2]}], width=560, yfmt=lambda v: fusd(v, 0), xfmt=lambda x: fdt(x, "%d %b %H:%M"))}</div></div></section>"""
 

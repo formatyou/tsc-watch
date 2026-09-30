@@ -155,6 +155,10 @@
 "ru": "Базовая сложность",
 "zh": "基础难度"
 },
+"Based on tsc.watch snapshots, one per data refresh. The chart grows longer every day.": {
+"ru": "По снимкам tsc.watch, один при каждом обновлении данных. График становится длиннее с каждым днём.",
+"zh": "基于 tsc.watch 的快照，每次数据刷新记录一次。图表每天都会延长。"
+},
 "Block explorer": {
 "ru": "Обозреватель блоков",
 "zh": "区块浏览器"
@@ -466,10 +470,6 @@
 "From the explorer: transactions and new addresses per UTC day. With exchange volume this thin, a high count of new addresses is mostly pool payouts, not new buyers.": {
 "ru": "Из обозревателя: транзакции и новые адреса по суткам UTC. При таком тонком объёме на бирже много новых адресов — это в основном выплаты пулов, а не новые покупатели.",
 "zh": "来自区块浏览器：每个 UTC 日的交易数和新地址数。交易所成交量如此稀薄，新地址多主要是矿池付款，而不是新买家。"
-},
-"From this site's own snapshots (one per collector run). The series grows with every day of operation.": {
-"ru": "Из собственных снимков сайта (один за запуск сборщика). Ряд растёт с каждым днём работы.",
-"zh": "来自本站自己的快照（每次采集一次）。数据序列随运行天数不断增长。"
 },
 "Full node setup": {
 "ru": "Настройка полной ноды",
