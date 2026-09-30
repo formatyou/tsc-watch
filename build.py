@@ -525,6 +525,10 @@ NAV_GROUPS = [
 ]
 
 
+WALLET_URL = "https://wallettensor.cash/"
+WALLET_LIVE = False  # flip to True when the wallet is tested
+
+
 def nav_html(active):
     groups = []
     for i, (label, items) in enumerate(NAV_GROUPS):
@@ -533,7 +537,10 @@ def nav_html(active):
         groups.append(f'<div class="grp{" on" if on else ""}"><button type="button" class="gbtn" aria-expanded="false" aria-controls="dd{i}">{label}<span class="car" aria-hidden="true"></span></button>'
                       f'<div class="drop" id="dd{i}"><span class="gl">{label}</span>{links}</div></div>')
     cta = f'<a class="cta{" on" if active == "start" else ""}" href="start.html">Start mining</a>'
-    soon = "".join(f'<span class="soon" aria-disabled="true" title="Coming soon">{l}<em>soon</em></span>' for l in ("Wallet",))
+    if WALLET_LIVE:
+        soon = f'<a class="walletl" href="{WALLET_URL}" target="_blank" rel="noopener">Wallet ↗</a>'
+    else:
+        soon = '<span class="soon" aria-disabled="true" title="Coming soon">Wallet<em>soon</em></span>'
     return (f'<button type="button" class="burger" aria-expanded="false" aria-controls="menu" aria-label="Menu"><span></span><span></span><span></span></button>'
             f'<nav id="menu" class="menu">{"".join(groups)}{soon}{cta}</nav>')
 
@@ -577,6 +584,7 @@ header{background:var(--dark);backdrop-filter:none;-webkit-backdrop-filter:none;
 .langs{border:1px solid #3A4C55;border-radius:3px;background:transparent;padding:0;gap:0}.lg{border-radius:0;color:#C9D3D6;padding:8px 10px;font-weight:600}
 .lg:hover{background:rgba(255,255,255,.08);color:#fff}.lg.on{background:#fff;color:var(--dark)}
 .burger{background:transparent;border-color:#3A4C55;border-radius:3px}.burger span{background:#fff}
+.walletl{color:#D6DEE0;text-decoration:none;font:500 14px var(--sans);padding:7px 10px;border-radius:3px}.walletl:hover{background:rgba(255,255,255,.08);color:#fff}
 .soon{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;color:#6F8188;font:500 14px var(--sans);cursor:not-allowed;user-select:none}
 .soon em{font:600 9.5px var(--mono);font-style:normal;text-transform:uppercase;letter-spacing:.1em;border:1px solid #3A4C55;color:#8FA0A6;padding:2px 6px;border-radius:2px}
 .hero{border-bottom:0;padding:44px 0 18px}
