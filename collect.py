@@ -723,6 +723,16 @@ def main(argv):
     except Exception as e:
         log(f"ERROR watch: {type(e).__name__}")
 
+    try:
+        if os.environ.get("TG_BOT_TOKEN") and not _dm_get(con, "tg_hello"):
+            n = con.execute("SELECT COUNT(*) FROM dormant").fetchone()[0]
+            sp = con.execute("SELECT COUNT(*) FROM dormant WHERE spent_height IS NOT NULL").fetchone()[0]
+            if notify_private(f"tsc.watch bot connected. Early-miner watch: {n - sp} of {n} addresses untouched. You will get a message here when any of them moves."):
+                _dm_set(con, "tg_hello", 1)
+                con.commit()
+    except Exception as e:
+        log(f"ERROR tg: {type(e).__name__}")
+
     meta_set(con, "last_collect_ts", int(time.time()))
     con.commit()
     export_state(con)
