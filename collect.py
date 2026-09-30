@@ -609,6 +609,98 @@ def notify_private(text):
         return False
 
 
+# ---------------------------------------------------------------- exchange watch (private)
+# SafeTrade wallet cluster, rebuilt with the common-input heuristic from a few known
+# exchange deposit addresses. Kept only in the cached DB (never exported); large
+# deposits are reported privately via Telegram.
+
+EXCH_SEEDS = [
+    "tc1qkz2qauvjakz39j5hmyxjrfe7j79d4w68den05p",
+    "tc1q8a5grrjfarwtp9v4vdrunxdxpmt4mnt92qpl3t",
+    "tc1qga8tq7u6q2xua7wg7lh9ept26h22ys78a4v5fq",
+    "tc1qh8xynx8v5cat0rq7zq6hm6ef8u2j42egfrf9ah",
+    "tc1qrh05cv9haj5m3gnrtlq3dhqx5jfr9fxc8cegad",
+]
+EXCH_ALERT_TSC = 5000
+EXCH_SCHEMA = """
+CREATE TABLE IF NOT EXISTS exch_addr (address TEXT PRIMARY KEY, added_h INTEGER);
+CREATE TABLE IF NOT EXISTS exch_queue (address TEXT PRIMARY KEY);
+"""
+
+
+def _addr(x):
+    return x if isinstance(x, str) else (x or {}).get("address")
+
+
+def _exch_add(con, addrs, h=None, queue=False):
+    new = 0
+    for a in addrs:
+        if a and con.execute("INSERT OR IGNORE INTO exch_addr(address, added_h) VALUES(?,?)", (a, h)).rowcount:
+            new += 1
+            if queue:
+                con.execute("INSERT OR IGNORE INTO exch_queue(address) VALUES(?)", (a,))
+    return new
+
+
+def sync_exchange_boot(con, budget=150):
+    """Bounded BFS: for every cluster address, all co-inputs of its spends join the cluster."""
+    con.executescript(EXCH_SCHEMA)
+    if _dm_get(con, "exch_boot") == "done":
+        return "ready"
+    if _dm_get(con, "exch_boot") is None:
+        _exch_add(con, EXCH_SEEDS, queue=True)
+        _dm_set(con, "exch_boot", "running")
+        con.commit()
+    calls = 0
+    while calls < budget:
+        row = con.execute("SELECT address FROM exch_queue LIMIT 1").fetchone()
+        if not row:
+            break
+        a, page = row[0], 1
+        try:
+            while calls < budget:
+                j = http_json(f"{EXPLORER}/api/address/{a}?page={page}&page_size=50")
+                calls += 1
+                txs = j.get("transactions") or []
+                for t in txs:
+                    if (t.get("delta_sats") or 0) < 0:
+                        _exch_add(con, [_addr(f) for f in t.get("from_addresses") or []], t.get("block_height"), queue=True)
+                if len(txs) < 50 or page >= 40:
+                    con.execute("DELETE FROM exch_queue WHERE address=?", (a,))
+                    break
+                page += 1
+        except Exception:
+            break
+        con.commit()
+    con.commit()
+    if not con.execute("SELECT 1 FROM exch_queue LIMIT 1").fetchone():
+        _dm_set(con, "exch_boot", "done")
+        con.commit()
+        n = con.execute("SELECT COUNT(*) FROM exch_addr").fetchone()[0]
+        notify_private(f"tsc.watch: SafeTrade watch ready ({n} exchange addresses). "
+                       f"You will get a message for every deposit of {EXCH_ALERT_TSC:,} TSC or more.")
+        return "ready (just finished)"
+    return "building"
+
+
+def exch_tx(con, h, t, alerts):
+    """Classify one confirmed transaction against the exchange cluster."""
+    ins = [i.get("address") for i in t.get("inputs") or [] if i.get("address")]
+    if not ins:
+        return
+    known = lambda a: con.execute("SELECT 1 FROM exch_addr WHERE address=?", (a,)).fetchone() is not None
+    if any(known(a) for a in ins):
+        _exch_add(con, ins, h)          # exchange spend: co-inputs are exchange too
+        return
+    dep = [(o.get("address"), o.get("value_sats") or 0) for o in t.get("outputs") or [] if o.get("address") and known(o["address"])]
+    total = sum(v for _, v in dep)
+    if total >= EXCH_ALERT_TSC * 10**8:
+        src = sorted(set(ins))
+        alerts.append(f"SafeTrade deposit: {total / 1e8:,.0f} TSC · block {h}\n"
+                      f"from {src[0][:14]}…" + (f" (+{len(src) - 1} more)" if len(src) > 1 else "") +
+                      f"\nto {dep[0][0][:14]}…\ntx {t.get('txid')}")
+
+
 def sync_dormant(con, check_per_run=120, max_blocks_per_run=30):
     con.executescript(DORMANT_SCHEMA)
     if con.execute("SELECT COUNT(*) FROM dormant").fetchone()[0] == 0:
@@ -633,7 +725,9 @@ def sync_dormant(con, check_per_run=120, max_blocks_per_run=30):
     # 2) watch new blocks: any input spending from a dormant address
     tip = con.execute("SELECT MAX(height) FROM blocks").fetchone()[0] or 0
     h0 = int(_dm_get(con, "scan_h", tip))
-    moved = []
+    moved, xalerts = [], []
+    con.executescript(EXCH_SCHEMA)
+    xwatch = con.execute("SELECT 1 FROM exch_addr LIMIT 1").fetchone() is not None
     h = h0
     while h < tip and h - h0 < max_blocks_per_run:
         h += 1
@@ -646,7 +740,10 @@ def sync_dormant(con, check_per_run=120, max_blocks_per_run=30):
                     break
                 page += 1
             for tx in txids:
-                ins = http_json(f"{EXPLORER}/api/tx/{tx}")["transaction"].get("inputs", [])
+                t = http_json(f"{EXPLORER}/api/tx/{tx}")["transaction"]
+                ins = t.get("inputs", [])
+                if xwatch:
+                    exch_tx(con, h, t, xalerts)
                 for i in ins:
                     a = i.get("address")
                     if a and con.execute("SELECT 1 FROM dormant WHERE address=? AND spent_height IS NULL", (a,)).fetchone():
@@ -660,6 +757,8 @@ def sync_dormant(con, check_per_run=120, max_blocks_per_run=30):
     if moved:
         lines = [f"block {bh}: {a[:12]}… tx {tx[:12]}…" for bh, a, tx in moved[:10]]
         notify_private("tsc.watch: early-miner coins moved!\n" + "\n".join(lines))
+    for m in xalerts[:10]:
+        notify_private(m)
     left = con.execute("SELECT COUNT(*) FROM dormant WHERE checked=0").fetchone()[0]
     if left == 0 and _dm_get(con, "verified_note") != "1":
         n, sp = con.execute("SELECT COUNT(*), SUM(spent_height IS NOT NULL) FROM dormant").fetchone()
@@ -726,6 +825,11 @@ def main(argv):
         sync_all_payouts(con)
     except Exception as e:
         log(f"ERROR payouts: {e}")
+
+    try:
+        log("xwatch: " + sync_exchange_boot(con))
+    except Exception as e:
+        log(f"ERROR xwatch: {type(e).__name__}")
 
     try:
         log("watch: " + sync_dormant(con))
