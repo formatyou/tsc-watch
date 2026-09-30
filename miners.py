@@ -207,10 +207,17 @@ def export_json(mc, c, agg=None):
         daily = [[k, round(v, 3)] for k, v in sorted(r["daily"].items()) if v]
         m[a] = [r["kind"], pidx.get(r["pool"], -1), round(r["total"], 3), r["n"], r["first"], r["last"],
                 round(r["t7"], 3), round(r["rate"], 1), daily, mult(a) if r["kind"] == 0 else None]
+    wk = lambda dd: [round(sum(v for k, v in dd.items() if 15 <= k < 22), 3), round(sum(v for k, v in dd.items() if 22 <= k < 29), 3)]
+    pool_daily = defaultdict(lambda: defaultdict(float))
+    for a, r in mc["miners"].items():
+        if r["kind"] == 1 and a not in mc["pool_set"]:
+            for k, v in r["daily"].items():
+                pool_daily[r["pool"]][k] += v
+    net_daily = {(day - mc["day0"]) // DAY: x["new_tsc"] for day, x in c["daily"].items()}
     pool_list = []
     for p in pools:
         row = next((x for x in mc["pool_rows"] if x["addr"] == p), {})
-        pool_list.append({"addr": p, "name": row.get("name", p), "fee": row.get("fee"), "gap": row.get("gap"), "mult": mult(p)})
+        pool_list.append({"addr": p, "name": row.get("name", p), "fee": row.get("fee"), "gap": row.get("gap"), "mult": mult(p), "weeks": wk(pool_daily[p])})
     # network yield per UTC day: TSC one PoI/s earned that day (for hardware-vs-network trend)
     yld = []
     for day, x in c["daily"].items():
@@ -219,7 +226,7 @@ def export_json(mc, c, agg=None):
             yld.append([k, round(x["new_tsc"] / (x["work"] / DAY), 6)])
     return {"generated_at": c["now"], "price": mc["price"], "net_new_tsc_day": mc["net_new_day"], "net_rate": mc["net_rate"],
             "block_time": c["7d"]["block_time"] or 600, "net_mult": (agg or {}).get("all", {}).get("mean"),
-            "ref_gpu": {"name": "RTX 5090", "poi": REF_GPU_POI}, "day0": mc["day0"], "pools": pool_list, "yield": yld,
+            "ref_gpu": {"name": "RTX 5090", "poi": REF_GPU_POI}, "day0": mc["day0"], "pools": pool_list, "yield": yld, "net_weeks": wk(net_daily),
             "fields": ["kind(0=block finder,1=pool miner)", "pool_index", "total_tsc", "blocks_or_payouts", "first_ts", "last_ts",
                        "tsc_7d", "est_poi_s", "daily_30d[[day_index,tsc]]", "proof_v4[mean_multiplier,main_driver,blocks] (block finders)"],
             "miners": m}
@@ -375,12 +382,14 @@ function health(d,kind,pool,last,est,daily,pm,m0first){const H=[],now=d.generate
  else if(est>0){const exp=d.block_time*d.net_rate/est/3600;const lvl=age<=3*exp?'ok':age<=6*exp?'warn':'bad';
   H.push([lvl,'Blocks',(lvl==='ok'?'Last block '+hh(age)+' ago. ':'No block for '+hh(age)+'. ')+'At this rate expect one about every '+hh(exp)+'.'+(lvl!=='ok'?' Check the node, the miner version and the verifier.':'')])}
  else H.push(['bad','Blocks','No block in the last 7 days.']);
- const v=Array(30).fill(0);daily.forEach(([k,x])=>{if(k>=0&&k<30)v[k]+=x});const y=Array(30).fill(0);(d.yield||[]).forEach(([k,x])=>{if(k>=0&&k<30)y[k]=x});
- const sum=(a,i,j)=>a.slice(i,j).reduce((s,x)=>s+x,0);const e1=sum(v,22,29),e0=sum(v,15,22),y1=sum(y,22,29),y0=sum(y,15,22);
+ const v=Array(30).fill(0);daily.forEach(([k,x])=>{if(k>=0&&k<30)v[k]+=x});
+ const sum=(a,i,j)=>a.slice(i,j).reduce((s,x)=>s+x,0);const e1=sum(v,22,29),e0=sum(v,15,22);
  const first=m0first;if(first>d.day0+15*86400)H.push(['ok','Weekly trend','Mining here for less than two weeks; the trend appears after 14 days.']);
  else if(kind===0&&e0>0&&e0<5*50)H.push(['ok','Weekly trend','Too few blocks per week for a reliable trend; luck dominates.']);
- else if(e0>0&&y0>0&&y1>0){const r1=e1/y1,r0=e0/y0,ch=(r1/r0-1)*100,net=(y1/y0-1)*100;const lvl=ch>=-20?'ok':ch>=-50?'warn':'bad';
-  H.push([lvl,'Weekly trend','Earned '+(e1>=e0?'+':'')+Math.round((e1/e0-1)*100)+'% vs the week before; the network paid '+(net>=0?'+':'')+Math.round(net)+'% per PoI/s. Your implied proof rate: '+(ch>=0?'+':'')+Math.round(ch)+'%.'+(lvl!=='ok'?' A drop this size usually means rigs offline or rejected work, not the network.':'')])}
+ else if(e0>0){const ref=kind===1?(pool&&pool.weeks):d.net_weeks;const pct=x=>(x>=0?'+':'')+Math.round(x)+'%';const ch=(e1/e0-1)*100;
+  if(ref&&ref[0]>0&&ref[1]>0){const rc=(ref[1]/ref[0]-1)*100,rel=((e1/e0)/(ref[1]/ref[0])-1)*100,lvl=rel>=-25?'ok':rel>=-50?'warn':'bad';
+   H.push([lvl,'Weekly trend','Earned '+pct(ch)+' vs the week before; '+(kind===1?(pool?esc(pool.name):'the pool')+' paid all its miners '+pct(rc):'the network issued '+pct(rc))+'. '+(kind===1?'Your share of the pool: ':'Your share of blocks: ')+pct(rel)+'.'+(lvl!=='ok'?' Falling behind '+(kind===1?'the rest of the pool':'the network')+' usually means rigs offline, an old miner version or rejected work.':'')])}
+  else H.push(['ok','Weekly trend','Earned '+pct(ch)+' vs the week before.'])}
  const pmx=kind===1?(pool&&pool.mult):pm;if(pmx){const mm=pmx[0],lim=Math.max(1.05,(d.net_mult||1)+0.02),lvl=mm<=lim?'ok':mm<=1.15?'warn':'bad',who=kind===1?'Your pool\'s blocks':'Your blocks';
   H.push([lvl,'Proof multiplier',who+' average '+f2(mm,3)+'× (network '+f2(d.net_mult,3)+'×), '+(mm>1?'about '+Math.round((1-1/mm)*100)+'% of the work goes to the multiplier':'no multiplier tax')+(pmx[1]?', mostly '+pmx[1]:'')+'. <a href="proof.html">Details</a>'])}
  const worst=H.reduce((w,h)=>rank[h[0]]>rank[w]?h[0]:w,'ok');const title={ok:'Looks healthy',warn:'Worth a look',bad:'Needs attention'}[worst];
