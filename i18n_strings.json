@@ -143,6 +143,10 @@
 "ru": "Средний мультипликатор, {0} ч",
 "zh": "平均乘数，{0} 小时"
 },
+"Avg. block time · {0}h": {
+"ru": "Среднее время блока · {0} ч",
+"zh": "平均出块时间 · {0} 小时"
+},
 "Balance in TSC, value at the current price, share of circulating supply, net flow (inflows − outflows) over {0} and {1} days.": {
 "ru": "Баланс в TSC, стоимость по текущей цене, доля в обращении, чистый поток (приток − отток) за {0} и {1} дн.",
 "zh": "TSC 余额、按当前价格计算的价值、占流通量的比例，以及 {0} 天和 {1} 天的净流量（流入 − 流出）。"
@@ -247,6 +251,10 @@
 "ru": "Центральный VDF-маяк, майнер использует его автоматически.",
 "zh": "中心化 VDF 信标，由挖矿软件自动使用。"
 },
+"Chain data {0} {m0}, {1}:{2} UTC ·": {
+"ru": "Данные сети {0} {m0}, {1}:{2} UTC ·",
+"zh": "链上数据 {m0} {0} 日 {1}:{2} UTC ·"
+},
 "Chain data, last {0}h: {1} new TSC/day, {2} PoI/s network. Reward now {3} TSC/block, {4} blocks to the next cut.": {
 "ru": "Данные сети за {0} ч: {1} новых TSC/день, сеть {2} PoI/s. Награда сейчас {3} TSC/блок, до сокращения {4} блоков.",
 "zh": "链上数据，最近 {0} 小时：每天新增 {1} TSC，全网 {2} PoI/s。当前奖励 {3} TSC/区块，距下次削减还有 {4} 个区块。"
@@ -286,6 +294,10 @@
 "Components are the four factors of the v{0} price (the \"pin\" factor was {1} on every block). Pool miners inherit their pool's multiplier: a pool at {2}× pays everyone ~{3}% less than the same pool at {4}× would.": {
 "ru": "Компоненты — четыре фактора цены v{0} (фактор «pin» был {1} в каждом блоке). Майнеры пула наследуют его мультипликатор: пул с {2}× платит всем на ~{3}% меньше, чем тот же пул с {4}×.",
 "zh": "组成部分是 v{0} 定价的四个因子（“pin”因子在每个区块上都是 {1}）。矿池矿工继承矿池的乘数：乘数为 {2}× 的矿池，付给每个人的比同一矿池在 {4}× 时少约 {3}%。"
+},
+"Computed from the chain · refreshed every {0} min": {
+"ru": "Рассчитано по блокчейну · обновление каждые {0} мин",
+"zh": "基于链上数据计算 · 每 {0} 分钟刷新"
 },
 "Configuration": {
 "ru": "Конфигурация",
@@ -407,6 +419,10 @@
 "ru": "Доход {0}% к прошлой неделе; эмиссия сети {1}%. Ваша доля блоков: {2}%.",
 "zh": "收益较前一周 {0}%；全网发行量 {1}%。你的出块份额：{2}%。"
 },
+"Effective difficulty": {
+"ru": "Эффективная сложность",
+"zh": "有效难度"
+},
 "Electricity cost / TSC": {
 "ru": "Затраты на электричество / TSC",
 "zh": "电费成本 / TSC"
@@ -478,6 +494,10 @@
 "Fee": {
 "ru": "Комиссия",
 "zh": "费率"
+},
+"First block": {
+"ru": "Первый блок",
+"zh": "首个区块"
 },
 "First start downloads the model (≥{0} GB); keep the cache between runs. Verify the .sha{1} checksum from the release page.": {
 "ru": "При первом запуске скачивается модель (≥{0} ГБ); сохраняйте кэш между запусками. Сверьте контрольную сумму .sha{1} со страницы релиза.",
@@ -571,6 +591,10 @@
 "ru": "Независимая панель TensorCash (TSC): цена и объём на SafeTrade, эмиссия, мощность сети, пулы, крупнейшие держатели. Рассчитано по блокчейну, обновляется ежечасно.",
 "zh": "独立的 TensorCash (TSC) 数据面板：SafeTrade 价格与成交量、发行量、全网算力、矿池、头部持有者。根据链上数据计算，每小时更新。"
 },
+"Independent TensorCash dashboard": {
+"ru": "Независимая панель TensorCash",
+"zh": "独立的 TensorCash 数据面板"
+},
 "Individual miners, including those mining through pools, ranked by estimated proof rate. Pool payouts are grossed up by the published pool fee.": {
 "ru": "Отдельные майнеры, включая майнящих через пулы, по оценочной скорости доказательств. Выплаты пулов пересчитаны с учётом опубликованной комиссии.",
 "zh": "单个矿工（包括通过矿池挖矿的）按估算证明速率排名。矿池付款已按公布的矿池费率还原为税前数值。"
@@ -659,6 +683,10 @@
 "ru": "Linux (bare metal)",
 "zh": "Linux（物理机）"
 },
+"Live market": {
+"ru": "Рынок онлайн",
+"zh": "实时市场"
+},
 "Loading miner data…": {
 "ru": "Загрузка данных майнера…",
 "zh": "正在加载矿工数据…"
@@ -690,6 +718,10 @@
 "Market cap (circulating)": {
 "ru": "Капитализация (в обращении)",
 "zh": "市值（流通）"
+},
+"Market cap (issued)": {
+"ru": "Капитализация (выпущено)",
+"zh": "市值（已发行）"
 },
 "Maroon: daily traded volume in USD (TSC × daily close). Amber: USD value of the TSC mined that day. When issuance approaches volume, miner supply alone can dominate the order book.": {
 "ru": "Бордовый: дневной объём торгов в USD (TSC × цена закрытия). Янтарный: стоимость TSC, добытых за день, в USD. Когда эмиссия приближается к объёму, одно лишь предложение майнеров может доминировать в стакане.",
@@ -803,6 +835,10 @@
 "ru": "Мощность сети",
 "zh": "全网算力"
 },
+"Network work rate · {0}h": {
+"ru": "Рабочая скорость сети · {0} ч",
+"zh": "全网工作速率 · {0} 小时"
+},
 "Network work rate, PoI/s": {
 "ru": "Мощность сети, PoI/s",
 "zh": "全网算力，PoI/s"
@@ -902,6 +938,10 @@
 "Open in explorer ↗": {
 "ru": "Открыть в обозревателе ↗",
 "zh": "在浏览器中打开 ↗"
+},
+"Open the miner calculator ↗": {
+"ru": "Открыть калькулятор майнинга ↗",
+"zh": "打开挖矿计算器 ↗"
 },
 "Own RTX {0}, electricity only": {
 "ru": "Своя RTX {0}, только электричество",
@@ -1055,9 +1095,17 @@
 "ru": "Цена и объём с SafeTrade (единственная биржа с парой TSC/USDT); предложение и эмиссия рассчитаны по блокчейну. Источник каждой цифры — в разделе",
 "zh": "价格和成交量来自 SafeTrade（唯一有 TSC/USDT 交易对的交易所）；供应量和发行量根据链上数据计算。每个数字的来源见"
 },
+"Price and volume from SafeTrade, issuance, network work rate, mining pools and holders — one independent view, no account needed.": {
+"ru": "Цена и объём с SafeTrade, эмиссия, рабочая скорость сети, пулы и держатели — один независимый обзор, без регистрации.",
+"zh": "SafeTrade 的价格与成交量、发行量、全网工作速率、矿池与持有者——一个独立视图，无需注册。"
+},
 "Price candles": {
 "ru": "Свечи цены",
 "zh": "价格 K 线"
+},
+"Producer": {
+"ru": "Производитель",
+"zh": "出块者"
 },
 "Profit": {
 "ru": "Прибыль",
@@ -1215,6 +1263,10 @@
 "ru": "Публичный API свечей SafeTrade (свечи {0}ч и {1}д, пара TSC/USDT, {2} USDT ≈ ${3}). Тонкая нерегулируемая биржа — единственная с этой парой. Текущая цена и объём за {4} ч тоже из",
 "zh": "SafeTrade 公开 K 线 API（{0} 小时和 {1} 天 K 线，TSC/USDT 交易对，{2} USDT ≈ ${3}）。一个流动性稀薄、未受监管的交易所——也是唯一有此交易对的交易所。当前价格和 {4} 小时成交量同样来自"
 },
+"SafeTrade · TSC/USDT · {0} {m0}, {1}:{2} UTC": {
+"ru": "SafeTrade · TSC/USDT · {0} {m0}, {1}:{2} UTC",
+"zh": "SafeTrade · TSC/USDT · {m0} {0} 日 {1}:{2} UTC"
+},
 "Sampling profile": {
 "ru": "Профиль сэмплирования",
 "zh": "采样特征"
@@ -1222,6 +1274,10 @@
 "Scheme": {
 "ru": "Схема",
 "zh": "模式"
+},
+"See all pools": {
+"ru": "Все пулы",
+"zh": "查看所有矿池"
 },
 "Seed phrases, private keys or passwords. Nobody from tsc.watch will ever ask for them.": {
 "ru": "Сид-фразы, приватные ключи или пароли. tsc.watch никогда их не попросит.",
@@ -1367,6 +1423,10 @@
 "ru": "Реально торгуемое предложение и капитализация по нему. Для подписчиков — скоро.",
 "zh": "实际流通交易的供应量，以及据此计算的市值。订阅功能，即将推出。"
 },
+"Supply that actually trades. For subscribers — coming soon.": {
+"ru": "Реально торгуемое предложение. Для подписчиков — скоро.",
+"zh": "实际流通交易的供应量。订阅功能——即将推出。"
+},
 "Supply, holders, concentration, daily activity": {
 "ru": "Предложение, держатели, концентрация, дневная активность",
 "zh": "供应量、持有者、集中度、每日活动"
@@ -1427,6 +1487,10 @@
 "ru": "TSC на {0} K proof/s:",
 "zh": "每 {0} K proof/s 的 TSC："
 },
+"TSC price": {
+"ru": "Цена TSC",
+"zh": "TSC 价格"
+},
 "TSC price (SafeTrade)": {
 "ru": "Цена TSC (SafeTrade)",
 "zh": "TSC 价格（SafeTrade）"
@@ -1454,6 +1518,10 @@
 "TSC protocol upgrades · tsc.watch": {
 "ru": "Обновления протокола TSC · tsc.watch",
 "zh": "TSC 协议升级 · tsc.watch"
+},
+"TSC/USDT on SafeTrade": {
+"ru": "TSC/USDT на SafeTrade",
+"zh": "SafeTrade 上的 TSC/USDT"
 },
 "TSC/USDT price": {
 "ru": "Цена TSC/USDT",
@@ -1530,6 +1598,10 @@
 "Top miners, last {0} days": {
 "ru": "Топ майнеров, последние {0} дн.",
 "zh": "头部矿工，最近 {0} 天"
+},
+"Top {0} / top {1}": {
+"ru": "Топ {0} / топ {1}",
+"zh": "前 {0} / 前 {1}"
 },
 "Top {0} / top {1} addresses": {
 "ru": "Топ-{0} / топ-{1} адресов",
@@ -1719,6 +1791,10 @@
 "ru": "Кто платит налог",
 "zh": "谁在交税"
 },
+"Who produced the last {0} blocks": {
+"ru": "Кто добыл последние {0} блоков",
+"zh": "最近 {0} 个区块由谁产出"
+},
 "Work rate": {
 "ru": "Мощность",
 "zh": "算力"
@@ -1815,6 +1891,10 @@
 "ru": "адреса, платящие пакетами ≥{0} майнерам",
 "zh": "批量付款给 ≥{0} 名矿工的地址"
 },
+"addresses with a balance": {
+"ru": "адреса с балансом",
+"zh": "有余额的地址"
+},
 "addresses with positive / negative net flow": {
 "ru": "адреса с положительным / отрицательным потоком",
 "zh": "净流量为正 / 负的地址"
@@ -1854,6 +1934,10 @@
 "block #{0}": {
 "ru": "блок #{0}",
 "zh": "区块 #{0}"
+},
+"block #{0} · ×{1} PoI multiplier": {
+"ru": "блок #{0} · множитель PoI ×{1}",
+"zh": "区块 #{0} · ×{1} PoI 乘数"
 },
 "block producers": {
 "ru": "производители блоков",
@@ -1914,6 +1998,10 @@
 "cost: rented RTX {0} ${1}/h:": {
 "ru": "себестоимость: аренда RTX {0} ${1}/ч:",
 "zh": "成本：租用 RTX {0} ${1}/小时："
+},
+"counted per address — understates concentration: one early miner spread its coins over thousands of addresses": {
+"ru": "по адресам — занижает концентрацию: один ранний майнер распределил монеты по тысячам адресов",
+"zh": "按地址统计——低估了集中度：一名早期矿工把币分散在数千个地址中"
 },
 "current": {
 "ru": "текущая",
@@ -2055,6 +2143,10 @@
 "ru": "TensorCash (TSC): <em>рынок</em> и <em>эмиссия</em>",
 "zh": "TensorCash (TSC) <em>市场</em>与<em>发行</em>"
 },
+"h1:The TensorCash market,<br><em>read from the blocks.</em>": {
+"ru": "Рынок TensorCash,<br><em>прочитанный из блоков.</em>",
+"zh": "TensorCash 市场，<br><em>从区块中读取。</em>"
+},
 "highest {0}h avg": {
 "ru": "максимум среднего за {0} ч",
 "zh": "最高 {0} 小时均值"
@@ -2163,9 +2255,17 @@
 "ru": "почти детерминированные шаги; максимум: {0}",
 "zh": "近乎确定的步骤；最高记录：{0}"
 },
+"new": {
+"ru": "новый",
+"zh": "新"
+},
 "new release": {
 "ru": "новый релиз",
 "zh": "新版本"
+},
+"next cut at block #{0}": {
+"ru": "следующее снижение на блоке #{0}",
+"zh": "下次减半于区块 #{0}"
 },
 "next: {0} TSC from block #{1}": {
 "ru": "далее: {0} TSC с блока #{1}",
@@ -2419,9 +2519,17 @@
 "ru": "{0} K proof/s",
 "zh": "{0} K proof/s"
 },
+"{0} TSC mined in {1}h ≈ ${2}": {
+"ru": "Добыто {0} TSC за {1} ч ≈ ${2}",
+"zh": "{1} 小时内挖出 {0} TSC ≈ ${2}"
+},
 "{0} TSC mined in {1}h ≈ ${2} — the supply miners can bring to market every day at today's price": {
 "ru": "{0} TSC добыто за {1} ч ≈ ${2} — предложение, которое майнеры могут выносить на рынок каждый день по текущей цене",
 "zh": "{1} 小时挖出 {0} TSC ≈ ${2}——按今天价格，这是矿工每天可以带到市场上的供应量"
+},
+"{0} TSC traded": {
+"ru": "Продано {0} TSC",
+"zh": "成交 {0} TSC"
 },
 "{0} TSC · SafeTrade ticker, rolling {1} hours": {
 "ru": "{0} TSC · тикер SafeTrade, скользящие {1} ч",
@@ -2438,6 +2546,10 @@
 "{0} blocks": {
 "ru": "{0} блоков",
 "zh": "{0} 个区块"
+},
+"{0} blocks in {1}h": {
+"ru": "{0} блоков за {1} ч",
+"zh": "{1} 小时内 {0} 个区块"
 },
 "{0} blocks in {1}h · {2}-day avg: {3}/day": {
 "ru": "{0} блоков за {1} ч · среднее за {2} дн.: {3}/день",
@@ -2535,6 +2647,10 @@
 "ru": "выпущено {0}M TSC = {1}% макс. предложения · FDV ${2}",
 "zh": "已发行 {0}M TSC = 最大供应量的 {1}% · 完全稀释估值 ${2}"
 },
+"{0}M TSC issued · FDV ${1}": {
+"ru": "Выпущено {0}M TSC · FDV ${1}",
+"zh": "已发行 {0}M TSC · 完全稀释估值 ${1}"
+},
 "{0}M TSC of {1}M circulating": {
 "ru": "{0}M TSC из {1}M в обращении",
 "zh": "{1}M 流通量中的 {0}M TSC"
@@ -2586,6 +2702,14 @@
 "— height, time, miner address, base and effective difficulty, PoI multiplier. In the database: {0} blocks ({1}–{2}), full history since genesis ({3} {m0} {4}).": {
 "ru": "— высота, время, адрес майнера, базовая и эффективная сложность, мультипликатор PoI. В базе: {0} блоков ({1}–{2}), полная история с генезиса ({3} {m0} {4}).",
 "zh": "——高度、时间、矿工地址、基础与有效难度、PoI 乘数。数据库中：{0} 个区块（{1}–{2}），自创世（{4}年{m0}{3}日）以来的完整历史。"
+},
+"↗ {0}% vs. previous {1}h": {
+"ru": "↗ {0}% к предыдущим {1} ч",
+"zh": "↗ {0}% 较前 {1} 小时"
+},
+"↘ {0}% vs. previous {1}h": {
+"ru": "↘ {0}% к предыдущим {1} ч",
+"zh": "↘ {0}% 较前 {1} 小时"
 },
 "≈ ${0} at ${1} · before pool fees, electricity and luck · last {2} hours": {
 "ru": "≈ ${0} при ${1} · до комиссии пула, электричества и удачи · последние {2} ч",

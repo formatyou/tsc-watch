@@ -533,7 +533,7 @@ def nav_html(active):
         groups.append(f'<div class="grp{" on" if on else ""}"><button type="button" class="gbtn" aria-expanded="false" aria-controls="dd{i}">{label}<span class="car" aria-hidden="true"></span></button>'
                       f'<div class="drop" id="dd{i}"><span class="gl">{label}</span>{links}</div></div>')
     cta = f'<a class="cta{" on" if active == "start" else ""}" href="start.html">Start mining</a>'
-    soon = "".join(f'<span class="soon" aria-disabled="true" title="Coming soon">{l}<em>soon</em></span>' for l in ("Wallet", "Bridge"))
+    soon = "".join(f'<span class="soon" aria-disabled="true" title="Coming soon">{l}<em>soon</em></span>' for l in ("Wallet",))
     return (f'<button type="button" class="burger" aria-expanded="false" aria-controls="menu" aria-label="Menu"><span></span><span></span><span></span></button>'
             f'<nav id="menu" class="menu">{"".join(groups)}{soon}{cta}</nav>')
 
@@ -598,6 +598,33 @@ th{font-weight:600;color:var(--mute);background:var(--paper)}
 footer{border-top:1px solid var(--line)}footer .xl{border-color:#AEBBB8}
 @media(max-width:760px){.menu{background:var(--dark);border-bottom:0}.grp{border-bottom:1px solid #33454E}.drop a{color:#E3E9EB}.drop a:hover,.drop a.on{background:rgba(255,255,255,.08);color:#fff}.drop .gl{color:#8FA0A6}.soon{padding:12px 12px;border-bottom:1px solid #33454E}}
 .hero .cell:last-child{border-right:0}
+.strip{background:#0F1B21;color:#C9D3D6;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;display:flex;justify-content:space-between;gap:12px;padding:7px max(16px,calc((100% - 1068px)/2))}
+.strip span{display:flex;align-items:center;gap:8px}.strip b{color:#fff;font-weight:600}.strip .sq{width:6px;height:6px;background:var(--acc);display:inline-block}.strip .dot{width:7px;height:7px;border-radius:50%;background:#3FA37A;display:inline-block}
+.eyebrow{font:700 11px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--acc);display:flex;align-items:center;gap:9px}.eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--acc)}
+.eyebrow.sm{letter-spacing:.1em;margin-bottom:4px}.eyebrow.sm::before{display:none}
+.hx{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:40px;align-items:end;padding:48px 0 32px}.hx h1{font-size:56px;margin:16px 0 14px}.hx .lead{margin:0}
+.hx-r{display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap;padding-bottom:6px}
+.btn{display:inline-block;background:var(--acc);color:#fff;text-decoration:none;font-weight:750;font-size:14px;padding:14px 20px;border-radius:6px;border:1px solid var(--acc)}.btn:hover{background:var(--acc-deep);color:#fff}
+.btn.ghost{background:#fff;color:var(--acc);border-color:#AEBBB8}.btn.ghost:hover{border-color:var(--acc);background:#fff;color:var(--acc)}
+.live{background:#fff;border:1px solid var(--line);margin-bottom:16px}
+.live-h{background:var(--dark);color:#fff;padding:13px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.live-h>span:first-child{font-size:13px;font-weight:690;letter-spacing:.08em;text-transform:uppercase}
+.live-h .src{font:500 11px var(--mono);color:#D9A441;display:flex;align-items:center;gap:7px}.live-h .src i{width:7px;height:7px;border-radius:50%;background:#D9A441;display:inline-block}
+.live-g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.live-g .cell{padding:18px 20px;border-right:1px solid var(--line)}.live-g .cell:last-child{border-right:0}
+.live .v,.net .v,.side .v{font-family:var(--mono);font-weight:700;font-size:26px;letter-spacing:-.01em;margin:6px 0 4px;font-variant-numeric:tabular-nums}.live .s{font-size:13px;color:var(--mute)}
+.net{background:var(--dark);color:#fff;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:22px 0;margin-bottom:16px}
+.net .cell{padding:0 22px;border-left:1px solid var(--dark-line)}.net .cell:first-child{border-left:0}.net .k{color:var(--dark-mute)}.net .s{font-size:13px;color:var(--dark-mute)}.net .s.up{color:#6FCF9F}.net .s.down{color:#F08A97}
+.net .v.big{font-size:32px}.net small{font-size:15px;color:var(--dark-mute);font-weight:500}
+.mgrid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}.mgrid>.card{margin:0}.side{display:flex;flex-direction:column;gap:16px}.side .kpi{flex:1}
+.prod{padding:0}.prod .ch{display:flex;justify-content:space-between;align-items:flex-end;padding:20px 24px 16px;gap:12px}.prod h2{margin:0}.more{font:700 13px var(--mono)}
+.pr{display:grid;grid-template-columns:2fr 3fr 1fr 1.3fr;gap:12px;align-items:center;padding:13px 24px;border-top:1px solid #E7EBE8;font-size:14px}
+.pr.ph{background:var(--paper);border-top:1px solid var(--line);border-bottom:1px solid var(--line);font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute);padding:11px 24px}
+.pr .sh{display:flex;align-items:center;gap:10px;font-family:var(--mono)}.pr .sh i{display:inline-block;height:8px;max-width:70%}.pr .addr{color:#2E617B}
+.new{font:700 10.5px var(--sans);text-transform:uppercase;letter-spacing:.06em;color:var(--acc);background:var(--acc-tint);padding:2px 7px;margin-left:6px}
+@media(max-width:900px){.hx{grid-template-columns:1fr;gap:20px;padding:32px 0 24px}.hx h1{font-size:38px}.hx-r{justify-content:flex-start}.hx-r .btn{flex:1;text-align:center}
+.live-g{grid-template-columns:1fr 1fr}.live-g .cell:nth-child(2){border-right:0}.live-g .cell:nth-child(-n+2){border-bottom:1px solid var(--line)}
+.net{grid-template-columns:1fr 1fr;row-gap:18px}.net .cell:nth-child(3){border-left:0}.mgrid{grid-template-columns:1fr}
+.pr{grid-template-columns:1.6fr 1.4fr .6fr;padding:12px 16px}.pr>span:nth-child(4){display:none}.prod .ch{padding:16px}.strip>span:first-child{display:none}}
+@media(max-width:480px){.live .v,.side .v{font-size:20px}.net .v,.net .v.big{font-size:21px}.hx-r{flex-direction:column}.hx-r .btn{width:100%}.net .cell{padding:0 14px}}
 @media(max-width:800px){.hero .cell{border-right:0}}
 """
 
@@ -624,6 +651,7 @@ def page(title, active, body, gen_ts, tip_h, tip_ts, fn="index.html"):
     nav = nav_html(active) + i18n.switcher(fn)
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)} · {esc(name)}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><meta name="theme-color" content="#17262E">{og}<style>{CSS}{NAV_CSS}{miners.CSS}{guides.CSS}{THEME_CSS}</style></head><body>
+<div class="strip"><span><i class="sq"></i>Independent TensorCash dashboard</span><span><i class="dot"></i>Chain data {fdt(tip_ts, "%d %b, %H:%M UTC")} · <b>#{fnum(tip_h)}</b></span></div>
 <header><div class="top"><a class="brand" href="index.html">{brand(dom)}</a>{nav}</div></header>
 <main>{body}</main>
 <footer><span>© 2026 tsc.watch</span><a class="xl" href="https://x.com/TSCwatch" target="_blank" rel="noopener noreferrer" aria-label="tsc.watch on X"><img src="https://cdn.jsdelivr.net/npm/simple-icons@13/icons/x.svg" alt="X" width="22" height="22"></a><a href="contact.html">Contact</a></footer>
@@ -667,21 +695,59 @@ def build_market(d, c):
     price_30d = (p1440[-1][4] / p1440[-31][4] - 1) * 100 if len(p1440) >= 31 else None
     ath = max(p1440, key=lambda r: r[2]) if p1440 else None
 
-    hero = f"""
-<section class="hero"><h1>TensorCash (TSC) <em>market</em> and <em>issuance</em>.</h1>
-<p class="lead">Price and volume from SafeTrade (the only exchange with a TSC/USDT pair); supply and issuance computed from the chain. Every number has a source under <a href="about.html">About the data</a>.</p>
-<div class="snap">On-chain snapshot: <b>block #{fnum(c['tip_h'])}</b> · {fdt(c['tip_ts'])} · price read {fdt(snap_val(d,'ts'))}</div>
-<div class="grid">
-<div class="cell"><div class="k">TSC price (SafeTrade)</div><div class="v">{fusd(price)}</div><div class="s"><span class="{cls_pct(ch24)}">{fpct(ch24,2)}</span> in 24h · 7d: <span class="{cls_pct(price_7d)}">{fpct(price_7d,1)}</span> · 30d: <span class="{cls_pct(price_30d)}">{fpct(price_30d,0)}</span></div></div>
-<div class="cell"><div class="k">24h volume</div><div class="v">{fusd(vol_usd,0)}</div><div class="s">{fnum(vol_tsc,0)} TSC · SafeTrade ticker, rolling 24 hours</div></div>
-<div class="cell"><div class="k">Market cap (circulating)</div><div class="v">{fusd(mc,0)}</div><div class="s">{fshort(circ)} TSC issued = {fpct(circ/total*100 if circ and total else None,2,False)} of max supply · FDV {fusd(fdv,0)}</div></div>
-<div class="cell"><div class="k">Daily issuance vs. volume</div><div class="v">{fpct(emis_ratio,0,False)}</div><div class="s">{fnum(new_tsc_24h,0)} TSC mined in 24h ≈ {fusd(emis_usd,0)} — the supply miners can bring to market every day at today's price</div></div>
-</div></section>"""
+    blocks = d["blocks"]
+    ref = c["ref"]
+    rate24 = c["24h"]["rate"]
+    prev_work = sum(b[3] for b in blocks if ref - 2 * DAY < b[1] <= ref - DAY)
+    rate_ch = (rate24 / (prev_work / DAY) - 1) * 100 if prev_work else None
+    epochs = c["epochs"]
+    cur_ep = next((e for e in epochs if e[0] <= c["tip_h"] < e[1]), epochs[-1])
 
-    kpis = f"""<div class="kpis k3">
-<div class="kpi"><div class="k">Funded addresses</div><div class="v">{fnum(holders)}</div><div class="s">per explorer (addresses with a balance)</div></div>
-<div class="kpi"><div class="k">Top 10 / top 100 addresses</div><div class="v">{fpct(snap_val(d,'top10_pct'),1,False)} / {fpct(snap_val(d,'top100_pct'),1,False)}</div><div class="s">share of issued supply, counted per address — understates concentration: one early miner spread its coins over thousands of addresses</div></div>
-<div class="kpi locked" aria-disabled="true"><div class="k">Free float <span class="pro">PRO</span></div><div class="v">•••••</div><div class="s">Supply that actually trades, and market cap measured on it. For subscribers — coming soon.</div></div>
+    hero = f"""
+<section class="hero hx"><div class="hx-l"><div class="eyebrow">Computed from the chain · refreshed every 10 min</div>
+<h1>The TensorCash market,<br><em>read from the blocks.</em></h1>
+<p class="lead">Price and volume from SafeTrade, issuance, network work rate, mining pools and holders — one independent view, no account needed.</p></div>
+<div class="hx-r"><a class="btn" href="calc.html">Open the miner calculator ↗</a><a class="btn ghost" href="upgrades.html">Upgrades &amp; deadlines</a></div></section>
+<section class="live"><div class="live-h"><span>Live market</span><span class="src"><i></i>SafeTrade · TSC/USDT · {fdt(snap_val(d,'ts'),'%d %b, %H:%M UTC')}</span></div>
+<div class="live-g">
+<div class="cell"><div class="k">TSC price</div><div class="v">{fusd(price)}</div><div class="s"><span class="{cls_pct(ch24)}">{fpct(ch24,2)}</span> · 24h · 7d: <span class="{cls_pct(price_7d)}">{fpct(price_7d,1)}</span> · 30d: <span class="{cls_pct(price_30d)}">{fpct(price_30d,0)}</span></div></div>
+<div class="cell"><div class="k">Market cap (issued)</div><div class="v">{fusd(mc,0)}</div><div class="s">{fshort(circ)} TSC issued · FDV {fusd(fdv,0)}</div></div>
+<div class="cell"><div class="k">24h volume</div><div class="v">{fusd(vol_usd,0)}</div><div class="s">{fnum(vol_tsc,0)} TSC traded</div></div>
+<div class="cell"><div class="k">Daily issuance vs. volume</div><div class="v">{fpct(emis_ratio,0,False)}</div><div class="s">{fnum(new_tsc_24h,0)} TSC mined in 24h ≈ {fusd(emis_usd,0)}</div></div>
+</div></section>
+<section class="net">
+<div class="cell"><div class="k">Network work rate · 24h</div><div class="v big">{frate(rate24)}</div><div class="s {'up' if (rate_ch or 0) >= 0 else 'down'}">{'↗' if (rate_ch or 0) >= 0 else '↘'} {fpct(rate_ch,1)} vs. previous 24h</div></div>
+<div class="cell"><div class="k">Effective difficulty</div><div class="v">{fshort(blocks[-1][3],2)}</div><div class="s">block #{fnum(c['tip_h'])} · ×{fnum(blocks[-1][5],2)} PoI multiplier</div></div>
+<div class="cell"><div class="k">Block reward</div><div class="v">{fnum(cur_ep[2],4)} <small>TSC</small></div><div class="s">next cut at block #{fnum(cur_ep[1])}</div></div>
+<div class="cell"><div class="k">Avg. block time · 24h</div><div class="v">{fdur(c['24h']['block_time'])}</div><div class="s">{fnum(c['24h']['blocks'])} blocks in 24h</div></div>
+</section>"""
+
+    side = f"""<div class="side">
+<div class="kpi"><div class="k">Funded addresses</div><div class="v">{fnum(holders)}</div><div class="s">addresses with a balance</div></div>
+<div class="kpi"><div class="k">Top 10 / top 100</div><div class="v">{fpct(snap_val(d,'top10_pct'),1,False)} / {fpct(snap_val(d,'top100_pct'),1,False)}</div><div class="s">counted per address — understates concentration: one early miner spread its coins over thousands of addresses</div></div>
+<div class="kpi locked" aria-disabled="true"><div class="k">Free float <span class="pro">PRO</span></div><div class="v">•••••</div><div class="s">Supply that actually trades. For subscribers — coming soon.</div></div>
+</div>"""
+
+    last = blocks[-100:]
+    first_seen = {}
+    for b in blocks:
+        first_seen.setdefault(b[2], b[1])
+    cnt = defaultdict(int)
+    for b in last:
+        cnt[b[2]] += 1
+    prod_rows = []
+    for i, (a, n) in enumerate(sorted(cnt.items(), key=lambda kv: -kv[1])[:6]):
+        sh = n / len(last) * 100
+        fresh = first_seen.get(a, 0) >= c["now"] - 7 * DAY
+        name = esc(d["aliases"][a]) if a in d["aliases"] else f'<span class="mono addr">{esc(short_addr(a))}</span>'
+        tag = ' <span class="new">new</span>' if fresh else ''
+        colr = "var(--acc)" if fresh else ("#17262E" if i == 0 else "#456E85")
+        since = f'<span class="{"warn" if fresh else ""}">{fdt(first_seen.get(a), "%d %b %Y")}</span>'
+        prod_rows.append(f'<div class="pr"><span>{name}{tag}</span><span class="sh"><i style="width:{sh:.0f}%;background:{colr}"></i>{fnum(sh,0)}%</span><span class="mono">{n}</span><span>{since}</span></div>')
+    producers = f"""<section class="card prod"><div class="ch"><div><div class="eyebrow sm">Mining</div><h2>Who produced the last {len(last)} blocks</h2></div><a class="more" href="miner.html">See all pools</a></div>
+<div class="pr ph"><span>Producer</span><span>Share</span><span>Blocks</span><span>First block</span></div>{''.join(prod_rows)}</section>"""
+
+    kpis = f"""<div class="kpis">
 <div class="kpi"><div class="k">All-time high (daily high)</div><div class="v">{fusd(ath[2]) if ath else '—'}</div><div class="s">{fdt(ath[0],'%d %b %Y') if ath else ''} · from ATH: {fpct((price/ath[2]-1)*100,0) if ath and price else '—'}</div></div>
 {costs.market_tile(sys.modules[__name__], c['costs'], price)}
 </div>"""
@@ -692,12 +758,12 @@ def build_market(d, c):
     if p60:
         last24 = [r for r in p60 if r[0] >= p60[-1][0] - DAY]
         last7 = [r for r in p60 if r[0] >= p60[-1][0] - 7 * DAY]
-        panes.append(("24h", "24h", svg_line([{"name": "price, 1h candles", "points": line_pts(last24)}], yfmt=lambda v: fusd(v, 2), xfmt=lambda x: fdt(x, "%H:%M"), y0=False)))
-        panes.append(("7d", "7 days", svg_line([{"name": "price, 1h candles", "points": line_pts(last7)}], yfmt=lambda v: fusd(v, 2), xfmt=lambda x: fdt(x, "%d %b"), y0=False)))
+        panes.append(("24h", "24h", svg_line([{"name": "price, 1h candles", "points": line_pts(last24)}], yfmt=lambda v: fusd(v, 2), xfmt=lambda x: fdt(x, "%H:%M"), y0=False, width=620)))
+        panes.append(("7d", "7 days", svg_line([{"name": "price, 1h candles", "points": line_pts(last7)}], yfmt=lambda v: fusd(v, 2), xfmt=lambda x: fdt(x, "%d %b"), y0=False, width=620)))
     if p1440:
-        panes.append(("30d", "30 days", svg_line([{"name": "daily close", "points": line_pts(p1440[-30:])}], yfmt=lambda v: fusd(v, 2), xfmt=fday, y0=False)))
-        panes.append(("all", "since listing", svg_line([{"name": "daily close", "points": line_pts(p1440)}], yfmt=lambda v: fusd(v, 2), xfmt=fday, y0=True)))
-    price_card = f"""<section class="card"><h2>TSC/USDT price</h2><p class="sub">SafeTrade OHLC candles. Hourly for 24h/7d, daily for longer ranges (UTC days). Times in UTC.</p>{tabs_block('price', panes, 2 if len(panes) > 2 else 0)}</section>"""
+        panes.append(("30d", "30 days", svg_line([{"name": "daily close", "points": line_pts(p1440[-30:])}], yfmt=lambda v: fusd(v, 2), xfmt=fday, y0=False, width=620)))
+        panes.append(("all", "since listing", svg_line([{"name": "daily close", "points": line_pts(p1440)}], yfmt=lambda v: fusd(v, 2), xfmt=fday, y0=True, width=620)))
+    price_card = f"""<div class="mgrid"><section class="card"><div class="eyebrow sm">Price &amp; volume</div><h2>TSC/USDT on SafeTrade</h2><p class="sub">SafeTrade OHLC candles. Hourly for 24h/7d, daily for longer ranges (UTC days). Times in UTC.</p>{tabs_block('price', panes, 2 if len(panes) > 2 else 0)}</section>{side}</div>"""
 
     vol_pts = [(r[0], r[5] * r[4]) for r in p1440]
     emis_pts = []
@@ -740,7 +806,7 @@ def build_market(d, c):
 </div>
 <table><thead><tr><th>Epoch</th><th>Blocks</th><th>Reward</th><th>Status</th></tr></thead><tbody>{rows}</tbody></table></section>"""
 
-    return hero + kpis + price_card + vol_card + supply_card + act_card + hist_card
+    return hero + price_card + producers + kpis + vol_card + supply_card + act_card + hist_card
 
 
 # ---------------------------------------------------------------- page: Mining
