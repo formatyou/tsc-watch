@@ -703,6 +703,10 @@
 "ru": "Сообщения пересылаются через сервис Web{0}Forms; на сайте они не хранятся.",
 "zh": "留言通过 Web{0}Forms 服务转发，本站不存储。"
 },
+"Mined by the largest producer": {
+"ru": "Добыто крупнейшим производителем",
+"zh": "最大出块者挖出的份额"
+},
 "Miner": {
 "ru": "Майнер",
 "zh": "矿工"
@@ -1286,6 +1290,10 @@
 "Something else": {
 "ru": "Другое",
 "zh": "其他"
+},
+"Source code": {
+"ru": "Исходный код",
+"zh": "源代码"
 },
 "Source: block headers from the explorer (proof.multiplier, proof.components, proof.near_pin_count), method from the proof-v{0} blog post.": {
 "ru": "Источник: заголовки блоков из обозревателя (proof.multiplier, proof.components, proof.near_pin_count), методика — из статьи о proof-v{0}.",
@@ -2295,6 +2303,10 @@
 "ru": "доля выпущенного предложения",
 "zh": "占已发行量比例"
 },
+"share of issued supply, counted per address — understates concentration: see the next tile": {
+"ru": "доля выпущенного предложения по отдельным адресам — занижает концентрацию: см. следующую плитку",
+"zh": "占已发行量比例，按单个地址计算——会低估集中度：见下一格"
+},
 "share of network {0}%": {
 "ru": "доля сети {0}%",
 "zh": "占全网 {0}%"
@@ -2526,6 +2538,10 @@
 "· balances and flows from the explorer": {
 "ru": "· балансы и потоки из обозревателя",
 "zh": "· 余额和资金流来自浏览器"
+},
+"· top {0} producers: {1}% of all TSC ever mined. The top-{2} figure counts addresses, so coins a producer spread over many addresses drop out of it. For a pool, part of this went on to its miners.": {
+"ru": "· топ-{0} производителей: {1}% всех когда-либо добытых TSC. Показатель топ-{2} считает адреса, поэтому монеты, разнесённые производителем по множеству адресов, в него не попадают. У пула часть этого ушла его майнерам.",
+"zh": "· 前 {0} 名出块者：占全部已挖 TSC 的 {1}%。前 {2} 地址指标按地址计算，出块者分散到大量地址的币不会计入其中。若是矿池，其中一部分已付给矿池矿工。"
 },
 "· {0} {m0} {1}, {2}:{3} UTC · price read {4} {m1} {5}, {6}:{7} UTC": {
 "ru": "· {0} {m0} {1}, {2}:{3} UTC · цена получена {4} {m1} {5}, {6}:{7} UTC",

@@ -445,7 +445,7 @@ main{max-width:1100px;margin:0 auto;padding:16px}
 .up{color:#2F7A55}.down{color:#B42318}.warn{color:#B26A00}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin-bottom:16px}
 .card h2{margin:0 0 4px;font-size:21px;font-weight:600;letter-spacing:-.02em}.card h3{margin:18px 0 6px;font-size:16px;font-weight:600;letter-spacing:-.01em}.card p.sub{margin:0 0 14px;color:var(--mute);font-size:14.5px}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}.kpis.k3{grid-template-columns:repeat(3,1fr)}@media(max-width:760px){.kpis.k3{grid-template-columns:1fr 1fr}}@media(max-width:480px){.kpis.k3{grid-template-columns:1fr}}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}.kpi .v{font-size:26px;font-weight:600;letter-spacing:-.03em;margin:4px 0 2px;font-variant-numeric:tabular-nums}.kpi .s{font-size:12.5px;color:var(--mute)}
 .chart{width:100%;height:auto;display:block}.grid{stroke:#E6E8EB;stroke-width:1}.tick{font:10.5px var(--mono);fill:var(--soft)}.marker{stroke:#B26A00;stroke-width:1;stroke-dasharray:3 3}.mlabel{font:10.5px var(--mono);fill:#B26A00}.line50{stroke:#B42318;stroke-width:1.2;stroke-dasharray:5 4}
 .cw{position:relative}.xh{stroke:var(--ink);stroke-width:1;opacity:.3}.xb{fill:var(--acc);opacity:.07}
@@ -640,9 +640,20 @@ def build_market(d, c):
 <div class="cell"><div class="k">Daily issuance vs. volume</div><div class="v">{fpct(emis_ratio,0,False)}</div><div class="s">{fnum(new_tsc_24h,0)} TSC mined in 24h ≈ {fusd(emis_usd,0)} — the supply miners can bring to market every day at today's price</div></div>
 </div></section>"""
 
-    kpis = f"""<div class="kpis">
+    # who mined the supply: per-address balances hide an entity that spread its coins over many addresses
+    mined = defaultdict(float)
+    for b in d["blocks"]:
+        mined[b[2]] += reward_at(c["epochs"], b[0])
+    mined_tot = sum(mined.values())
+    top_m = sorted(mined.items(), key=lambda kv: -kv[1])
+    lead = top_m[0] if top_m else (None, 0)
+    lead_pct = lead[1] / mined_tot * 100 if mined_tot else None
+    top3_pct = sum(v for _, v in top_m[:3]) / mined_tot * 100 if mined_tot else None
+    lead_name = esc(d["aliases"].get(lead[0]) or short_addr(lead[0] or ""))
+    kpis = f"""<div class="kpis k3">
 <div class="kpi"><div class="k">Funded addresses</div><div class="v">{fnum(holders)}</div><div class="s">per explorer (addresses with a balance)</div></div>
-<div class="kpi"><div class="k">Top 10 / top 100 addresses</div><div class="v">{fpct(snap_val(d,'top10_pct'),1,False)} / {fpct(snap_val(d,'top100_pct'),1,False)}</div><div class="s">share of issued supply</div></div>
+<div class="kpi"><div class="k">Top 10 / top 100 addresses</div><div class="v">{fpct(snap_val(d,'top10_pct'),1,False)} / {fpct(snap_val(d,'top100_pct'),1,False)}</div><div class="s">share of issued supply, counted per address — understates concentration: see the next tile</div></div>
+<div class="kpi"><div class="k">Mined by the largest producer</div><div class="v">{fpct(lead_pct,0,False)}</div><div class="s"><span>{lead_name}</span> · top 3 producers: {fpct(top3_pct,0,False)} of all TSC ever mined. The top-10 figure counts addresses, so coins a producer spread over many addresses drop out of it. For a pool, part of this went on to its miners.</div></div>
 <div class="kpi"><div class="k">All-time high (daily high)</div><div class="v">{fusd(ath[2]) if ath else '—'}</div><div class="s">{fdt(ath[0],'%d %b %Y') if ath else ''} · from ATH: {fpct((price/ath[2]-1)*100,0) if ath and price else '—'}</div></div>
 <div class="kpi"><div class="k">Mempool</div><div class="v">{fnum(snap_val(d,'mempool'))}</div><div class="s">pending transactions</div></div>
 {costs.market_tile(sys.modules[__name__], c['costs'], price)}
@@ -888,14 +899,14 @@ LINKS = [
         ("How to run a node", "https://tensorcash.org/blog/how-to-run-a-node/", "Full node setup"),
         ("How to run a verifier", "https://tensorcash.org/blog/how-to-run-a-verifier/", "Verifier setup"),
         ("How to run the wallet", "https://tensorcash.org/blog/how-to-run-the-wallet/", "Wallet setup"),
-        ("Latest releases", "https://github.com/tensorcash/tensorcash/releases", "Always verify signatures before running"),
+        ("Latest releases", "https://git.tensorcash.org/tensorcash/tensorcash/releases", "Always verify signatures before running"),
     ]),
     ("Socials", [
         ("X", "https://x.com/Tensorcash", "@Tensorcash"),
         ("Telegram", "https://t.me/TensorCash_org", "t.me/TensorCash_org"),
         ("Reddit", "https://reddit.com/r/TensorCash", "r/TensorCash"),
         ("Nostr", "https://njump.me/npub1pft0lcdaznczfhjflu5n3t3j7argg355aj2dhm8u2t9avmdwwnfqlp0kv6", "npub1pft0lcd…lp0kv6"),
-        ("GitHub", "https://github.com/tensorcash", "github.com/tensorcash"),
+        ("Source code", "https://git.tensorcash.org/tensorcash", "git.tensorcash.org"),
         ("Discord", "https://discord.gg/xR6CjKm4EY", "Official Discord server"),
     ]),
 ]
