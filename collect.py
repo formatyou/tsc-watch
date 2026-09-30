@@ -600,7 +600,7 @@ def notify_private(text):
         return False
 
 
-def sync_dormant(con, check_per_run=400, max_blocks_per_run=30):
+def sync_dormant(con, check_per_run=120, max_blocks_per_run=30):
     con.executescript(DORMANT_SCHEMA)
     if con.execute("SELECT COUNT(*) FROM dormant").fetchone()[0] == 0:
         mn = con.execute("SELECT MIN(height) FROM blocks").fetchone()[0]
