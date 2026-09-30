@@ -231,6 +231,10 @@
 "ru": "Цена безубыточности",
 "zh": "盈亏平衡价"
 },
+"Bridge": {
+"ru": "Мост",
+"zh": "跨链桥"
+},
 "By GPU, last {0} hours": {
 "ru": "По GPU, последние {0} ч",
 "zh": "按显卡，最近 {0} 小时"
@@ -274,6 +278,10 @@
 "Combined work of all miners in proof/s (sum of effective block difficulty ÷ time). The hourly estimate is inherently noisy — at ~{0} blocks per hour, luck dominates; the {1}-hour average is the reliable line.": {
 "ru": "Совокупная работа всех майнеров в proof/s (сумма эффективной сложности блоков ÷ время). Часовая оценка шумная — при ~{0} блоках в час решает удача; надёжна линия среднего за {1} ч.",
 "zh": "全体矿工的总工作量，单位 proof/s（有效区块难度之和 ÷ 时间）。每小时估算天然噪声大——每小时约 {0} 个区块，运气占主导；{1} 小时均值才是可靠的曲线。"
+},
+"Coming soon": {
+"ru": "Скоро",
+"zh": "即将推出"
 },
 "Components are the four factors of the v{0} price (the \"pin\" factor was {1} on every block). Pool miners inherit their pool's multiplier: a pool at {2}× pays everyone ~{3}% less than the same pool at {4}× would.": {
 "ru": "Компоненты — четыре фактора цены v{0} (фактор «pin» был {1} в каждом блоке). Майнеры пула наследуют его мультипликатор: пул с {2}× платит всем на ~{3}% меньше, чем тот же пул с {4}×.",
@@ -1643,6 +1651,10 @@
 "ru": "Через",
 "zh": "来源"
 },
+"Wallet": {
+"ru": "Кошелёк",
+"zh": "钱包"
+},
 "Wallet setup": {
 "ru": "Настройка кошелька",
 "zh": "钱包设置"
@@ -2334,6 +2346,10 @@
 "solo": {
 "ru": "соло",
 "zh": "独立"
+},
+"soon": {
+"ru": "скоро",
+"zh": "即将推出"
 },
 "suprnova ({0}% fee)": {
 "ru": "suprnova (комиссия {0}%)",

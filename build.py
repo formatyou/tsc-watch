@@ -533,8 +533,9 @@ def nav_html(active):
         groups.append(f'<div class="grp{" on" if on else ""}"><button type="button" class="gbtn" aria-expanded="false" aria-controls="dd{i}">{label}<span class="car" aria-hidden="true"></span></button>'
                       f'<div class="drop" id="dd{i}"><span class="gl">{label}</span>{links}</div></div>')
     cta = f'<a class="cta{" on" if active == "start" else ""}" href="start.html">Start mining</a>'
+    soon = "".join(f'<span class="soon" aria-disabled="true" title="Coming soon">{l}<em>soon</em></span>' for l in ("Wallet", "Bridge"))
     return (f'<button type="button" class="burger" aria-expanded="false" aria-controls="menu" aria-label="Menu"><span></span><span></span><span></span></button>'
-            f'<nav id="menu" class="menu">{"".join(groups)}{cta}</nav>')
+            f'<nav id="menu" class="menu">{"".join(groups)}{soon}{cta}</nav>')
 
 
 NAV_CSS = """
@@ -563,6 +564,43 @@ NAV_CSS = """
 @media(prefers-reduced-motion:reduce){.car,.burger span{transition:none}}
 """
 
+THEME_CSS = """
+:root{--bg:#ECEFEB;--paper:#F3F5F3;--line:#D3D9D6;--ink:#17232A;--mute:#5C6C71;--soft:#7F8D90;--dark:#17262E;--dark-line:#33454E;--dark-mute:#9FB0B5;
+--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"JetBrains Mono",monospace}
+body{font-feature-settings:normal}
+header{background:var(--dark);backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:0}
+.top{padding:14px 16px}.brand{color:#fff;font-weight:700;letter-spacing:-.01em}.brand span{color:#E6B7C1}
+.gbtn{color:#D6DEE0;border-radius:3px;font-weight:500}.gbtn:hover,.gbtn[aria-expanded=true]{background:rgba(255,255,255,.08);color:#fff}
+.grp.on>.gbtn{color:#fff;background:transparent;box-shadow:inset 0 0 0 1px #3A4C55;font-weight:600}
+.drop{border-radius:3px;box-shadow:0 12px 32px rgba(15,17,21,.18)}.drop a{border-radius:2px}
+.cta{border-radius:3px;border:0;font:750 13px var(--sans);text-transform:none;letter-spacing:0;padding:10px 16px}
+.langs{border:1px solid #3A4C55;border-radius:3px;background:transparent;padding:0;gap:0}.lg{border-radius:0;color:#C9D3D6;padding:8px 10px;font-weight:600}
+.lg:hover{background:rgba(255,255,255,.08);color:#fff}.lg.on{background:#fff;color:var(--dark)}
+.burger{background:transparent;border-color:#3A4C55;border-radius:3px}.burger span{background:#fff}
+.soon{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;color:#6F8188;font:500 14px var(--sans);cursor:not-allowed;user-select:none}
+.soon em{font:600 9.5px var(--mono);font-style:normal;text-transform:uppercase;letter-spacing:.1em;border:1px solid #3A4C55;color:#8FA0A6;padding:2px 6px;border-radius:2px}
+.hero{border-bottom:0;padding:44px 0 18px}
+.hero h1{font-weight:710;letter-spacing:-.05em;line-height:1.02;color:#151417}
+.hero h1 em{font-family:Georgia,"Times New Roman",serif;font-weight:400;letter-spacing:-.05em;color:var(--acc)}
+.hero .snap{border-radius:2px;background:transparent;border:0;padding:0;color:var(--acc);font-weight:700;letter-spacing:.2em}.hero .snap::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--acc);margin-right:9px;vertical-align:1px}
+.hero .grid{background:var(--card);border:1px solid var(--line);border-top:1px solid var(--line)}.hero .cell{padding:18px 20px;border-right:1px solid var(--line)}
+.k,.hero .cell .k,.kpi .k,.ekpis .k{font:600 11px/1.4 var(--mono);letter-spacing:.06em;color:var(--mute)}
+.hero .cell .v,.kpi .v{font-family:var(--mono);font-weight:700;letter-spacing:-.01em}
+.hero .cell .v{font-size:28px}.kpi .v{font-size:24px}
+.card,.kpi,.lnk,.mres .mcard,.health,.verdict,pre.code{border-radius:3px}
+.card h2{font-weight:690;letter-spacing:-.02em}
+.kpi.locked{background:var(--paper);border-color:#AEBBB8}.pro,.badge{border-radius:2px}
+.tabs{gap:0;border:1px solid #AEBBB8;display:inline-flex}.tabs button{border:0;border-right:1px solid #AEBBB8;border-radius:0;background:var(--card);font:600 12px var(--sans);text-transform:none;letter-spacing:0;color:var(--ink);padding:8px 13px}.tabs button:last-child{border-right:0}
+.tabs button.on{background:var(--acc-tint);color:var(--acc);border-color:#AEBBB8}
+.look input,.look button,.seg button,.calc input,.calc select,.cform input,.cform select,.cform textarea,.cbtn,.pill,.labtag{border-radius:3px}
+.tip{border-radius:3px}
+th{font-weight:600;color:var(--mute);background:var(--paper)}
+footer{border-top:1px solid var(--line)}footer .xl{border-color:#AEBBB8}
+@media(max-width:760px){.menu{background:var(--dark);border-bottom:0}.grp{border-bottom:1px solid #33454E}.drop a{color:#E3E9EB}.drop a:hover,.drop a.on{background:rgba(255,255,255,.08);color:#fff}.drop .gl{color:#8FA0A6}.soon{padding:12px 12px;border-bottom:1px solid #33454E}}
+.hero .cell:last-child{border-right:0}
+@media(max-width:800px){.hero .cell{border-right:0}}
+"""
+
 NAV_JS = """
 (function(){const btns=[...document.querySelectorAll('.gbtn')],menu=document.getElementById('menu'),bur=document.querySelector('.burger');
 const close=ex=>btns.forEach(b=>{if(b!==ex)b.setAttribute('aria-expanded','false')});
@@ -585,7 +623,7 @@ def page(title, active, body, gen_ts, tip_h, tip_ts, fn="index.html"):
     og += i18n.hreflang(fn, dom)
     nav = nav_html(active) + i18n.switcher(fn)
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{esc(title)} · {esc(name)}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><meta name="theme-color" content="#F7F8F9">{og}<style>{CSS}{NAV_CSS}{miners.CSS}{guides.CSS}</style></head><body>
+<title>{esc(title)} · {esc(name)}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><meta name="theme-color" content="#17262E">{og}<style>{CSS}{NAV_CSS}{miners.CSS}{guides.CSS}{THEME_CSS}</style></head><body>
 <header><div class="top"><a class="brand" href="index.html">{brand(dom)}</a>{nav}</div></header>
 <main>{body}</main>
 <footer><span>© 2026 tsc.watch</span><a class="xl" href="https://x.com/TSCwatch" target="_blank" rel="noopener noreferrer" aria-label="tsc.watch on X"><img src="https://cdn.jsdelivr.net/npm/simple-icons@13/icons/x.svg" alt="X" width="22" height="22"></a><a href="contact.html">Contact</a></footer>
