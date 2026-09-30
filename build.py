@@ -626,7 +626,14 @@ main,.top,footer{max-width:1360px}
 .net{grid-template-columns:1fr 1fr;row-gap:18px}.net .cell:nth-child(3){border-left:0}.mgrid{grid-template-columns:1fr}
 .pr{grid-template-columns:1.6fr 1.4fr .6fr;padding:12px 16px}.pr>span:nth-child(4){display:none}.prod .ch{padding:16px}.strip>span:first-child{display:none}}
 @media(max-width:480px){.live .v,.side .v{font-size:20px}.net .v,.net .v.big{font-size:21px}.hx-r{flex-direction:column}.hx-r .btn{width:100%}.net .cell{padding:0 14px}}
-@media(max-width:800px){.hero .cell{border-right:0}}
+.hero:not(.hx){padding:44px 0 22px}.hero:not(.hx) h1{font-size:48px;margin-bottom:14px}
+.hero:not(.hx) .grid{background:var(--dark);border:0;color:#fff;margin-top:6px}
+.hero:not(.hx) .cell{border-right:1px solid var(--dark-line);border-bottom:0;padding:22px}.hero:not(.hx) .cell:last-child{border-right:0}
+.hero:not(.hx) .cell .k,.hero:not(.hx) .cell .s{color:var(--dark-mute)}.hero:not(.hx) .cell .v{color:#fff;font-size:28px}
+.hero:not(.hx) .cell a{color:#E6B7C1}.hero:not(.hx) .up{color:#6FCF9F}.hero:not(.hx) .down,.hero:not(.hx) .v.down{color:#F08A97}.hero:not(.hx) .warn,.hero:not(.hx) .v.warn{color:#E0B45A}
+.look{gap:0;margin:10px 0 20px}.look input{border-radius:3px 0 0 3px;border-color:#AEBBB8;padding:14px 16px;font-size:15px}.look button{border-radius:0 3px 3px 0;background:var(--acc);border-color:var(--acc);color:#fff;font:750 14px var(--sans);text-transform:none;letter-spacing:0;padding:14px 22px}.look button:hover{background:var(--acc-deep)}
+.card table th{background:var(--paper)}.card>table,.card .tw>table{margin-top:8px}
+@media(max-width:800px){.hero .cell{border-right:0}.hero:not(.hx) .cell{border-bottom:1px solid var(--dark-line)}.hero:not(.hx) .cell:last-child{border-bottom:0}.hero:not(.hx) h1{font-size:34px}}
 """
 
 NAV_JS = """
