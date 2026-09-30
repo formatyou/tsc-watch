@@ -643,7 +643,6 @@ def build_market(d, c):
     kpis = f"""<div class="kpis k3">
 <div class="kpi"><div class="k">Funded addresses</div><div class="v">{fnum(holders)}</div><div class="s">per explorer (addresses with a balance)</div></div>
 <div class="kpi"><div class="k">Top 10 / top 100 addresses</div><div class="v">{fpct(snap_val(d,'top10_pct'),1,False)} / {fpct(snap_val(d,'top100_pct'),1,False)}</div><div class="s">share of issued supply, counted per address — understates concentration: one early miner spread its coins over thousands of addresses</div></div>
-<div class="kpi locked" aria-disabled="true"><div class="k">Early miner · blocks 1–7,359 <span class="pro">PRO</span></div><div class="v">•••••</div><div class="s">Coins mined in the first month and never moved, with an alert the moment they move. For subscribers — coming soon.</div></div>
 <div class="kpi locked" aria-disabled="true"><div class="k">Free float <span class="pro">PRO</span></div><div class="v">•••••</div><div class="s">Supply that actually trades, and market cap measured on it. For subscribers — coming soon.</div></div>
 <div class="kpi"><div class="k">All-time high (daily high)</div><div class="v">{fusd(ath[2]) if ath else '—'}</div><div class="s">{fdt(ath[0],'%d %b %Y') if ath else ''} · from ATH: {fpct((price/ath[2]-1)*100,0) if ath and price else '—'}</div></div>
 {costs.market_tile(sys.modules[__name__], c['costs'], price)}
