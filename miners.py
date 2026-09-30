@@ -368,7 +368,7 @@ function bars(daily,day0){const W=900,H=200,pl=58,pr=16,pt=14,pb=30,n=30,bw=(W-p
   bs.push([+(X+bw/2).toFixed(1),day0+i*86400,[['TSC',  '#731D30',f2(x,3)+' TSC ≈ '+usd(x*D.price)]]])});
  s+='</svg>';const w=document.createElement('div');w.className='cw';w.innerHTML=s;const svg=w.firstChild;
  svg.setAttribute('data-tip',JSON.stringify({d:1,b:[pt,H-pb],l:pl,r:W-pr,bw:+bw.toFixed(1),bars:bs}));return w}
-function health(d,kind,pool,last,est,daily,pm){const H=[],now=d.generated_at,hh=x=>x<48?Math.round(x)+' h':f2(x/24,1)+' days',rank={ok:0,warn:1,bad:2};
+function health(d,kind,pool,last,est,daily,pm,m0first){const H=[],now=d.generated_at,hh=x=>x<1?Math.max(1,Math.round(x*60))+' min':x<10?f2(x,1)+' h':x<48?Math.round(x)+' h':f2(x/24,1)+' days',rank={ok:0,warn:1,bad:2};
  const age=(now-last)/3600;
  if(kind===1){const gap=((pool&&pool.gap)||86400)/3600;const lvl=age<=1.5*gap+3?'ok':age<=3*gap?'warn':'bad';
   H.push([lvl,'Payouts',lvl==='ok'?'Last payout '+hh(age)+' ago. '+(pool?esc(pool.name):'Your pool')+' pays about every '+hh(gap)+'.':'No payout for '+hh(age)+', while '+(pool?esc(pool.name):'your pool')+' pays about every '+hh(gap)+'. Check that the rig is online and on the current miner version.'])}
@@ -377,7 +377,8 @@ function health(d,kind,pool,last,est,daily,pm){const H=[],now=d.generated_at,hh=
  else H.push(['bad','Blocks','No block in the last 7 days.']);
  const v=Array(30).fill(0);daily.forEach(([k,x])=>{if(k>=0&&k<30)v[k]+=x});const y=Array(30).fill(0);(d.yield||[]).forEach(([k,x])=>{if(k>=0&&k<30)y[k]=x});
  const sum=(a,i,j)=>a.slice(i,j).reduce((s,x)=>s+x,0);const e1=sum(v,22,29),e0=sum(v,15,22),y1=sum(y,22,29),y0=sum(y,15,22);
- if(kind===0&&e0>0&&e0<5*50)H.push(['ok','Weekly trend','Too few blocks per week for a reliable trend; luck dominates.']);
+ const first=m0first;if(first>d.day0+15*86400)H.push(['ok','Weekly trend','Mining here for less than two weeks; the trend appears after 14 days.']);
+ else if(kind===0&&e0>0&&e0<5*50)H.push(['ok','Weekly trend','Too few blocks per week for a reliable trend; luck dominates.']);
  else if(e0>0&&y0>0&&y1>0){const r1=e1/y1,r0=e0/y0,ch=(r1/r0-1)*100,net=(y1/y0-1)*100;const lvl=ch>=-20?'ok':ch>=-50?'warn':'bad';
   H.push([lvl,'Weekly trend','Earned '+(e1>=e0?'+':'')+Math.round((e1/e0-1)*100)+'% vs the week before; the network paid '+(net>=0?'+':'')+Math.round(net)+'% per PoI/s. Your implied proof rate: '+(ch>=0?'+':'')+Math.round(ch)+'%.'+(lvl!=='ok'?' A drop this size usually means rigs offline or rejected work, not the network.':'')])}
  const pmx=kind===1?(pool&&pool.mult):pm;if(pmx){const mm=pmx[0],lim=Math.max(1.05,(d.net_mult||1)+0.02),lvl=mm<=lim?'ok':mm<=1.15?'warn':'bad',who=kind===1?'Your pool\'s blocks':'Your blocks';
@@ -393,7 +394,7 @@ async function show(a){a=(a||'').trim();if(!a)return;const d=await data();const 
  R.innerHTML='<div class="mcard"><div class="mhead"><span class="badge">'+via+'</span> <a class="mono" href="https://tscscan.xyz/address/'+encodeURIComponent(a)+'" target="_blank" rel="noopener noreferrer">'+esc(a)+' ↗</a></div><div class="kpis">'+
   k.map(r=>'<div class="kpi"><div class="k">'+r[0]+'</div><div class="v">'+r[1]+'</div><div class="s">'+r[2]+'</div></div>').join('')+'</div><h3>'+(kind===1?'Payouts':'Block rewards')+' per UTC day, last 30 days</h3><div class="legend"><span class="lg"><i style="background:#731D30"></i>TSC</span></div></div>';
  const c=bars(daily,d.day0);R.querySelector('.mcard').appendChild(c);window.tscTip&&window.tscTip(c.querySelector('svg'));
- R.querySelector('.kpis').insertAdjacentHTML('beforebegin',health(d,kind,pool,last,est,daily,pm));
+ R.querySelector('.kpis').insertAdjacentHTML('beforebegin',health(d,kind,pool,last,est,daily,pm,first));
  R.querySelector('.mcard').insertAdjacentHTML('beforeend','<p class="note">'+(kind===1?'Pools pay in batches, so single days jump around; the 7-day average is the fairer number. Proof rate is grossed up by the pool fee.':'Block rewards at the epoch reward; luck makes daily numbers noisy.')+'</p>')}
 F.addEventListener('submit',e=>{e.preventDefault();const a=document.getElementById('maddr').value.trim();if(a){history.replaceState(null,'','#'+a);show(a)}});
 function fromHash(){const a=decodeURIComponent(location.hash.slice(1));if(a.startsWith('tc1')){document.getElementById('maddr').value=a;show(a);F.scrollIntoView({behavior:'smooth'})}}
