@@ -1028,7 +1028,7 @@ def build_links(d, c):
         + "".join(f'<a class="lnk" href="{esc(u)}" target="_blank" rel="noopener noreferrer nofollow">'
                   f'<span class="lt">{esc(t)} <span class="ext">↗</span></span><span class="ld">{esc(desc)}</span>'
                   f'<span class="lu">{esc(urlparse(u).netloc.removeprefix("www."))}</span></a>' for t, u, desc in items)
-        + "</div></section>" for g, items in LINKS)
+        + "</div></section>" for g, items in ([("Wallet", [("TSC Watch Wallet", WALLET_URL, "Self-custody web wallet made by tsc.watch")])] if WALLET_LIVE else []) + LINKS)
     return (f'<section class="card"><h2>Official TensorCash links</h2><p class="sub">Project websites, guides, releases and community channels. '
             f'tsc.watch is an independent dashboard and is not affiliated with the TensorCash team. Before downloading software, check the domain in your '
             f'address bar and verify release signatures at <a href="https://verify.tensorcash.org/" target="_blank" rel="noopener noreferrer nofollow">verify.tensorcash.org</a>. '
