@@ -587,16 +587,25 @@ def _dm_set(con, k, v):
     con.execute("INSERT OR REPLACE INTO dormant_meta(key,value) VALUES(?,?)", (k, str(v)))
 
 
+TG_LAST = "not tried"
+
+
 def notify_private(text):
     """Telegram message to the owner; silently skipped when TG_BOT_TOKEN / TG_CHAT_ID are not set."""
     tok, chat = os.environ.get("TG_BOT_TOKEN"), os.environ.get("TG_CHAT_ID")
     if not tok or not chat or FIXTURES:
         return False
     data = urllib.parse.urlencode({"chat_id": chat, "text": text, "disable_web_page_preview": "true"}).encode()
+    global TG_LAST
     try:
         urllib.request.urlopen(urllib.request.Request(f"https://api.telegram.org/bot{tok}/sendMessage", data=data), timeout=20)
+        TG_LAST = "sent"
         return True
-    except Exception:
+    except urllib.error.HTTPError as e:
+        TG_LAST = f"http {e.code}"
+        return False
+    except Exception as e:
+        TG_LAST = type(e).__name__
         return False
 
 
@@ -724,12 +733,18 @@ def main(argv):
         log(f"ERROR watch: {type(e).__name__}")
 
     try:
-        if os.environ.get("TG_BOT_TOKEN") and not _dm_get(con, "tg_hello"):
+        has_tok, has_chat = bool(os.environ.get("TG_BOT_TOKEN")), bool(os.environ.get("TG_CHAT_ID"))
+        if not (has_tok and has_chat):
+            log(f"tg: secrets missing (token={has_tok}, chat={has_chat})")
+        elif _dm_get(con, "tg_hello"):
+            log("tg: ok (hello already sent)")
+        else:
             n = con.execute("SELECT COUNT(*) FROM dormant").fetchone()[0]
             sp = con.execute("SELECT COUNT(*) FROM dormant WHERE spent_height IS NOT NULL").fetchone()[0]
             if notify_private(f"tsc.watch bot connected. Early-miner watch: {n - sp} of {n} addresses untouched. You will get a message here when any of them moves."):
                 _dm_set(con, "tg_hello", 1)
                 con.commit()
+            log(f"tg: {TG_LAST}")
     except Exception as e:
         log(f"ERROR tg: {type(e).__name__}")
 
