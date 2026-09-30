@@ -588,7 +588,7 @@ def page(title, active, body, gen_ts, tip_h, tip_ts, fn="index.html"):
 <title>{esc(title)} · {esc(name)}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><meta name="theme-color" content="#F7F8F9">{og}<style>{CSS}{NAV_CSS}{miners.CSS}{guides.CSS}</style></head><body>
 <header><div class="top"><a class="brand" href="index.html">{brand(dom)}</a>{nav}</div></header>
 <main>{body}</main>
-<footer>Generated {fdt(gen_ts)} · on-chain data through block #{fnum(tip_h)} ({fdt(tip_ts)}) · sources: tscscan.xyz, SafeTrade · independent project, not investment advice · <a href="about.html">methodology</a> · <a href="contact.html">contact</a></footer>
+<footer>© 2026 · <a href="https://x.com/TSCwatch" target="_blank" rel="noopener noreferrer">X</a> · <a href="contact.html">Contact</a></footer>
 <script>{JS}{NAV_JS}{miners.CALC_JS}{miners.MINER_JS}{miners.EPOCH_JS}{guides.START_JS}{guides.CONTACT_JS}</script></body></html>"""
 
 
