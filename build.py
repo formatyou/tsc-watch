@@ -598,11 +598,12 @@ th{font-weight:600;color:var(--mute);background:var(--paper)}
 footer{border-top:1px solid var(--line)}footer .xl{border-color:#AEBBB8}
 @media(max-width:760px){.menu{background:var(--dark);border-bottom:0}.grp{border-bottom:1px solid #33454E}.drop a{color:#E3E9EB}.drop a:hover,.drop a.on{background:rgba(255,255,255,.08);color:#fff}.drop .gl{color:#8FA0A6}.soon{padding:12px 12px;border-bottom:1px solid #33454E}}
 .hero .cell:last-child{border-right:0}
-.strip{background:#0F1B21;color:#C9D3D6;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;display:flex;justify-content:space-between;gap:12px;padding:7px max(16px,calc((100% - 1068px)/2))}
+main,.top,footer{max-width:1360px}
+.strip{background:#0F1B21;color:#C9D3D6;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;display:flex;justify-content:space-between;gap:12px;padding:7px max(16px,calc((100% - 1328px)/2))}
 .strip span{display:flex;align-items:center;gap:8px}.strip b{color:#fff;font-weight:600}.strip .sq{width:6px;height:6px;background:var(--acc);display:inline-block}.strip .dot{width:7px;height:7px;border-radius:50%;background:#3FA37A;display:inline-block}
 .eyebrow{font:700 11px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--acc);display:flex;align-items:center;gap:9px}.eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--acc)}
 .eyebrow.sm{letter-spacing:.1em;margin-bottom:4px}.eyebrow.sm::before{display:none}
-.hx{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:40px;align-items:end;padding:48px 0 32px}.hx h1{font-size:56px;margin:16px 0 14px}.hx .lead{margin:0}
+.hx{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:40px;align-items:end;padding:48px 0 32px}.hx h1{font-size:56px;margin:0 0 14px}.hx h1 em{font-size:.7em;letter-spacing:-.04em}.hx .lead{margin:0}
 .hx-r{display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap;padding-bottom:6px}
 .btn{display:inline-block;background:var(--acc);color:#fff;text-decoration:none;font-weight:750;font-size:14px;padding:14px 20px;border-radius:6px;border:1px solid var(--acc)}.btn:hover{background:var(--acc-deep);color:#fff}
 .btn.ghost{background:#fff;color:var(--acc);border-color:#AEBBB8}.btn.ghost:hover{border-color:var(--acc);background:#fff;color:var(--acc)}
@@ -704,7 +705,7 @@ def build_market(d, c):
     cur_ep = next((e for e in epochs if e[0] <= c["tip_h"] < e[1]), epochs[-1])
 
     hero = f"""
-<section class="hero hx"><div class="hx-l"><div class="eyebrow">Computed from the chain · refreshed every 10 min</div>
+<section class="hero hx"><div class="hx-l">
 <h1>The TensorCash market,<br><em>read from the blocks.</em></h1>
 <p class="lead">Price and volume from SafeTrade, issuance, network work rate, mining pools and holders — one independent view, no account needed.</p></div>
 <div class="hx-r"><a class="btn" href="calc.html">Open the miner calculator ↗</a><a class="btn ghost" href="upgrades.html">Upgrades &amp; deadlines</a></div></section>
@@ -758,11 +759,11 @@ def build_market(d, c):
     if p60:
         last24 = [r for r in p60 if r[0] >= p60[-1][0] - DAY]
         last7 = [r for r in p60 if r[0] >= p60[-1][0] - 7 * DAY]
-        panes.append(("24h", "24h", svg_line([{"name": "price, 1h candles", "points": line_pts(last24)}], yfmt=lambda v: fusd(v, 2), xfmt=lambda x: fdt(x, "%H:%M"), y0=False, width=620)))
-        panes.append(("7d", "7 days", svg_line([{"name": "price, 1h candles", "points": line_pts(last7)}], yfmt=lambda v: fusd(v, 2), xfmt=lambda x: fdt(x, "%d %b"), y0=False, width=620)))
+        panes.append(("24h", "24h", svg_line([{"name": "price, 1h candles", "points": line_pts(last24)}], yfmt=lambda v: fusd(v, 2), xfmt=lambda x: fdt(x, "%H:%M"), y0=False, width=860)))
+        panes.append(("7d", "7 days", svg_line([{"name": "price, 1h candles", "points": line_pts(last7)}], yfmt=lambda v: fusd(v, 2), xfmt=lambda x: fdt(x, "%d %b"), y0=False, width=860)))
     if p1440:
-        panes.append(("30d", "30 days", svg_line([{"name": "daily close", "points": line_pts(p1440[-30:])}], yfmt=lambda v: fusd(v, 2), xfmt=fday, y0=False, width=620)))
-        panes.append(("all", "since listing", svg_line([{"name": "daily close", "points": line_pts(p1440)}], yfmt=lambda v: fusd(v, 2), xfmt=fday, y0=True, width=620)))
+        panes.append(("30d", "30 days", svg_line([{"name": "daily close", "points": line_pts(p1440[-30:])}], yfmt=lambda v: fusd(v, 2), xfmt=fday, y0=False, width=860)))
+        panes.append(("all", "since listing", svg_line([{"name": "daily close", "points": line_pts(p1440)}], yfmt=lambda v: fusd(v, 2), xfmt=fday, y0=True, width=860)))
     price_card = f"""<div class="mgrid"><section class="card"><div class="eyebrow sm">Price &amp; volume</div><h2>TSC/USDT on SafeTrade</h2><p class="sub">SafeTrade OHLC candles. Hourly for 24h/7d, daily for longer ranges (UTC days). Times in UTC.</p>{tabs_block('price', panes, 2 if len(panes) > 2 else 0)}</section>{side}</div>"""
 
     vol_pts = [(r[0], r[5] * r[4]) for r in p1440]
