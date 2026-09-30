@@ -41,6 +41,7 @@ jobs:
       - name: build site
         env:
           SITE_DOMAIN: ${{ vars.SITE_DOMAIN || 'tsc.watch' }}
+          CONTACT_FORM_KEY: ${{ vars.CONTACT_FORM_KEY }}
         run: python3 build.py
 
       - name: save db cache
