@@ -625,6 +625,7 @@ EXCH_ALERT_TSC = 5000
 EXCH_SCHEMA = """
 CREATE TABLE IF NOT EXISTS exch_addr (address TEXT PRIMARY KEY, added_h INTEGER);
 CREATE TABLE IF NOT EXISTS exch_queue (address TEXT PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS exch_maybe (address TEXT PRIMARY KEY, grp TEXT, h INTEGER);
 """
 
 
@@ -691,9 +692,31 @@ def exch_tx(con, h, t, alerts):
     known = lambda a: con.execute("SELECT 1 FROM exch_addr WHERE address=?", (a,)).fetchone() is not None
     if any(known(a) for a in ins):
         _exch_add(con, ins, h)          # exchange spend: co-inputs are exchange too
+        # candidates first seen in a wallet-fingerprint tx join once one of them is co-spent here
+        q = ",".join("?" * len(ins))
+        grps = [r[0] for r in con.execute(f"SELECT DISTINCT grp FROM exch_maybe WHERE address IN ({q})", ins)]
+        for g in grps:
+            addrs = [r[0] for r in con.execute("SELECT address FROM exch_maybe WHERE grp=?", (g,))]
+            _exch_add(con, addrs, h)
+            con.execute("DELETE FROM exch_maybe WHERE grp=?", (g,))
+            _dm_set(con, "exch_promoted", int(_dm_get(con, "exch_promoted", 0)) + len(addrs))
         return
     dep = [(o.get("address"), o.get("value_sats") or 0) for o in t.get("outputs") or [] if o.get("address") and known(o["address"])]
     total = sum(v for _, v in dep)
+    outs = t.get("outputs") or []
+    lt, fee, vs = t.get("locktime") or 0, t.get("fee_sats"), t.get("vsize")
+    if (not dep and len(outs) == 2 and len(set(ins)) >= 2 and fee and fee == vs
+            and 0 < lt <= h and h - lt <= 3):
+        # same wallet fingerprint as SafeTrade withdrawals (1 sat/vB, anti-fee-sniping locktime,
+        # 2 outputs): keep the inputs as candidates, never counted until linked by a co-spend
+        g = t.get("txid")
+        q = ",".join("?" * len(ins))
+        prev = con.execute(f"SELECT grp FROM exch_maybe WHERE address IN ({q}) LIMIT 1", ins).fetchone()
+        if prev:
+            con.execute("UPDATE exch_maybe SET grp=? WHERE grp=?", (prev[0], g))
+            g = prev[0]
+        for a in set(ins):
+            con.execute("INSERT OR IGNORE INTO exch_maybe(address, grp, h) VALUES(?,?,?)", (a, g, h))
     if total >= EXCH_ALERT_TSC * 10**8:
         src = sorted(set(ins))
         alerts.append(f"SafeTrade deposit: {total / 1e8:,.0f} TSC · block {h}\n"
@@ -841,6 +864,13 @@ def daily_digest(con):
     fresh = [(m, c) for m, c in rows if c / tot >= 0.05 and m not in old]
     if fresh:
         lines.append("Nowi duzi producenci: " + ", ".join(f"…{m[-6:]} ({c / tot * 100:.0f}%)" for m, c in fresh))
+    try:
+        con.executescript(EXCH_SCHEMA)
+        nx = con.execute("SELECT COUNT(*) FROM exch_addr").fetchone()[0]
+        nm, ng = con.execute("SELECT COUNT(*), COUNT(DISTINCT grp) FROM exch_maybe").fetchone()
+        lines.append(f"\nSafeTrade: {nx} znanych adresów · kandydaci {nm} w {ng} grupach · dołączone z kandydatów: {_dm_get(con, 'exch_promoted', 0)}")
+    except Exception:
+        pass
     lines.append("\nDiscord (czat): na życzenie, ręcznie.")
     ok = notify_private("\n".join(lines))
     _dm_set(con, "digest_day_pl", day)
