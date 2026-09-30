@@ -792,28 +792,43 @@ def _channel_posts():
     return posts
 
 
+def _to_pl(text, limit=450):
+    """Machine translation EN->PL (MyMemory, no key); falls back to the original text."""
+    t = text if len(text) <= limit else text[:limit].rsplit(" ", 1)[0] + "…"
+    try:
+        q = urllib.parse.urlencode({"q": t, "langpair": "en|pl"})
+        j = http_json(f"https://api.mymemory.translated.net/get?{q}", retries=2, timeout=20)
+        out = (j.get("responseData") or {}).get("translatedText")
+        if j.get("responseStatus") == 200 and out and not j.get("quotaFinished"):
+            import html as _h
+            return _h.unescape(out)
+    except Exception:
+        pass
+    return t
+
+
 def daily_digest(con):
     """Once a day: official channel posts, block producers of the last 24 h and new big producers."""
     con.executescript(DORMANT_SCHEMA)
     now = time.gmtime()
     day = time.strftime("%Y-%m-%d", now)
-    if now.tm_hour < DIGEST_HOUR_UTC or _dm_get(con, "digest_day") == day:
+    if now.tm_hour < DIGEST_HOUR_UTC or _dm_get(con, "digest_day_pl") == day:
         return "skip"
     lines = [f"tsc.watch · dzienna notatka {day}"]
     # 1) official announcements (public Telegram channel)
     try:
-        last = int(_dm_get(con, "tg_post", 0))
+        last = int(_dm_get(con, "tg_post_pl", 0))
         posts = _channel_posts()
         new = [p for p in posts if p[0] > last]
         if last == 0:
             new = new[-2:]
         if new:
             lines.append("\nOgłoszenia TensorCash:")
-            lines += [f"• {t[:220]}{'…' if len(t) > 220 else ''}" for _, t in new[-5:]]
+            lines += [f"• {_to_pl(t)}" for _, t in new[-5:]]
         else:
             lines.append("\nOgłoszenia TensorCash: brak nowych")
         if posts:
-            _dm_set(con, "tg_post", max(p[0] for p in posts))
+            _dm_set(con, "tg_post_pl", max(p[0] for p in posts))
     except Exception as e:
         lines.append(f"\nOgłoszenia: nie udało się pobrać ({type(e).__name__})")
     # 2) block producers
@@ -828,7 +843,7 @@ def daily_digest(con):
         lines.append("Nowi duzi producenci: " + ", ".join(f"…{m[-6:]} ({c / tot * 100:.0f}%)" for m, c in fresh))
     lines.append("\nDiscord (czat): na życzenie, ręcznie.")
     ok = notify_private("\n".join(lines))
-    _dm_set(con, "digest_day", day)
+    _dm_set(con, "digest_day_pl", day)
     con.commit()
     return "sent" if ok else f"not sent ({TG_LAST})"
 
