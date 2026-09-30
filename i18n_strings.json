@@ -1,0 +1,2530 @@
+{
+"${0} market vs — cost · one RTX {1} earns — TSC/day": {
+"ru": "рынок ${0} против себестоимости — · одна RTX {1} добывает — TSC/день",
+"zh": "市价 ${0}，成本 — · 一张 RTX {1} 每天挖 — TSC"
+},
+"${0} per day at ${1}": {
+"ru": "${0} в день при ${1}",
+"zh": "按 ${1} 计每天 ${0}"
+},
+"${0} per {1} days": {
+"ru": "${0} за {1} дн.",
+"zh": "每 {1} 天 ${0}"
+},
+"${0}/h": {
+"ru": "${0}/ч",
+"zh": "${0}/小时"
+},
+"(collection into SQLite) and": {
+"ru": "(сбор данных в SQLite) и",
+"zh": "（数据采集写入 SQLite）和"
+},
+"(fee {0}%)": {
+"ru": "(комиссия {0}%)",
+"zh": "（费率 {0}%）"
+},
+"(generates these pages). Data export:": {
+"ru": "(генерирует эти страницы). Экспорт данных:",
+"zh": "（生成这些页面）。数据导出："
+},
+". Never share your seed phrase, and treat unsolicited DMs offering “support” as scams.": {
+"ru": ". Никогда не сообщайте сид-фразу и считайте мошенничеством любые непрошеные сообщения с предложением «поддержки».",
+"zh": "。切勿泄露助记词，主动私信提供“客服支持”的一律视为诈骗。"
+},
+": the intelligence-multiplier tax.": {
+"ru": ": налог мультипликатора интеллекта.",
+"zh": "：智能乘数税。"
+},
+"; pool aliases from": {
+"ru": "; названия пулов из",
+"zh": "；矿池别名来自"
+},
+"; top addresses from": {
+"ru": "; топ-адреса из",
+"zh": "；头部地址来自"
+},
+"A single {0} GB card is too small. Two identical cards can share a model.": {
+"ru": "Одной карты на {0} ГБ мало. Две одинаковые карты могут разделить одну модель.",
+"zh": "单张 {0} GB 显卡显存不够。两张相同的显卡可以共同运行一个模型。"
+},
+"AMD Radeon (any) · {0} GB": {
+"ru": "AMD Radeon (любая) · {0} ГБ",
+"zh": "AMD Radeon（任意型号）· {0} GB"
+},
+"AMD cannot mine TensorCash: only NVIDIA GPUs are supported.": {
+"ru": "AMD не может майнить TensorCash: поддерживаются только GPU NVIDIA.",
+"zh": "AMD 无法挖 TensorCash：仅支持 NVIDIA 显卡。"
+},
+"About the data": {
+"ru": "О данных",
+"zh": "数据说明"
+},
+"About the data · tsc.watch": {
+"ru": "О данных · tsc.watch",
+"zh": "数据说明 · tsc.watch"
+},
+"Accumulating / distributing, {0}d": {
+"ru": "Накопление / распределение, {0} дн.",
+"zh": "增持 / 减持，{0} 天"
+},
+"Activation": {
+"ru": "Активация",
+"zh": "激活"
+},
+"Active miners, {0} days": {
+"ru": "Активные майнеры, {0} дн.",
+"zh": "活跃矿工，{0} 天"
+},
+"Active miners, {0}h": {
+"ru": "Активные майнеры, {0} ч",
+"zh": "活跃矿工，{0} 小时"
+},
+"Address": {
+"ru": "Адрес",
+"zh": "地址"
+},
+"After": {
+"ru": "После",
+"zh": "削减后"
+},
+"After activation, confirm your next block shows the new proof version.": {
+"ru": "После активации убедитесь, что ваш следующий блок содержит новую версию доказательства.",
+"zh": "激活后，确认你的下一个区块使用了新的证明版本。"
+},
+"After cut ({0}%)": {
+"ru": "После сокращения ({0}%)",
+"zh": "削减后（{0}%）"
+},
+"All proof-v{0} blocks by multiplier.": {
+"ru": "Все блоки proof-v{0} по мультипликатору.",
+"zh": "所有 proof-v{0} 区块按乘数分布。"
+},
+"All-time high (daily high)": {
+"ru": "Исторический максимум (дневной high)",
+"zh": "历史最高（日内最高）"
+},
+"Always verify signatures before running": {
+"ru": "Всегда проверяйте подписи перед запуском",
+"zh": "运行前务必验证签名"
+},
+"Apple Silicon (M{0}–M{1})": {
+"ru": "Apple Silicon (M{0}–M{1})",
+"zh": "Apple Silicon（M{0}–M{1}）"
+},
+"Apple Silicon can mine with the official TensorMiner app (Metal). supr-meow does not support Apple GPUs.": {
+"ru": "Apple Silicon может майнить через официальное приложение TensorMiner (Metal). supr-meow не поддерживает GPU Apple.",
+"zh": "Apple Silicon 可以用官方 TensorMiner 应用（Metal）挖矿。supr-meow 不支持 Apple GPU。"
+},
+"AriaPool ({0}% fee)": {
+"ru": "AriaPool (комиссия {0}%)",
+"zh": "AriaPool（费率 {0}%）"
+},
+"As published on the pools' websites, {0} {m0} {1}. Not an endorsement. Spreading work across pools keeps the network decentralised.": {
+"ru": "По данным сайтов пулов на {0} {m0} {1}. Не является рекомендацией. Распределение мощности между пулами сохраняет децентрализацию сети.",
+"zh": "信息来自各矿池官网，{1}年{m0}{0}日。不构成推荐。把算力分散到不同矿池有助于网络去中心化。"
+},
+"Assumptions: blocks keep coming at the recent pace; the reward drops {0}% at each epoch end; your share = your PoI/s ÷ network PoI/s. Price is held constant. Real results vary with luck, pool and uptime. Not financial advice.": {
+"ru": "Допущения: блоки идут в недавнем темпе; награда снижается на {0}% в конце каждой эпохи; ваша доля = ваши PoI/s ÷ PoI/s сети. Цена постоянна. Реальный результат зависит от удачи, пула и аптайма. Не финансовый совет.",
+"zh": "假设：出块保持近期速度；每个纪元结束时奖励下降 {0}%；你的份额 = 你的 PoI/s ÷ 全网 PoI/s。价格保持不变。实际收益受运气、矿池和在线时间影响。不构成投资建议。"
+},
+"Average block time, {0}h": {
+"ru": "Среднее время блока, {0} ч",
+"zh": "平均出块时间，{0} 小时"
+},
+"Average interval between blocks per UTC day; target ~{0} s.": {
+"ru": "Средний интервал между блоками за сутки UTC; цель ~{0} с.",
+"zh": "每个 UTC 日的平均出块间隔；目标约 {0} 秒。"
+},
+"Average multiplier, {0}h": {
+"ru": "Средний мультипликатор, {0} ч",
+"zh": "平均乘数，{0} 小时"
+},
+"Balance in TSC, value at the current price, share of circulating supply, net flow (inflows − outflows) over {0} and {1} days.": {
+"ru": "Баланс в TSC, стоимость по текущей цене, доля в обращении, чистый поток (приток − отток) за {0} и {1} дн.",
+"zh": "TSC 余额、按当前价格计算的价值、占流通量的比例，以及 {0} 天和 {1} 天的净流量（流入 − 流出）。"
+},
+"Balance, TSC": {
+"ru": "Баланс, TSC",
+"zh": "余额，TSC"
+},
+"Base difficulty": {
+"ru": "Базовая сложность",
+"zh": "基础难度"
+},
+"Block explorer": {
+"ru": "Обозреватель блоков",
+"zh": "区块浏览器"
+},
+"Block finders with ≥{0} proof-v{1} blocks. \"Extra work\" = mean multiplier − {2}. \"Blocks lost\" = blocks they would have found at {3}× with the same work.": {
+"ru": "Нашедшие ≥{0} блоков proof-v{1}. «Лишняя работа» = средний мультипликатор − {2}. «Потерянные блоки» = блоки, которые они нашли бы при {3}× с той же работой.",
+"zh": "出块数 ≥{0} 个 proof-v{1} 区块的出块者。“额外工作” = 平均乘数 − {2}。“损失区块” = 同样的工作量在 {3}× 下本可多出的区块。"
+},
+"Block reward": {
+"ru": "Награда за блок",
+"zh": "区块奖励"
+},
+"Block rewards at the epoch reward; luck makes daily numbers noisy.": {
+"ru": "Награды за блоки по ставке эпохи; из-за удачи дневные цифры шумные.",
+"zh": "按当前纪元奖励计算的区块奖励；运气使每日数字波动较大。"
+},
+"Block rewards per UTC day, last {0} days": {
+"ru": "Награды за блоки по суткам UTC, последние {0} дн.",
+"zh": "每个 UTC 日的区块奖励，最近 {0} 天"
+},
+"Block time": {
+"ru": "Время блока",
+"zh": "出块时间"
+},
+"Blocks": {
+"ru": "Блоки",
+"zh": "区块"
+},
+"Blocks found": {
+"ru": "Найдено блоков",
+"zh": "已出区块"
+},
+"Blocks found by an address ÷ all blocks in the window. Over {0}h, ±{1}–{2} points is random noise.": {
+"ru": "Блоки адреса ÷ все блоки в окне. За {0} ч колебания ±{1}–{2} п. п. — случайный шум.",
+"zh": "某地址出块数 ÷ 窗口内全部区块。在 {0} 小时内，±{1}–{2} 个百分点属于随机波动。"
+},
+"Blocks in the window × block reward for the epoch (the reward drops {0}% each epoch; currently {1} TSC).": {
+"ru": "Блоки в окне × награда эпохи (награда снижается на {0}% каждую эпоху; сейчас {1} TSC).",
+"zh": "窗口内区块数 × 当前纪元的区块奖励（每个纪元奖励下降 {0}%；目前为 {1} TSC）。"
+},
+"Blocks left": {
+"ru": "Осталось блоков",
+"zh": "剩余区块"
+},
+"Blocks lost": {
+"ru": "Потерянные блоки",
+"zh": "损失区块"
+},
+"Blocks priced at exactly {0}×": {
+"ru": "Блоки ровно с {0}×",
+"zh": "乘数恰为 {0}× 的区块"
+},
+"Blocks with multiplier > {0}": {
+"ru": "Блоки с мультипликатором > {0}",
+"zh": "乘数 > {0} 的区块"
+},
+"Blocks, {0}h": {
+"ru": "Блоки, {0} ч",
+"zh": "区块，{0} 小时"
+},
+"Blocks.": {
+"ru": "Блоки.",
+"zh": "出块。"
+},
+"Break-even TSC price": {
+"ru": "Цена безубыточности TSC",
+"zh": "盈亏平衡 TSC 价格"
+},
+"Break-even price": {
+"ru": "Цена безубыточности",
+"zh": "盈亏平衡价"
+},
+"By GPU, last {0} hours": {
+"ru": "По GPU, последние {0} ч",
+"zh": "按显卡，最近 {0} 小时"
+},
+"Calculator": {
+"ru": "Калькулятор",
+"zh": "计算器"
+},
+"Central VDF beacon, used automatically by the miner.": {
+"ru": "Центральный VDF-маяк, майнер использует его автоматически.",
+"zh": "中心化 VDF 信标，由挖矿软件自动使用。"
+},
+"Chain data, last {0}h: {1} new TSC/day, {2} PoI/s network. Reward now {3} TSC/block, {4} blocks to the next cut.": {
+"ru": "Данные сети за {0} ч: {1} новых TSC/день, сеть {2} PoI/s. Награда сейчас {3} TSC/блок, до сокращения {4} блоков.",
+"zh": "链上数据，最近 {0} 小时：每天新增 {1} TSC，全网 {2} PoI/s。当前奖励 {3} TSC/区块，距下次削减还有 {4} 个区块。"
+},
+"Check release hashes and signatures": {
+"ru": "Проверка хешей и подписей релизов",
+"zh": "核对发布文件哈希和签名"
+},
+"Check your GPU and get a ready config": {
+"ru": "Проверьте GPU и получите готовый конфиг",
+"zh": "检查你的显卡并获取现成配置"
+},
+"Check your address on the": {
+"ru": "Проверьте свой адрес на странице",
+"zh": "在以下页面查看你的地址："
+},
+"Code:": {
+"ru": "Код:",
+"zh": "代码："
+},
+"Collector status": {
+"ru": "Статус сборщика",
+"zh": "采集器状态"
+},
+"Combined work of all miners in proof/s (sum of effective block difficulty ÷ time). The hourly estimate is inherently noisy — at ~{0} blocks per hour, luck dominates; the {1}-hour average is the reliable line.": {
+"ru": "Совокупная работа всех майнеров в proof/s (сумма эффективной сложности блоков ÷ время). Часовая оценка шумная — при ~{0} блоках в час решает удача; надёжна линия среднего за {1} ч.",
+"zh": "全体矿工的总工作量，单位 proof/s（有效区块难度之和 ÷ 时间）。每小时估算天然噪声大——每小时约 {0} 个区块，运气占主导；{1} 小时均值才是可靠的曲线。"
+},
+"Components are the four factors of the v{0} price (the \"pin\" factor was {1} on every block). Pool miners inherit their pool's multiplier: a pool at {2}× pays everyone ~{3}% less than the same pool at {4}× would.": {
+"ru": "Компоненты — четыре фактора цены v{0} (фактор «pin» был {1} в каждом блоке). Майнеры пула наследуют его мультипликатор: пул с {2}× платит всем на ~{3}% меньше, чем тот же пул с {4}×.",
+"zh": "组成部分是 v{0} 定价的四个因子（“pin”因子在每个区块上都是 {1}）。矿池矿工继承矿池的乘数：乘数为 {2}× 的矿池，付给每个人的比同一矿池在 {4}× 时少约 {3}%。"
+},
+"Configuration": {
+"ru": "Конфигурация",
+"zh": "配置"
+},
+"Contact": {
+"ru": "Контакты",
+"zh": "联系"
+},
+"Contact tsc.watch · tsc.watch": {
+"ru": "Связаться с tsc.watch · tsc.watch",
+"zh": "联系 tsc.watch · tsc.watch"
+},
+"Cost per day": {
+"ru": "Затраты в день",
+"zh": "每日成本"
+},
+"Cost to mine {0} TSC": {
+"ru": "Себестоимость {0} TSC",
+"zh": "挖 {0} 个 TSC 的成本"
+},
+"Cost to mine {0} TSC vs. price, per UTC day": {
+"ru": "Себестоимость {0} TSC и цена, по суткам UTC",
+"zh": "挖 {0} 个 TSC 的成本与价格对比，按 UTC 日"
+},
+"Credit that piles up at the end of the {0}-step window or in its last {1}–{2} steps. Possible causes: custom samplers, unusual prompts, outdated builds. Worth comparing against the reference miner.": {
+"ru": "Кредит, накопленный в конце окна из {0} шагов или в последних {1}–{2} шагах. Возможные причины: свои сэмплеры, необычные промпты, устаревшие сборки. Стоит сравнить с эталонным майнером.",
+"zh": "在 {0} 步窗口末尾或最后 {1}–{2} 步中堆积的积分。可能原因：自定义采样器、异常提示词、过时的版本。建议与参考挖矿软件对比。"
+},
+"Cumulative profit": {
+"ru": "Накопленная прибыль",
+"zh": "累计利润"
+},
+"Current tip": {
+"ru": "Текущая вершина",
+"zh": "当前链顶"
+},
+"Custom": {
+"ru": "Своё",
+"zh": "自定义"
+},
+"DAA v{0} difficulty algorithm. Mandatory mainnet upgrade before block {1}.": {
+"ru": "Алгоритм сложности DAA v{0}. Обязательное обновление mainnet до блока {1}.",
+"zh": "DAA v{0} 难度算法。主网必须在区块 {1} 之前升级。"
+},
+"Daily aggregates use UTC days; all timestamps are shown in UTC.": {
+"ru": "Дневные агрегаты считаются по суткам UTC; всё время указано в UTC.",
+"zh": "每日汇总按 UTC 日计算；所有时间均为 UTC。"
+},
+"Daily average from the bits field.": {
+"ru": "Среднее за сутки по полю bits.",
+"zh": "根据 bits 字段计算的日均值。"
+},
+"Daily issuance vs. volume": {
+"ru": "Дневная эмиссия и объём",
+"zh": "每日发行量 vs 成交量"
+},
+"Daily mean multiplier, largest producers": {
+"ru": "Средний мультипликатор за сутки, крупнейшие производители",
+"zh": "每日平均乘数，最大出块者"
+},
+"Daily volume vs. issuance": {
+"ru": "Дневной объём и эмиссия",
+"zh": "每日成交量 vs 发行量"
+},
+"Data looks wrong": {
+"ru": "Ошибка в данных",
+"zh": "数据似乎有误"
+},
+"Date": {
+"ru": "Дата",
+"zh": "日期"
+},
+"Days and times": {
+"ru": "Даты и время",
+"zh": "日期与时间"
+},
+"Definitions": {
+"ru": "Определения",
+"zh": "定义"
+},
+"Definitions, sources and limitations — so that every number can be reproduced.": {
+"ru": "Определения, источники и ограничения — чтобы каждую цифру можно было воспроизвести.",
+"zh": "定义、来源与局限——让每个数字都可复现。"
+},
+"Delivery": {
+"ru": "Доставка",
+"zh": "送达方式"
+},
+"Details": {
+"ru": "Подробнее",
+"zh": "详情"
+},
+"Difficulty now": {
+"ru": "Сложность сейчас",
+"zh": "当前难度"
+},
+"Distribution": {
+"ru": "Распределение",
+"zh": "分布"
+},
+"Download TensorMiner for macOS: https://tensorcash.org/blog/how-to-mine/": {
+"ru": "Скачайте TensorMiner для macOS: https://tensorcash.org/blog/how-to-mine/",
+"zh": "下载 macOS 版 TensorMiner：https://tensorcash.org/blog/how-to-mine/"
+},
+"Earned since first seen": {
+"ru": "Заработано с первого появления",
+"zh": "首次出现以来的收益"
+},
+"Earned {0}% vs the week before;": {
+"ru": "Доход {0}% к прошлой неделе;",
+"zh": "收益较前一周 {0}%；"
+},
+"Earned {0}% vs the week before; the network issued {1}%. Your share of blocks: {2}%.": {
+"ru": "Доход {0}% к прошлой неделе; эмиссия сети {1}%. Ваша доля блоков: {2}%.",
+"zh": "收益较前一周 {0}%；全网发行量 {1}%。你的出块份额：{2}%。"
+},
+"Electricity cost / TSC": {
+"ru": "Затраты на электричество / TSC",
+"zh": "电费成本 / TSC"
+},
+"Electricity is included in rental prices.": {
+"ru": "Электричество включено в стоимость аренды.",
+"zh": "租赁价格已包含电费。"
+},
+"Electricity, $/kWh": {
+"ru": "Электричество, $/кВт·ч",
+"zh": "电价，$/kWh"
+},
+"Epoch": {
+"ru": "Эпоха",
+"zh": "纪元"
+},
+"Epoch {0} pays {1} TSC per block until block #{2}. Then the reward drops {3}% to {4} TSC.": {
+"ru": "Эпоха {0} платит {1} TSC за блок до блока #{2}. Затем награда снижается на {3}% до {4} TSC.",
+"zh": "纪元 {0} 每个区块奖励 {1} TSC，直到区块 #{2}。之后奖励下降 {3}% 至 {4} TSC。"
+},
+"Epoch {0}: block reward {1} → {2} TSC.": {
+"ru": "Эпоха {0}: награда за блок {1} → {2} TSC.",
+"zh": "纪元 {0}：区块奖励 {1} → {2} TSC。"
+},
+"Est. proof rate": {
+"ru": "Оценка скорости",
+"zh": "估算证明速率"
+},
+"Estimate what your GPUs earn on TensorCash today and after the next reward cut. Network data is taken from the chain (last {0} hours) and refreshed with the site. Change any number. New to TensorCash?": {
+"ru": "Оцените, сколько ваши GPU зарабатывают в TensorCash сейчас и после следующего сокращения награды. Данные сети берутся из блокчейна (последние {0} ч) и обновляются вместе с сайтом. Любую цифру можно изменить. Впервые в TensorCash?",
+"zh": "估算你的显卡现在以及下次奖励削减后在 TensorCash 上的收益。网络数据取自链上（最近 {0} 小时），随网站一起更新。任何数字都可以修改。刚接触 TensorCash？"
+},
+"Estimated date": {
+"ru": "Ожидаемая дата",
+"zh": "预计日期"
+},
+"Estimated proof rate": {
+"ru": "Оценка скорости доказательств",
+"zh": "估算证明速率"
+},
+"Estimated proof rate = miner's TSC per day ÷ network TSC per day × network work rate ({0}-day averages). It is an estimate: PPLNS windows, payout timing and luck move it around.": {
+"ru": "Оценка скорости = TSC майнера в день ÷ TSC сети в день × мощность сети (средние за {0} дн.). Это оценка: окна PPLNS, время выплат и удача её двигают.",
+"zh": "估算证明速率 = 矿工每日 TSC ÷ 全网每日 TSC × 全网算力（{0} 日均值）。这是估算值：PPLNS 窗口、付款时间和运气都会使其波动。"
+},
+"Estimates, not quotes. Power uses the vendor board limit (TDP); real draw during inference is often lower, so electricity cost is a conservative upper bound. Not included: pool fee (~{0}%), hardware depreciation, cooling, luck. PoI/s from tsc.suprnova.cc (Start Mining → rates table), {1} {m0} {2}; rental from cheapest spot listings on Vast.ai, {m1} {3}.": {
+"ru": "Оценки, а не котировки. Мощность — по лимиту платы производителя (TDP); реальное потребление при инференсе обычно ниже, поэтому затраты на электричество — консервативный верхний предел. Не учтены: комиссия пула (~{0}%), амортизация, охлаждение, удача. PoI/s с tsc.suprnova.cc (Start Mining → таблица скоростей), {1} {m0} {2}; аренда — самые дешёвые спот-предложения на Vast.ai, {m1} {3}.",
+"zh": "仅为估算，并非报价。功耗采用厂商板卡上限（TDP）；推理时实际功耗通常更低，因此电费是保守上限。未计入：矿池费（约 {0}%）、硬件折旧、散热、运气。PoI/s 数据来自 tsc.suprnova.cc（Start Mining → 速率表），{2}年{m0}{1}日；租赁价格取自 Vast.ai 最便宜的现货报价，{3}年{m1}。"
+},
+"Every block records the payout address that produced it. Over many blocks, share of blocks ≈ share of work. Red line = {0}%: one pool above it could in principle rewrite recent blocks; two pools together only by coordinating.": {
+"ru": "Каждый блок фиксирует адрес выплаты, который его произвёл. На большом числе блоков доля блоков ≈ доля работы. Красная линия = {0}%: пул выше неё теоретически может переписать последние блоки; два пула — только сговорившись.",
+"zh": "每个区块都记录了产出它的收款地址。在大量区块上，出块份额 ≈ 工作量份额。红线 = {0}%：超过红线的单个矿池理论上可以改写最近的区块；两个矿池只有联手才能做到。"
+},
+"Explorers show PoI/s, supr-meow prints windows/s, suprnova also shows tok/s. For planning: {0} window/s ≈ {1} PoI/s (RTX {2}: {3} windows/s in supr-meow vs {4} PoI/s in suprnova's table), and suprnova converts {5} PoI/s ≈ {6} tokens/s.": {
+"ru": "Обозреватели показывают PoI/s, supr-meow — windows/s, suprnova — ещё и tok/s. Для расчётов: {0} window/s ≈ {1} PoI/s (RTX {2}: {3} windows/s в supr-meow против {4} PoI/s в таблице suprnova), а suprnova пересчитывает {5} PoI/s ≈ {6} tokens/s.",
+"zh": "浏览器显示 PoI/s，supr-meow 输出 windows/s，suprnova 还显示 tok/s。规划时：{0} window/s ≈ {1} PoI/s（RTX {2}：supr-meow 中 {3} windows/s，对应 suprnova 表中 {4} PoI/s），suprnova 的换算为 {5} PoI/s ≈ {6} tokens/s。"
+},
+"Extra work": {
+"ru": "Лишняя работа",
+"zh": "额外工作"
+},
+"Faster pool Quick verification; experimental SGLang mining; security hardening.": {
+"ru": "Более быстрая Quick-верификация для пулов; экспериментальный майнинг на SGLang; усиление безопасности.",
+"zh": "更快的矿池快速验证；实验性 SGLang 挖矿；安全加固。"
+},
+"Feature idea": {
+"ru": "Идея функции",
+"zh": "功能建议"
+},
+"Fee": {
+"ru": "Комиссия",
+"zh": "费率"
+},
+"First start downloads the model (≥{0} GB); keep the cache between runs. Verify the .sha{1} checksum from the release page.": {
+"ru": "При первом запуске скачивается модель (≥{0} ГБ); сохраняйте кэш между запусками. Сверьте контрольную сумму .sha{1} со страницы релиза.",
+"zh": "首次启动会下载模型（≥{0} GB）；请在多次运行之间保留缓存。请核对发布页上的 .sha{1} 校验和。"
+},
+"From the explorer: transactions and new addresses per UTC day. With exchange volume this thin, a high count of new addresses is mostly pool payouts, not new buyers.": {
+"ru": "Из обозревателя: транзакции и новые адреса по суткам UTC. При таком тонком объёме на бирже много новых адресов — это в основном выплаты пулов, а не новые покупатели.",
+"zh": "来自区块浏览器：每个 UTC 日的交易数和新地址数。交易所成交量如此稀薄，新地址多主要是矿池付款，而不是新买家。"
+},
+"From this site's own snapshots (one per collector run). The series grows with every day of operation.": {
+"ru": "Из собственных снимков сайта (один за запуск сборщика). Ряд растёт с каждым днём работы.",
+"zh": "来自本站自己的快照（每次采集一次）。数据序列随运行天数不断增长。"
+},
+"Full node setup": {
+"ru": "Настройка полной ноды",
+"zh": "全节点搭建"
+},
+"Funded addresses": {
+"ru": "Адреса с балансом",
+"zh": "有余额地址"
+},
+"GPU cost per day ÷ TSC that GPU earns per day, where TSC per day = new TSC per day × GPU PoI/s ÷ network PoI/s. Electricity scenario: board power × {0} h × ${1}/kWh. Rental scenario: fixed hourly rate × {2} h. Reference GPU RTX {3}. Assumptions: B{4} {5} PoI/s @ {6} W; H{7} / H{8} {9} PoI/s @ {10} W, ${11}/h; RTX PRO {12} Blackwell {13} PoI/s @ {14} W; RTX {15} {16} PoI/s @ {17} W, ${18}/h; RTX A{19} / A{20} {21} PoI/s @ {22} W. Rates from tsc.suprnova.cc (Start Mining → rates table) ({23} {m0} {24}); rental from cheapest spot listings on Vast.ai, {m1} {25}. History uses complete UTC days with network rate ≥ {26} PoI/s.": {
+"ru": "Затраты GPU в день ÷ TSC, которые GPU добывает в день, где TSC в день = новые TSC в день × PoI/s GPU ÷ PoI/s сети. Сценарий «электричество»: мощность платы × {0} ч × ${1}/кВт·ч. Сценарий «аренда»: фиксированная ставка × {2} ч. Эталонная GPU RTX {3}. Допущения: B{4} {5} PoI/s @ {6} Вт; H{7} / H{8} {9} PoI/s @ {10} Вт, ${11}/ч; RTX PRO {12} Blackwell {13} PoI/s @ {14} Вт; RTX {15} {16} PoI/s @ {17} Вт, ${18}/ч; RTX A{19} / A{20} {21} PoI/s @ {22} Вт. Скорости с tsc.suprnova.cc (Start Mining → таблица скоростей) ({23} {m0} {24}); аренда — самые дешёвые спот-предложения на Vast.ai, {m1} {25}. История — только полные сутки UTC с мощностью сети ≥ {26} PoI/s.",
+"zh": "显卡每日成本 ÷ 该显卡每日挖到的 TSC，其中每日 TSC = 全网每日新增 TSC × 显卡 PoI/s ÷ 全网 PoI/s。电费场景：板卡功耗 × {0} 小时 × ${1}/kWh。租赁场景：固定小时费率 × {2} 小时。参考显卡 RTX {3}。假设：B{4} {5} PoI/s @ {6} W；H{7} / H{8} {9} PoI/s @ {10} W，${11}/小时；RTX PRO {12} Blackwell {13} PoI/s @ {14} W；RTX {15} {16} PoI/s @ {17} W，${18}/小时；RTX A{19} / A{20} {21} PoI/s @ {22} W。速率来自 tsc.suprnova.cc（Start Mining → 速率表）（{24}年{m0}{23}日）；租赁价格取自 Vast.ai 最便宜的现货报价，{25}年{m1}。历史数据只使用全网速率 ≥ {26} PoI/s 的完整 UTC 日。"
+},
+"GPU running cost ÷ the TSC that GPU earns at the current network work rate. A GPU doing R PoI/s on a network doing N PoI/s earns R/N of all new TSC. Rising network work rate and falling block rewards push this cost up; if the price falls below it, miners with that setup mine at a loss.": {
+"ru": "Затраты на работу GPU ÷ TSC, которые она добывает при текущей мощности сети. GPU с R PoI/s в сети с N PoI/s получает R/N всех новых TSC. Рост мощности сети и снижение награды повышают эту себестоимость; если цена опускается ниже, майнеры с такой конфигурацией работают в убыток.",
+"zh": "显卡运行成本 ÷ 在当前全网算力下该显卡挖到的 TSC。一张 R PoI/s 的显卡在 N PoI/s 的网络中可获得全部新增 TSC 的 R/N。全网算力上升和区块奖励下降都会推高这一成本；如果价格跌破它，这种配置的矿工就是在亏本挖矿。"
+},
+"Generated {0} {m0} {1}, {2}:{3} UTC · on-chain data through block #{4} ({5} {m1} {6}, {7}:{8} UTC) · sources: tscscan.xyz, SafeTrade · independent project, not investment advice ·": {
+"ru": "Сгенерировано {0} {m0} {1}, {2}:{3} UTC · данные сети до блока #{4} ({5} {m1} {6}, {7}:{8} UTC) · источники: tscscan.xyz, SafeTrade · независимый проект, не инвестиционный совет ·",
+"zh": "生成于 {1}年{m0}{0}日 {2}:{3} UTC · 链上数据截至区块 #{4}（{6}年{m1}{5}日 {7}:{8} UTC）· 来源：tscscan.xyz、SafeTrade · 独立项目，不构成投资建议 ·"
+},
+"Good to know": {
+"ru": "Полезно знать",
+"zh": "须知"
+},
+"Hardware cost per GPU, $": {
+"ru": "Стоимость железа на GPU, $",
+"zh": "每张显卡硬件成本，$"
+},
+"History starts {0} {m0} {1}, the first day the network exceeded {2} PoI/s. Days before the SafeTrade listing have no price line.": {
+"ru": "История начинается {0} {m0} {1} — в первый день, когда сеть превысила {2} PoI/s. До листинга на SafeTrade линии цены нет.",
+"zh": "历史数据从 {1}年{m0}{0}日开始，即全网首次超过 {2} PoI/s 的那一天。SafeTrade 上线之前的日期没有价格线。"
+},
+"Holder snapshot:": {
+"ru": "Снимок держателей:",
+"zh": "持有者快照："
+},
+"Holders": {
+"ru": "Держатели",
+"zh": "持有者"
+},
+"How fast the network upgraded to proof v{0}": {
+"ru": "Как быстро сеть перешла на proof v{0}",
+"zh": "网络升级到 proof v{0} 的速度"
+},
+"How much proof-of-inference work secures the network, who finds the blocks and what mining earns. Everything computed from the chain (difficulty × blocks), refreshed hourly.": {
+"ru": "Сколько работы proof-of-inference защищает сеть, кто находит блоки и сколько приносит майнинг. Всё рассчитано по блокчейну (сложность × блоки), обновляется ежечасно.",
+"zh": "有多少推理证明工作量在保护网络、谁在出块、挖矿收益多少。全部根据链上数据计算（难度 × 区块），每小时更新。"
+},
+"How proof-of-inference works": {
+"ru": "Как работает proof-of-inference",
+"zh": "推理证明的工作原理"
+},
+"How the proof's token-selection behaviour compares with ordinary inference. Priced above {0}× when it looks optimised for mining rather than normal generation.": {
+"ru": "Насколько выбор токенов в доказательстве похож на обычный инференс. Цена выше {0}×, если он выглядит оптимизированным под майнинг, а не под обычную генерацию.",
+"zh": "证明中的 token 选择行为与普通推理的对比。如果看起来是为挖矿而非正常生成优化的，定价就高于 {0}×。"
+},
+"How to mine": {
+"ru": "Как майнить",
+"zh": "如何挖矿"
+},
+"How to run a node": {
+"ru": "Как запустить ноду",
+"zh": "如何运行节点"
+},
+"How to run a verifier": {
+"ru": "Как запустить верификатор",
+"zh": "如何运行验证器"
+},
+"How to run the wallet": {
+"ru": "Как запустить кошелёк",
+"zh": "如何运行钱包"
+},
+"In TSC a block can count as more work than its bits imply if the miner attached a “useful” inference proof (multiplier > {0}). A high average multiplier means miners are actually running inference, not just hashing.": {
+"ru": "В TSC блок может засчитываться как большая работа, чем следует из bits, если майнер приложил «полезное» доказательство инференса (мультипликатор > {0}). Высокий средний мультипликатор значит, что майнеры реально запускают инференс, а не просто хешируют.",
+"zh": "在 TSC 中，如果矿工附带了“有用的”推理证明（乘数 > {0}），一个区块可以计入比其 bits 更多的工作量。平均乘数高意味着矿工确实在运行推理，而不只是算哈希。"
+},
+"Independent TensorCash (TSC) dashboard: SafeTrade price and volume, issuance, network work rate, mining pools, top holders. Computed from the chain, refreshed hourly.": {
+"ru": "Независимая панель TensorCash (TSC): цена и объём на SafeTrade, эмиссия, мощность сети, пулы, крупнейшие держатели. Рассчитано по блокчейну, обновляется ежечасно.",
+"zh": "独立的 TensorCash (TSC) 数据面板：SafeTrade 价格与成交量、发行量、全网算力、矿池、头部持有者。根据链上数据计算，每小时更新。"
+},
+"Individual miners, including those mining through pools, ranked by estimated proof rate. Pool payouts are grossed up by the published pool fee.": {
+"ru": "Отдельные майнеры, включая майнящих через пулы, по оценочной скорости доказательств. Выплаты пулов пересчитаны с учётом опубликованной комиссии.",
+"zh": "单个矿工（包括通过矿池挖矿的）按估算证明速率排名。矿池付款已按公布的矿池费率还原为税前数值。"
+},
+"Intelligence multiplier": {
+"ru": "Мультипликатор интеллекта",
+"zh": "智能乘数"
+},
+"Issuance after the cut": {
+"ru": "Эмиссия после сокращения",
+"zh": "削减后的发行量"
+},
+"Issuance vs. volume": {
+"ru": "Эмиссия и объём",
+"zh": "发行量 vs 成交量"
+},
+"Issued so far": {
+"ru": "Выпущено",
+"zh": "已发行"
+},
+"Keep the model cache; the first start after an upgrade may re-download.": {
+"ru": "Сохраняйте кэш модели; первый запуск после обновления может скачать её заново.",
+"zh": "保留模型缓存；升级后首次启动可能会重新下载。"
+},
+"Language": {
+"ru": "Язык",
+"zh": "语言"
+},
+"Largest": {
+"ru": "Крупнейший",
+"zh": "最大"
+},
+"Largest pool, {0} days": {
+"ru": "Крупнейший пул, {0} дн.",
+"zh": "最大矿池，{0} 天"
+},
+"Last activity": {
+"ru": "Последняя активность",
+"zh": "最近活动"
+},
+"Last collection": {
+"ru": "Последний сбор",
+"zh": "最近采集"
+},
+"Last paid / block": {
+"ru": "Последняя выплата / блок",
+"zh": "最近付款 / 区块"
+},
+"Last payout": {
+"ru": "Последняя выплата",
+"zh": "最近付款"
+},
+"Last {0} days, top {1} addresses of the past {2} days. Today is a partial day.": {
+"ru": "Последние {0} дн., топ-{1} адресов за {2} дн. Сегодня — неполный день.",
+"zh": "最近 {0} 天，过去 {2} 天的前 {1} 个地址。今天尚未结束。"
+},
+"Last {0} days, {1} blocks": {
+"ru": "Последние {0} дн., {1} блоков",
+"zh": "最近 {0} 天，{1} 个区块"
+},
+"Late credit": {
+"ru": "Поздний кредит",
+"zh": "延迟积分"
+},
+"Late · profile · state": {
+"ru": "Late · profile · state",
+"zh": "延迟 · 特征 · 状态"
+},
+"Latest block": {
+"ru": "Последний блок",
+"zh": "最新区块"
+},
+"Latest release": {
+"ru": "Последний релиз",
+"zh": "最新版本"
+},
+"Latest releases": {
+"ru": "Последние релизы",
+"zh": "最新版本"
+},
+"Limitations": {
+"ru": "Ограничения",
+"zh": "局限"
+},
+"Linux (bare metal)": {
+"ru": "Linux (bare metal)",
+"zh": "Linux（物理机）"
+},
+"Loading miner data…": {
+"ru": "Загрузка данных майнера…",
+"zh": "正在加载矿工数据…"
+},
+"Look up": {
+"ru": "Найти",
+"zh": "查询"
+},
+"Lower is better. Dashed line = no tax.": {
+"ru": "Чем ниже, тем лучше. Пунктир = без налога.",
+"zh": "越低越好。虚线 = 无税。"
+},
+"Luckypool:": {
+"ru": "Luckypool:",
+"zh": "Luckypool："
+},
+"Main driver": {
+"ru": "Главный фактор",
+"zh": "主要因素"
+},
+"Market": {
+"ru": "Рынок",
+"zh": "市场"
+},
+"Market & network": {
+"ru": "Рынок и сеть",
+"zh": "市场与网络"
+},
+"Market cap (circulating)": {
+"ru": "Капитализация (в обращении)",
+"zh": "市值（流通）"
+},
+"Maroon: daily traded volume in USD (TSC × daily close). Amber: USD value of the TSC mined that day. When issuance approaches volume, miner supply alone can dominate the order book.": {
+"ru": "Бордовый: дневной объём торгов в USD (TSC × цена закрытия). Янтарный: стоимость TSC, добытых за день, в USD. Когда эмиссия приближается к объёму, одно лишь предложение майнеров может доминировать в стакане.",
+"zh": "酒红色：每日成交额（美元，TSC × 日收盘价）。琥珀色：当日挖出 TSC 的美元价值。当发行量接近成交量时，仅矿工的抛压就可能主导订单簿。"
+},
+"Max near-pin": {
+"ru": "Макс. near-pin",
+"zh": "最大 near-pin"
+},
+"Mean": {
+"ru": "Среднее",
+"zh": "均值"
+},
+"Median miner": {
+"ru": "Медианный майнер",
+"zh": "中位矿工"
+},
+"Mempool": {
+"ru": "Мемпул",
+"zh": "内存池"
+},
+"Menu": {
+"ru": "Меню",
+"zh": "菜单"
+},
+"Message": {
+"ru": "Сообщение",
+"zh": "留言"
+},
+"Messages are forwarded by the Web{0}Forms service; they are not stored on this site.": {
+"ru": "Сообщения пересылаются через сервис Web{0}Forms; на сайте они не хранятся.",
+"zh": "留言通过 Web{0}Forms 服务转发，本站不存储。"
+},
+"Miner": {
+"ru": "Майнер",
+"zh": "矿工"
+},
+"Miner / pool": {
+"ru": "Майнер / пул",
+"zh": "矿工 / 矿池"
+},
+"Miners & pools": {
+"ru": "Майнеры и пулы",
+"zh": "矿工与矿池"
+},
+"Miners paid, {0}d": {
+"ru": "Оплачено майнеров, {0} дн.",
+"zh": "已付款矿工，{0} 天"
+},
+"Minimum payout": {
+"ru": "Минимальная выплата",
+"zh": "最低付款额"
+},
+"Mining": {
+"ru": "Майнинг",
+"zh": "挖矿"
+},
+"Mining & Running the Network": {
+"ru": "Майнинг и работа сети",
+"zh": "挖矿与运行网络"
+},
+"Monetary policy": {
+"ru": "Денежная политика",
+"zh": "货币政策"
+},
+"Most producers switched only in the last hours before the v{0} sunset. An alert {1} h and {2} h before each activation would have saved work.": {
+"ru": "Большинство производителей переключились лишь в последние часы перед отключением v{0}. Оповещение за {1} ч и {2} ч до каждой активации сберегло бы работу.",
+"zh": "大多数出块者直到 v{0} 停用前的最后几个小时才切换。如果在每次激活前 {1} 小时和 {2} 小时发出提醒，本可以避免浪费算力。"
+},
+"Name": {
+"ru": "Имя",
+"zh": "名称"
+},
+"Near-certain steps": {
+"ru": "Почти детерминированные шаги",
+"zh": "近乎确定的步骤"
+},
+"Needs attention": {
+"ru": "Требует внимания",
+"zh": "需要关注"
+},
+"Net flow, {0} days (top {1})": {
+"ru": "Чистый поток, {0} дн. (топ-{1})",
+"zh": "净流量，{0} 天（前 {1}）"
+},
+"Net {0}d": {
+"ru": "Нетто {0} дн.",
+"zh": "{0} 天净额"
+},
+"Network": {
+"ru": "Сеть",
+"zh": "网络"
+},
+"Network & blocks": {
+"ru": "Сеть и блоки",
+"zh": "网络与区块"
+},
+"Network activity ({0} days)": {
+"ru": "Активность сети ({0} дн.)",
+"zh": "网络活动（{0} 天）"
+},
+"Network growth, % per month": {
+"ru": "Рост сети, % в месяц",
+"zh": "网络增长，每月 %"
+},
+"Network mean, since v{0}": {
+"ru": "Среднее по сети, с v{0}",
+"zh": "全网均值，自 v{0} 起"
+},
+"Network work rate": {
+"ru": "Мощность сети",
+"zh": "全网算力"
+},
+"Network work rate, PoI/s": {
+"ru": "Мощность сети, PoI/s",
+"zh": "全网算力，PoI/s"
+},
+"Network work rate, {0}h": {
+"ru": "Мощность сети, {0} ч",
+"zh": "全网算力，{0} 小时"
+},
+"Never send": {
+"ru": "Никогда не отправляйте",
+"zh": "切勿发送"
+},
+"New TSC in the day × ({0} ÷ the day's work rate). Before pool fees (~{1}%), electricity and variance.": {
+"ru": "Новые TSC за день × ({0} ÷ мощность сети за день). До комиссии пула (~{1}%), электричества и дисперсии.",
+"zh": "当日新增 TSC × （{0} ÷ 当日全网算力）。未扣除矿池费（约 {1}%）、电费和波动。"
+},
+"New TSC over {0}h × current price ÷ {1}h volume in USD. Shows how much of the turnover miner reward sales alone could account for.": {
+"ru": "Новые TSC за {0} ч × текущая цена ÷ объём за {1} ч в USD. Показывает, какую часть оборота могли бы дать одни лишь продажи наград майнеров.",
+"zh": "{0} 小时新增 TSC × 当前价格 ÷ {1} 小时美元成交额。显示仅矿工出售奖励就可能占成交额的多少。"
+},
+"New TSC per day": {
+"ru": "Новых TSC в день",
+"zh": "每日新增 TSC"
+},
+"New addresses / day": {
+"ru": "Новые адреса / день",
+"zh": "新地址 / 天"
+},
+"Newest first. \"Block producers\" = pool operators and solo miners; pool participants follow their pool.": {
+"ru": "Сначала новые. «Производители блоков» = операторы пулов и соло-майнеры; участники пулов следуют за своим пулом.",
+"zh": "按时间倒序。“出块者” = 矿池运营方和独立矿工；矿池参与者跟随所在矿池。"
+},
+"Next activation": {
+"ru": "Следующая активация",
+"zh": "下次激活"
+},
+"Next reward cut": {
+"ru": "Следующее сокращение награды",
+"zh": "下次奖励削减"
+},
+"No block for {0} days. At this rate expect one about every {1} h. Check the node, the miner version and the verifier.": {
+"ru": "Нет блока {0} дн. При такой скорости ожидается примерно один блок каждые {1} ч. Проверьте ноду, версию майнера и верификатор.",
+"zh": "已 {0} 天未出块。按目前速率大约每 {1} 小时应出一个块。请检查节点、挖矿软件版本和验证器。"
+},
+"No block for {0} h. At this rate expect one about every {1} h. Check the node, the miner version and the verifier.": {
+"ru": "Нет блока {0} ч. При такой скорости ожидается примерно один блок каждые {1} ч. Проверьте ноду, версию майнера и верификатор.",
+"zh": "已 {0} 小时未出块。按目前速率大约每 {1} 小时应出一个块。请检查节点、挖矿软件版本和验证器。"
+},
+"No mining income found for this address.": {
+"ru": "Для этого адреса доход от майнинга не найден.",
+"zh": "未找到该地址的挖矿收入。"
+},
+"No payout for {0} h, while": {
+"ru": "Нет выплат {0} ч, хотя",
+"zh": "已 {0} 小时未收到付款，而"
+},
+"Not the team": {
+"ru": "Не команда проекта",
+"zh": "非官方团队"
+},
+"Number of GPUs": {
+"ru": "Количество GPU",
+"zh": "显卡数量"
+},
+"Official Discord server": {
+"ru": "Официальный сервер Discord",
+"zh": "官方 Discord 服务器"
+},
+"Official TensorCash links": {
+"ru": "Официальные ссылки TensorCash",
+"zh": "TensorCash 官方链接"
+},
+"Official TensorCash links · tsc.watch": {
+"ru": "Официальные ссылки TensorCash · tsc.watch",
+"zh": "TensorCash 官方链接 · tsc.watch"
+},
+"Official explorer": {
+"ru": "Официальный обозреватель",
+"zh": "官方浏览器"
+},
+"Official links": {
+"ru": "Официальные ссылки",
+"zh": "官方链接"
+},
+"Official mining guide": {
+"ru": "Официальное руководство по майнингу",
+"zh": "官方挖矿指南"
+},
+"On-chain snapshot:": {
+"ru": "Снимок сети:",
+"zh": "链上快照："
+},
+"Only if you leave an email. Otherwise the message stays one-way.": {
+"ru": "Только если вы оставите email. Иначе сообщение останется односторонним.",
+"zh": "仅当你留下邮箱时才会回复，否则留言是单向的。"
+},
+"Open in explorer ↗": {
+"ru": "Открыть в обозревателе ↗",
+"zh": "在浏览器中打开 ↗"
+},
+"Own RTX {0}, electricity only": {
+"ru": "Своя RTX {0}, только электричество",
+"zh": "自有 RTX {0}，仅电费"
+},
+"Own hardware": {
+"ru": "Своё железо",
+"zh": "自有硬件"
+},
+"PPLNS (last {0}k shares)": {
+"ru": "PPLNS (последние {0}k шар)",
+"zh": "PPLNS（最近 {0}k 份额）"
+},
+"PPLNS ({0} min window)": {
+"ru": "PPLNS (окно {0} мин)",
+"zh": "PPLNS（{0} 分钟窗口）"
+},
+"PPLNS + solo": {
+"ru": "PPLNS + соло",
+"zh": "PPLNS + 独立"
+},
+"Pad-slot zero binding (consensus). Pool participants unaffected.": {
+"ru": "Pad-slot zero binding (консенсус). Участников пулов не затрагивает.",
+"zh": "Pad-slot 零绑定（共识层）。矿池参与者不受影响。"
+},
+"Paid ÷ mined compares TSC paid out to miners with TSC the pool's address earned from blocks over {0} days. Around {1}% minus the fee is normal. Big gaps can come from immature rewards or payouts sent from a different wallet. The fee is only half the cost: see": {
+"ru": "«Выплачено ÷ добыто» сравнивает TSC, выплаченные майнерам, с TSC, которые адрес пула получил за блоки за {0} дн. Нормально — около {1}% минус комиссия. Большие расхождения дают незрелые награды или выплаты с другого кошелька. Комиссия — лишь половина затрат: см.",
+"zh": "“已付 ÷ 已挖”比较 {0} 天内付给矿工的 TSC 与矿池地址从区块获得的 TSC。约为 {1}% 减去费率属于正常。差距较大可能来自未成熟奖励，或从其他钱包发出的付款。费率只是一半成本：另见"
+},
+"Paid ÷ mined, {0}d": {
+"ru": "Выплачено ÷ добыто, {0} дн.",
+"zh": "已付 ÷ 已挖，{0} 天"
+},
+"Pascal cannot mine TensorCash: no bf{0} support (Ampere or newer required).": {
+"ru": "Pascal не может майнить TensorCash: нет поддержки bf{0} (нужна Ampere или новее).",
+"zh": "Pascal 架构无法挖 TensorCash：不支持 bf{0}（需要 Ampere 或更新架构）。"
+},
+"Paste a TSC address: a pool payout address or a solo miner's coinbase address. You get earnings per day, estimated proof rate and the last {0} days. Pool miners are tracked through the pools' on-chain payouts.": {
+"ru": "Вставьте адрес TSC: адрес выплат пула или coinbase-адрес соло-майнера. Вы увидите доход в день, оценку скорости доказательств и последние {0} дн. Майнеры пулов отслеживаются по on-chain выплатам пулов.",
+"zh": "粘贴一个 TSC 地址：矿池收款地址或独立矿工的 coinbase 地址。你将看到每日收益、估算证明速率以及最近 {0} 天的数据。矿池矿工通过矿池的链上付款来追踪。"
+},
+"Payback of hardware": {
+"ru": "Окупаемость железа",
+"zh": "硬件回本"
+},
+"Payout batches, {0}d": {
+"ru": "Пакеты выплат, {0} дн.",
+"zh": "批量付款次数，{0} 天"
+},
+"Payouts": {
+"ru": "Выплаты",
+"zh": "付款"
+},
+"Payouts per UTC day, last {0} days": {
+"ru": "Выплаты по суткам UTC, последние {0} дн.",
+"zh": "每个 UTC 日的付款，最近 {0} 天"
+},
+"Payouts received": {
+"ru": "Получено выплат",
+"zh": "已收付款"
+},
+"Payouts.": {
+"ru": "Выплаты.",
+"zh": "付款。"
+},
+"Pick your GPU, rig software and pool. You get a straight answer on whether the card can mine, what it should earn and the exact configuration to paste. No coding agent needed.": {
+"ru": "Выберите GPU, софт для рига и пул. Вы получите прямой ответ: может ли карта майнить, сколько она заработает, и точную конфигурацию для вставки. Без помощника-программиста.",
+"zh": "选择你的显卡、矿机软件和矿池。你会直接得到答案：这张卡能否挖矿、预计收益，以及可直接粘贴的完整配置。无需编程助手。"
+},
+"Please write a message first.": {
+"ru": "Сначала напишите сообщение.",
+"zh": "请先写下留言。"
+},
+"PoI/s per GPU": {
+"ru": "PoI/s на GPU",
+"zh": "每张显卡 PoI/s"
+},
+"PoI/s per kW": {
+"ru": "PoI/s на кВт",
+"zh": "每千瓦 PoI/s"
+},
+"Pool": {
+"ru": "Пул",
+"zh": "矿池"
+},
+"Pool addresses (Tigerpool, Luckypool) are payout wallets, not investors. Next step: exchange labels (SafeTrade) and clustering of linked wallets — only then can “withdrawn from the exchange” be counted the way quantus.watch does.": {
+"ru": "Адреса пулов (Tigerpool, Luckypool) — кошельки для выплат, а не инвесторы. Следующий шаг: метки биржи (SafeTrade) и кластеризация связанных кошельков — только тогда можно считать «выведено с биржи», как это делает quantus.watch.",
+"zh": "矿池地址（Tigerpool、Luckypool）是付款钱包，而非投资者。下一步：交易所标签（SafeTrade）和关联钱包聚类——只有这样才能像 quantus.watch 那样统计“从交易所提走”的数量。"
+},
+"Pool comparison": {
+"ru": "Сравнение пулов",
+"zh": "矿池对比"
+},
+"Pool directory": {
+"ru": "Каталог пулов",
+"zh": "矿池目录"
+},
+"Pool fee, %": {
+"ru": "Комиссия пула, %",
+"zh": "矿池费率，%"
+},
+"Pool miner": {
+"ru": "Майнер пула",
+"zh": "矿池矿工"
+},
+"Pool miner · paid by": {
+"ru": "Майнер пула · платит",
+"zh": "矿池矿工 · 付款方"
+},
+"Pool or miner label": {
+"ru": "Метка пула или майнера",
+"zh": "矿池或矿工标签"
+},
+"Pool share": {
+"ru": "Доля пула",
+"zh": "矿池份额"
+},
+"Pool work rate": {
+"ru": "Мощность пула",
+"zh": "矿池算力"
+},
+"Pools needed for a majority": {
+"ru": "Пулов для большинства",
+"zh": "达到多数所需矿池数"
+},
+"Pools pay in batches, so single days jump around; the {0}-day average is the fairer number. Proof rate is grossed up by the pool fee.": {
+"ru": "Пулы платят пакетами, поэтому отдельные дни скачут; среднее за {0} дн. честнее. Скорость доказательств пересчитана с учётом комиссии пула.",
+"zh": "矿池分批付款，所以单日数据会跳动；{0} 日均值更公允。证明速率已按矿池费率还原。"
+},
+"Pools seen on-chain": {
+"ru": "Пулы в блокчейне",
+"zh": "链上可见矿池"
+},
+"Power": {
+"ru": "Мощность",
+"zh": "功耗"
+},
+"Power per GPU, W": {
+"ru": "Мощность на GPU, Вт",
+"zh": "每张显卡功耗，W"
+},
+"Price & volume": {
+"ru": "Цена и объём",
+"zh": "价格与成交量"
+},
+"Price and volume": {
+"ru": "Цена и объём",
+"zh": "价格与成交量"
+},
+"Price and volume from SafeTrade (the only exchange with a TSC/USDT pair); supply and issuance computed from the chain. Every number has a source under": {
+"ru": "Цена и объём с SafeTrade (единственная биржа с парой TSC/USDT); предложение и эмиссия рассчитаны по блокчейну. Источник каждой цифры — в разделе",
+"zh": "价格和成交量来自 SafeTrade（唯一有 TSC/USDT 交易对的交易所）；供应量和发行量根据链上数据计算。每个数字的来源见"
+},
+"Price candles": {
+"ru": "Свечи цены",
+"zh": "价格 K 线"
+},
+"Profit": {
+"ru": "Прибыль",
+"zh": "利润"
+},
+"Profit per day": {
+"ru": "Прибыль в день",
+"zh": "每日利润"
+},
+"Progress through epoch {0}: {1}% · date assumes the {2}-day average block time ({3} min). If the network keeps the same work rate, each miner's TSC per day falls by {4}% at the cut.": {
+"ru": "Прогресс эпохи {0}: {1}% · дата рассчитана по среднему времени блока за {2} дн. ({3} мин). Если мощность сети не изменится, TSC в день у каждого майнера упадут на {4}% после сокращения.",
+"zh": "纪元 {0} 进度：{1}% · 日期按 {2} 日平均出块时间（{3} 分钟）估算。如果全网算力不变，削减后每个矿工的每日 TSC 将下降 {4}%。"
+},
+"Project homepage": {
+"ru": "Сайт проекта",
+"zh": "项目主页"
+},
+"Project websites, guides, releases and community channels. tsc.watch is an independent dashboard and is not affiliated with the TensorCash team. Before downloading software, check the domain in your address bar and verify release signatures at": {
+"ru": "Сайты проекта, руководства, релизы и каналы сообщества. tsc.watch — независимая панель, не связанная с командой TensorCash. Перед загрузкой софта проверьте домен в адресной строке и сверьте подписи релизов на",
+"zh": "项目网站、指南、版本发布和社区频道。tsc.watch 是独立的数据面板，与 TensorCash 团队无关。下载软件前，请检查地址栏中的域名，并在此验证发布签名："
+},
+"Proof": {
+"ru": "Доказательство",
+"zh": "证明"
+},
+"Proof efficiency": {
+"ru": "Эффективность доказательств",
+"zh": "证明效率"
+},
+"Proof multiplier.": {
+"ru": "Мультипликатор доказательства.",
+"zh": "证明乘数。"
+},
+"Proof v{0} and the intelligence multiplier. Pricing starts at block {1} (moved from {2}).": {
+"ru": "Proof v{0} и мультипликатор интеллекта. Тарификация начинается с блока {1} (перенесено с {2}).",
+"zh": "Proof v{0} 与智能乘数。定价从区块 {1} 开始（原定 {2}）。"
+},
+"Proof v{0} reached {1}% at": {
+"ru": "Proof v{0} достиг {1}% на",
+"zh": "Proof v{0} 达到 {1}% 于"
+},
+"Proof v{0} support in the community miner. Older builds stop producing valid work at the v{1} sunset.": {
+"ru": "Поддержка proof v{0} в майнере сообщества. Старые сборки перестают давать валидную работу после отключения v{1}.",
+"zh": "社区挖矿软件支持 Proof v{0}。旧版本在 v{1} 停用后不再产生有效工作。"
+},
+"Proof-of-inference — work multiplier": {
+"ru": "Proof-of-inference — мультипликатор работы",
+"zh": "推理证明——工作量乘数"
+},
+"Proof-v{0} price of each block (proof.multiplier, {1}–{2}×): the header target is divided by it, so a {3}× block needs {4}% more work. Mean per block finder since block {5}; \"blocks lost\" = blocks × (mean − {6}).": {
+"ru": "Цена proof-v{0} каждого блока (proof.multiplier, {1}–{2}×): цель в заголовке делится на неё, поэтому блоку с {3}× нужно на {4}% больше работы. Среднее по каждому нашедшему с блока {5}; «потерянные блоки» = блоки × (среднее − {6}).",
+"zh": "每个区块的 Proof-v{0} 价格（proof.multiplier，{1}–{2}×）：区块头目标值要除以它，所以 {3}× 的区块需要多 {4}% 的工作量。自区块 {5} 起按出块者计算的均值；“损失区块” = 区块数 × （均值 − {6}）。"
+},
+"Protocol": {
+"ru": "Протокол",
+"zh": "协议"
+},
+"Published rate": {
+"ru": "Опубликованная скорость",
+"zh": "公开速率"
+},
+"RTX {0}, electricity ${1}/kWh · price is —× cost ·": {
+"ru": "RTX {0}, электричество ${1}/кВт·ч · цена = —× себестоимости ·",
+"zh": "RTX {0}，电价 ${1}/kWh · 价格为成本的 —× ·"
+},
+"Rate": {
+"ru": "Скорость",
+"zh": "速率"
+},
+"Reference": {
+"ru": "Эталон",
+"zh": "参考"
+},
+"Rejected blocks leave no trace on-chain: watch your own node logs.": {
+"ru": "Отклонённые блоки не оставляют следов в сети: следите за логами своей ноды.",
+"zh": "被拒绝的区块在链上不留痕迹：请关注你自己的节点日志。"
+},
+"Rejection line": {
+"ru": "Порог отклонения",
+"zh": "拒绝线"
+},
+"Release verification": {
+"ru": "Проверка релизов",
+"zh": "版本验证"
+},
+"Rent": {
+"ru": "Аренда",
+"zh": "租赁"
+},
+"Rent per GPU, $/hour": {
+"ru": "Аренда GPU, $/час",
+"zh": "每张显卡租金，$/小时"
+},
+"Rental cost / TSC": {
+"ru": "Стоимость аренды / TSC",
+"zh": "租赁成本 / TSC"
+},
+"Rented GPU": {
+"ru": "Арендованная GPU",
+"zh": "租用显卡"
+},
+"Rented H{0} (${1}/h)": {
+"ru": "Аренда H{0} (${1}/ч)",
+"zh": "租用 H{0}（${1}/小时）"
+},
+"Rented RTX {0} (${1}/h)": {
+"ru": "Аренда RTX {0} (${1}/ч)",
+"zh": "租用 RTX {0}（${1}/小时）"
+},
+"Replies": {
+"ru": "Ответы",
+"zh": "回复"
+},
+"Resources": {
+"ru": "Ресурсы",
+"zh": "资源"
+},
+"Result": {
+"ru": "Результат",
+"zh": "结果"
+},
+"Results": {
+"ru": "Результаты",
+"zh": "结果"
+},
+"Revenue per day": {
+"ru": "Выручка в день",
+"zh": "每日收入"
+},
+"Reward": {
+"ru": "Награда",
+"zh": "奖励"
+},
+"Reward per {0} K proof/s": {
+"ru": "Награда на {0} K proof/s",
+"zh": "每 {0} K proof/s 的奖励"
+},
+"Reward per {0} K proof/s a day": {
+"ru": "Награда на {0} K proof/s в день",
+"zh": "每 {0} K proof/s 每日奖励"
+},
+"Rig software": {
+"ru": "Софт для рига",
+"zh": "矿机软件"
+},
+"SafeTrade OHLC candles. Hourly for {0}h/{1}d, daily for longer ranges (UTC days). Times in UTC.": {
+"ru": "Свечи OHLC SafeTrade. Часовые для {0}ч/{1}д, дневные для более длинных периодов (сутки UTC). Время в UTC.",
+"zh": "SafeTrade OHLC K 线。{0}小时/{1}天为小时线，更长区间为日线（UTC 日）。时间为 UTC。"
+},
+"SafeTrade public k-line API ({0}h and {1}d candles, TSC/USDT pair, {2} USDT ≈ ${3}). A thin, unsanctioned exchange — the only one with this pair. Current price and {4}h volume also from": {
+"ru": "Публичный API свечей SafeTrade (свечи {0}ч и {1}д, пара TSC/USDT, {2} USDT ≈ ${3}). Тонкая нерегулируемая биржа — единственная с этой парой. Текущая цена и объём за {4} ч тоже из",
+"zh": "SafeTrade 公开 K 线 API（{0} 小时和 {1} 天 K 线，TSC/USDT 交易对，{2} USDT ≈ ${3}）。一个流动性稀薄、未受监管的交易所——也是唯一有此交易对的交易所。当前价格和 {4} 小时成交量同样来自"
+},
+"Sampling profile": {
+"ru": "Профиль сэмплирования",
+"zh": "采样特征"
+},
+"Scheme": {
+"ru": "Схема",
+"zh": "模式"
+},
+"Seed phrases, private keys or passwords. Nobody from tsc.watch will ever ask for them.": {
+"ru": "Сид-фразы, приватные ключи или пароли. tsc.watch никогда их не попросит.",
+"zh": "助记词、私钥或密码。tsc.watch 永远不会向你索要这些信息。"
+},
+"Send a message": {
+"ru": "Отправить сообщение",
+"zh": "发送留言"
+},
+"Send message": {
+"ru": "Отправить",
+"zh": "发送"
+},
+"Sending failed ({0}). Please try again in a minute.": {
+"ru": "Не удалось отправить ({0}). Попробуйте через минуту.",
+"zh": "发送失败（{0}）。请一分钟后重试。"
+},
+"Sending…": {
+"ru": "Отправка…",
+"zh": "发送中…"
+},
+"Share": {
+"ru": "Доля",
+"zh": "份额"
+},
+"Share of blocks per UTC day": {
+"ru": "Доля блоков по суткам UTC",
+"zh": "每个 UTC 日的出块份额"
+},
+"Share {0}d": {
+"ru": "Доля {0} дн.",
+"zh": "{0} 天份额"
+},
+"Share {0}h": {
+"ru": "Доля {0} ч",
+"zh": "{0} 小时份额"
+},
+"Share, {0} days": {
+"ru": "Доля, {0} дн.",
+"zh": "份额，{0} 天"
+},
+"Share, {0}h": {
+"ru": "Доля, {0} ч",
+"zh": "份额，{0} 小时"
+},
+"Since genesis": {
+"ru": "С генезиса",
+"zh": "自创世以来"
+},
+"Since proof v{0} every block carries a multiplier from {1}× up to {2}×. A {3}× block needs {4}% more work than a {5}× block. Miners and pools that land near {6}× find more blocks with the same GPUs. This page shows who pays the tax and why.": {
+"ru": "С proof v{0} каждый блок несёт мультипликатор от {1}× до {2}×. Блоку с {3}× нужно на {4}% больше работы, чем блоку с {5}×. Майнеры и пулы около {6}× находят больше блоков на тех же GPU. Эта страница показывает, кто платит налог и почему.",
+"zh": "自 proof v{0} 起，每个区块都带有 {1}× 到 {2}× 的乘数。{3}× 的区块比 {5}× 的区块多需要 {4}% 的工作量。乘数接近 {6}× 的矿工和矿池，用同样的显卡能挖到更多区块。本页展示谁在交这笔税以及原因。"
+},
+"Snapshots in database": {
+"ru": "Снимков в базе",
+"zh": "数据库中的快照"
+},
+"Socials": {
+"ru": "Соцсети",
+"zh": "社交媒体"
+},
+"Solo & other miners": {
+"ru": "Соло и прочие майнеры",
+"zh": "独立及其他矿工"
+},
+"Solo & other miners:": {
+"ru": "Соло и прочие майнеры:",
+"zh": "独立及其他矿工："
+},
+"Solo & other miners: {0}%": {
+"ru": "Соло и прочие майнеры: {0}%",
+"zh": "独立及其他矿工：{0}%"
+},
+"Solo miner / pool operator": {
+"ru": "Соло-майнер / оператор пула",
+"zh": "独立矿工 / 矿池运营方"
+},
+"Solo miner · finds blocks directly": {
+"ru": "Соло-майнер · находит блоки сам",
+"zh": "独立矿工 · 直接出块"
+},
+"Something else": {
+"ru": "Другое",
+"zh": "其他"
+},
+"Source: block headers from the explorer (proof.multiplier, proof.components, proof.near_pin_count), method from the proof-v{0} blog post.": {
+"ru": "Источник: заголовки блоков из обозревателя (proof.multiplier, proof.components, proof.near_pin_count), методика — из статьи о proof-v{0}.",
+"zh": "来源：浏览器中的区块头（proof.multiplier、proof.components、proof.near_pin_count），方法来自 proof-v{0} 博客文章。"
+},
+"Sources": {
+"ru": "Источники",
+"zh": "来源"
+},
+"Spotted a wrong number, want a pool labelled or have an idea for the dashboard? Send a message. No account needed, and you can stay anonymous.": {
+"ru": "Нашли ошибку в цифрах, хотите подписать пул или есть идея для панели? Напишите нам. Аккаунт не нужен, можно анонимно.",
+"zh": "发现数字有误、希望标注某个矿池，或对面板有想法？给我们留言。无需注册，可以匿名。"
+},
+"Stale Quick-verification verdicts no longer stall nodes; Windows builds.": {
+"ru": "Устаревшие вердикты Quick-верификации больше не блокируют ноды; сборки для Windows.",
+"zh": "过期的快速验证结果不再导致节点卡住；提供 Windows 版本。"
+},
+"Start": {
+"ru": "Старт",
+"zh": "开始"
+},
+"Start mining": {
+"ru": "Начать майнинг",
+"zh": "开始挖矿"
+},
+"Start mining TSC · tsc.watch": {
+"ru": "Начать майнинг TSC · tsc.watch",
+"zh": "开始挖 TSC · tsc.watch"
+},
+"Status": {
+"ru": "Статус",
+"zh": "状态"
+},
+"StepBind (TIP-{0}). Legacy proofs accepted under a grace rule until {1} {m0} {2}:{3} UTC.": {
+"ru": "StepBind (TIP-{0}). Старые доказательства принимаются по льготному правилу до {1} {m0} {2}:{3} UTC.",
+"zh": "StepBind（TIP-{0}）。旧版证明在宽限规则下可接受至 {m0}{1}日 {2}:{3} UTC。"
+},
+"StepBind grace ends. {0} of the last {1} blocks still carried legacy proofs that day.": {
+"ru": "Льготный период StepBind закончился. В тот день {0} из последних {1} блоков ещё несли старые доказательства.",
+"zh": "StepBind 宽限期结束。当天最后 {1} 个区块中仍有 {0} 个带有旧版证明。"
+},
+"Steps where the model is almost sure of the next token. {0} of {1} rejects the block outright.": {
+"ru": "Шаги, где модель почти уверена в следующем токене. {0} из {1} — блок отклоняется сразу.",
+"zh": "模型几乎确定下一个 token 的步骤。达到 {0}/{1} 时区块直接被拒绝。"
+},
+"Sum of effective block difficulty in the window ÷ window length in seconds (proof/s). Same method as the explorer (checked: over {0}h the only difference comes from the window end).": {
+"ru": "Сумма эффективной сложности блоков в окне ÷ длина окна в секундах (proof/s). Тот же метод, что у обозревателя (проверено: за {0} ч различие только из-за конца окна).",
+"zh": "窗口内有效区块难度之和 ÷ 窗口长度（秒）（proof/s）。与浏览器方法相同（已核对：在 {0} 小时内唯一差异来自窗口终点）。"
+},
+"Sum of effective difficulty of its blocks ÷ {0} s.": {
+"ru": "Сумма эффективной сложности его блоков ÷ {0} с.",
+"zh": "其区块有效难度之和 ÷ {0} 秒。"
+},
+"Supply, holders, concentration, daily activity": {
+"ru": "Предложение, держатели, концентрация, дневная активность",
+"zh": "供应量、持有者、集中度、每日活动"
+},
+"Supported. One model per card ({0} GB ≥ {1} GB).": {
+"ru": "Поддерживается. Одна модель на карту ({0} ГБ ≥ {1} ГБ).",
+"zh": "支持。每张卡运行一个模型（{0} GB ≥ {1} GB）。"
+},
+"Supported. One model per card ({0} GB ≥ {1} GB). More memory can improve speed.": {
+"ru": "Поддерживается. Одна модель на карту ({0} ГБ ≥ {1} ГБ). Больше памяти может повысить скорость.",
+"zh": "支持。每张卡运行一个模型（{0} GB ≥ {1} GB）。更大显存可以提升速度。"
+},
+"TSC / day": {
+"ru": "TSC / день",
+"zh": "TSC / 天"
+},
+"TSC address": {
+"ru": "Адрес TSC",
+"zh": "TSC 地址"
+},
+"TSC holders": {
+"ru": "Держатели TSC",
+"zh": "TSC 持有者"
+},
+"TSC holders · tsc.watch": {
+"ru": "Держатели TSC · tsc.watch",
+"zh": "TSC 持有者 · tsc.watch"
+},
+"TSC market · tsc.watch": {
+"ru": "Рынок TSC · tsc.watch",
+"zh": "TSC 市场 · tsc.watch"
+},
+"TSC miner dashboard & pools · tsc.watch": {
+"ru": "Панель майнера и пулы TSC · tsc.watch",
+"zh": "TSC 矿工面板与矿池 · tsc.watch"
+},
+"TSC mining calculator · tsc.watch": {
+"ru": "Калькулятор майнинга TSC · tsc.watch",
+"zh": "TSC 挖矿计算器 · tsc.watch"
+},
+"TSC mining · tsc.watch": {
+"ru": "Майнинг TSC · tsc.watch",
+"zh": "TSC 挖矿 · tsc.watch"
+},
+"TSC per day": {
+"ru": "TSC в день",
+"zh": "每日 TSC"
+},
+"TSC per day, {0}-day avg": {
+"ru": "TSC в день, среднее за {0} дн.",
+"zh": "每日 TSC，{0} 日均值"
+},
+"TSC per {0} K proof/s": {
+"ru": "TSC на {0} K proof/s",
+"zh": "每 {0} K proof/s 的 TSC"
+},
+"TSC per {0} K proof/s:": {
+"ru": "TSC на {0} K proof/s:",
+"zh": "每 {0} K proof/s 的 TSC："
+},
+"TSC price (SafeTrade)": {
+"ru": "Цена TSC (SafeTrade)",
+"zh": "TSC 价格（SafeTrade）"
+},
+"TSC price (daily close)": {
+"ru": "Цена TSC (закрытие дня)",
+"zh": "TSC 价格（日收盘）"
+},
+"TSC price (daily close):": {
+"ru": "Цена TSC (закрытие дня):",
+"zh": "TSC 价格（日收盘）："
+},
+"TSC price vs electricity cost": {
+"ru": "Цена TSC и затраты на электричество",
+"zh": "TSC 价格 vs 电费成本"
+},
+"TSC price, $": {
+"ru": "Цена TSC, $",
+"zh": "TSC 价格，$"
+},
+"TSC proof efficiency · tsc.watch": {
+"ru": "Эффективность доказательств TSC · tsc.watch",
+"zh": "TSC 证明效率 · tsc.watch"
+},
+"TSC protocol upgrades · tsc.watch": {
+"ru": "Обновления протокола TSC · tsc.watch",
+"zh": "TSC 协议升级 · tsc.watch"
+},
+"TSC/USDT price": {
+"ru": "Цена TSC/USDT",
+"zh": "TSC/USDT 价格"
+},
+"TSC:": {
+"ru": "TSC:",
+"zh": "TSC："
+},
+"TensorCash changes fast: {0} mandatory upgrades in two months. Miners on an old build keep their GPUs busy but their work stops counting. One page with every activation height, who must act and how far the network has moved.": {
+"ru": "TensorCash меняется быстро: {0} обязательных обновлений за два месяца. Майнеры на старой сборке продолжают загружать GPU, но их работа перестаёт засчитываться. Одна страница со всеми высотами активации, кому нужно действовать и насколько сеть уже перешла.",
+"zh": "TensorCash 变化很快：两个月内 {0} 次强制升级。使用旧版本的矿工显卡依然在跑，但工作量已不再计入。一个页面汇总所有激活高度、谁需要行动，以及网络的升级进度。"
+},
+"TensorCash {0}.{1} (test fixture)": {
+"ru": "TensorCash {0}.{1} (тестовые данные)",
+"zh": "TensorCash {0}.{1}（测试数据）"
+},
+"Thanks, your message was sent.": {
+"ru": "Спасибо, сообщение отправлено.",
+"zh": "谢谢，留言已发送。"
+},
+"That email address does not look right. Fix it or leave it empty.": {
+"ru": "Похоже, адрес email неверный. Исправьте его или оставьте поле пустым.",
+"zh": "邮箱地址格式不对。请修改或留空。"
+},
+"The block reward drops {0}% each epoch while epochs get longer. Max supply {1}M TSC.": {
+"ru": "Награда за блок снижается на {0}% каждую эпоху, а эпохи становятся длиннее. Максимальное предложение {1}M TSC.",
+"zh": "每个纪元区块奖励下降 {0}%，同时纪元越来越长。最大供应量 {1}M TSC。"
+},
+"The project's honest prompt bank: median {0}×, {1}% of windows ≤ {2}×.": {
+"ru": "Честный банк промптов проекта: медиана {0}×, {1}% окон ≤ {2}×.",
+"zh": "项目的诚实提示词库：中位数 {0}×，{1}% 的窗口 ≤ {2}×。"
+},
+"The reward falls when more miners join and rises when they leave; the second driver is the shrinking block reward (epochs).": {
+"ru": "Доход падает, когда майнеров становится больше, и растёт, когда они уходят; второй фактор — сокращение награды за блок (эпохи).",
+"zh": "矿工增加时收益下降，矿工离开时收益上升；第二个因素是不断减少的区块奖励（纪元）。"
+},
+"The smallest number of addresses whose combined {0}-day share of blocks exceeds {1}%.": {
+"ru": "Наименьшее число адресов, чья совокупная доля блоков за {0} дн. превышает {1}%.",
+"zh": "{0} 天出块份额合计超过 {1}% 所需的最少地址数。"
+},
+"Tiger Pool ({0}% fee)": {
+"ru": "Tiger Pool (комиссия {0}%)",
+"zh": "Tiger Pool（费率 {0}%）"
+},
+"Tigerpool {0}% of blocks, {1} days · share of blocks, not measured hashrate": {
+"ru": "Tigerpool — {0}% блоков за {1} дн. · доля блоков, а не измеренный хешрейт",
+"zh": "Tigerpool 占 {0}% 的区块，{1} 天 · 出块份额，并非实测算力"
+},
+"Tigerpool · share of blocks": {
+"ru": "Tigerpool · доля блоков",
+"zh": "Tigerpool · 出块份额"
+},
+"Tigerpool:": {
+"ru": "Tigerpool:",
+"zh": "Tigerpool："
+},
+"Tighter proof validation; v{0}.{1} withdrawn same day, replaced by v{2}.{3}a.": {
+"ru": "Более строгая проверка доказательств; v{0}.{1} отозвана в тот же день, заменена на v{2}.{3}a.",
+"zh": "更严格的证明验证；v{0}.{1} 当天撤回，由 v{2}.{3}a 替代。"
+},
+"Timeline": {
+"ru": "Хронология",
+"zh": "时间线"
+},
+"Today": {
+"ru": "Сейчас",
+"zh": "今天"
+},
+"Today vs. after the next reward cut": {
+"ru": "Сейчас и после следующего сокращения награды",
+"zh": "现在 vs 下次奖励削减后"
+},
+"Top miners, last {0} days": {
+"ru": "Топ майнеров, последние {0} дн.",
+"zh": "头部矿工，最近 {0} 天"
+},
+"Top {0} / top {1} addresses": {
+"ru": "Топ-{0} / топ-{1} адресов",
+"zh": "前 {0} / 前 {1} 地址"
+},
+"Top {0} addresses": {
+"ru": "Топ-{0} адресов",
+"zh": "前 {0} 个地址"
+},
+"Top {0} addresses by balance with {1}- and {2}-day net flow. This is the seed of a “who's accumulating” view — without exchange labels an exchange wallet cannot yet be told apart from an investor, so read it as a watchlist.": {
+"ru": "Топ-{0} адресов по балансу с чистым потоком за {1} и {2} дн. Это зачаток представления «кто накапливает» — без меток бирж кошелёк биржи пока не отличить от инвестора, так что считайте это списком наблюдения.",
+"zh": "按余额排名的前 {0} 个地址，附 {1} 天和 {2} 天净流量。这是“谁在增持”视图的雏形——没有交易所标签时，还无法区分交易所钱包和投资者，因此请把它当作观察名单。"
+},
+"Top {0} addresses hold": {
+"ru": "Топ-{0} адресов держат",
+"zh": "前 {0} 个地址持有"
+},
+"Topic": {
+"ru": "Тема",
+"zh": "主题"
+},
+"Transactions / day": {
+"ru": "Транзакции / день",
+"zh": "交易数 / 天"
+},
+"Trend: funded addresses and market cap": {
+"ru": "Тренд: адреса с балансом и капитализация",
+"zh": "趋势：有余额地址与市值"
+},
+"Turing cannot mine TensorCash: no bf{0} support (Ampere or newer required).": {
+"ru": "Turing не может майнить TensorCash: нет поддержки bf{0} (нужна Ampere или новее).",
+"zh": "Turing 架构无法挖 TensorCash：不支持 bf{0}（需要 Ampere 或更新架构）。"
+},
+"Tx": {
+"ru": "Тх",
+"zh": "交易"
+},
+"Type": {
+"ru": "Тип",
+"zh": "类型"
+},
+"Typical gap": {
+"ru": "Типичный интервал",
+"zh": "典型间隔"
+},
+"USD / day": {
+"ru": "USD / день",
+"zh": "USD / 天"
+},
+"USD per day": {
+"ru": "USD в день",
+"zh": "每日 USD"
+},
+"USD per {0} K proof/s": {
+"ru": "USD на {0} K proof/s",
+"zh": "每 {0} K proof/s 的 USD"
+},
+"USD per {0} K proof/s:": {
+"ru": "USD на {0} K proof/s:",
+"zh": "每 {0} K proof/s 的 USD："
+},
+"Units, in plain words": {
+"ru": "Единицы простыми словами",
+"zh": "单位的通俗解释"
+},
+"Unlabelled miner addresses are not necessarily solo — they may be pools without an alias. Share of blocks approximates share of work only over a large sample. Top-holder flows come from the explorer and do not distinguish exchanges from investors. A price from one thin exchange can be easy to move. This dashboard is not investment advice.": {
+"ru": "Неподписанные адреса майнеров не обязательно соло — это могут быть пулы без названия. Доля блоков приближает долю работы только на большой выборке. Потоки крупнейших держателей берутся из обозревателя и не отличают биржи от инвесторов. Цену одной тонкой биржи легко сдвинуть. Эта панель не является инвестиционным советом.",
+"zh": "未标注的矿工地址不一定是独立矿工——也可能是没有别名的矿池。只有在大样本下，出块份额才近似于工作量份额。头部持有者的资金流来自浏览器，无法区分交易所和投资者。单一低流动性交易所的价格很容易被操纵。本面板不构成投资建议。"
+},
+"Until the next reward cut": {
+"ru": "До следующего сокращения награды",
+"zh": "距下次奖励削减"
+},
+"Update the miner to the version your pool names (supr-meow ≥ {0}.{1} for proof v{2}).": {
+"ru": "Обновите майнер до версии, которую называет ваш пул (supr-meow ≥ {0}.{1} для proof v{2}).",
+"zh": "把挖矿软件更新到矿池指定的版本（proof v{2} 需要 supr-meow ≥ {0}.{1}）。"
+},
+"Upgrade bcore, TensorCash and your verifier before the activation height, not the estimated time.": {
+"ru": "Обновите bcore, TensorCash и верификатор до высоты активации, а не к расчётному времени.",
+"zh": "在激活高度（而不是预计时间）之前升级 bcore、TensorCash 和你的验证器。"
+},
+"Upgrade checklist": {
+"ru": "Чек-лист обновления",
+"zh": "升级清单"
+},
+"Upgrades & deadlines": {
+"ru": "Обновления и сроки",
+"zh": "升级与截止时间"
+},
+"Value": {
+"ru": "Стоимость",
+"zh": "价值"
+},
+"Value lost": {
+"ru": "Потерянная стоимость",
+"zh": "损失价值"
+},
+"Verifiable-inference whitepaper": {
+"ru": "Whitepaper о проверяемом инференсе",
+"zh": "可验证推理白皮书"
+},
+"Verifier fix: honest Qwen{0} end-of-segment windows no longer read as RED.": {
+"ru": "Исправление верификатора: честные окна Qwen{0} в конце сегмента больше не считаются RED.",
+"zh": "验证器修复：诚实的 Qwen{0} 段末窗口不再被判为 RED。"
+},
+"Verifier setup": {
+"ru": "Настройка верификатора",
+"zh": "验证器搭建"
+},
+"Verify release signatures at verify.tensorcash.org.": {
+"ru": "Проверяйте подписи релизов на verify.tensorcash.org.",
+"zh": "在 verify.tensorcash.org 验证发布签名。"
+},
+"Version": {
+"ru": "Версия",
+"zh": "版本"
+},
+"Via": {
+"ru": "Через",
+"zh": "来源"
+},
+"Wallet setup": {
+"ru": "Настройка кошелька",
+"zh": "钱包设置"
+},
+"Watch your pool's announcement: it upgrades first.": {
+"ru": "Следите за объявлениями пула: он обновляется первым.",
+"zh": "关注你所在矿池的公告：矿池会率先升级。"
+},
+"We track solo block finders and payouts from pools that pay on-chain in batches. Payouts sent from a separate pool wallet, or very new addresses, may be missing.": {
+"ru": "Мы отслеживаем соло-майнеров и выплаты пулов, которые платят пакетами в блокчейне. Выплаты с отдельного кошелька пула или совсем новые адреса могут отсутствовать.",
+"zh": "我们追踪独立出块者，以及在链上批量付款的矿池付款。从单独矿池钱包发出的付款或非常新的地址可能缺失。"
+},
+"Website": {
+"ru": "Сайт",
+"zh": "官网"
+},
+"Website & Docs": {
+"ru": "Сайт и документация",
+"zh": "官网与文档"
+},
+"Weekly trend.": {
+"ru": "Недельный тренд.",
+"zh": "每周趋势。"
+},
+"What changes": {
+"ru": "Что меняется",
+"zh": "变更内容"
+},
+"What does it cost to mine {0} TSC?": {
+"ru": "Сколько стоит добыть {0} TSC?",
+"zh": "挖 {0} 个 TSC 要花多少钱？"
+},
+"What does mining earn?": {
+"ru": "Сколько приносит майнинг?",
+"zh": "挖矿收益多少？"
+},
+"What each pool does on-chain: share of blocks, how many miners it actually paid, and how regularly. Sorted by {0}-day share.": {
+"ru": "Что каждый пул делает в блокчейне: доля блоков, скольким майнерам он реально заплатил и как регулярно. Сортировка по доле за {0} дн.",
+"zh": "各矿池在链上的表现：出块份额、实际付款的矿工数量以及付款频率。按 {0} 天份额排序。"
+},
+"What moves the multiplier": {
+"ru": "Что двигает мультипликатор",
+"zh": "影响乘数的因素"
+},
+"What should we know? Block heights, addresses or links help.": {
+"ru": "Что нам стоит знать? Высоты блоков, адреса или ссылки помогут.",
+"zh": "想告诉我们什么？附上区块高度、地址或链接会更有帮助。"
+},
+"What {0} K proof/s would earn running for a whole UTC day at that day's difficulty, before pool fees, electricity and luck. Multiply by your miner's speed. USD uses that day's SafeTrade close — it shows scale, not income anyone can count on.": {
+"ru": "Сколько заработали бы {0} K proof/s за целые сутки UTC при сложности того дня, до комиссии пула, электричества и удачи. Умножьте на скорость своего майнера. USD — по закрытию SafeTrade за тот день: это масштаб, а не доход, на который можно рассчитывать.",
+"zh": "{0} K proof/s 按当日难度运行一整个 UTC 日的收益，未扣除矿池费、电费和运气因素。乘以你的挖矿速度即可。USD 按当日 SafeTrade 收盘价计算——只反映量级，并非可以依赖的收入。"
+},
+"Who finds the blocks?": {
+"ru": "Кто находит блоки?",
+"zh": "谁在出块？"
+},
+"Who must act": {
+"ru": "Кому действовать",
+"zh": "谁需要行动"
+},
+"Who pays the tax": {
+"ru": "Кто платит налог",
+"zh": "谁在交税"
+},
+"Work rate": {
+"ru": "Мощность",
+"zh": "算力"
+},
+"Work rate per miner = sum of effective difficulty of its blocks in {0}h ÷ {1} s. Over one day, ±{2}–{3} points of share is ordinary luck. Pool aliases come from the explorer; unlabelled addresses are probably solo miners or unlabelled pools.": {
+"ru": "Мощность майнера = сумма эффективной сложности его блоков за {0} ч ÷ {1} с. За сутки колебания доли ±{2}–{3} п. п. — обычная удача. Названия пулов из обозревателя; неподписанные адреса — вероятно, соло-майнеры или неподписанные пулы.",
+"zh": "单个矿工算力 = 其 {0} 小时内区块有效难度之和 ÷ {1} 秒。一天之内份额波动 ±{2}–{3} 个百分点属于正常运气。矿池别名来自浏览器；未标注地址可能是独立矿工或未标注的矿池。"
+},
+"Work rate, {0}h": {
+"ru": "Мощность, {0} ч",
+"zh": "算力，{0} 小时"
+},
+"Work spent on the tax": {
+"ru": "Работа, ушедшая на налог",
+"zh": "花在税上的工作量"
+},
+"Worker name": {
+"ru": "Имя воркера",
+"zh": "矿机名称"
+},
+"Your TSC address": {
+"ru": "Ваш адрес TSC",
+"zh": "你的 TSC 地址"
+},
+"Your blocks average {0}× (network {1}×), about {2}% of the work goes to the multiplier, mostly late credit.": {
+"ru": "Ваши блоки в среднем {0}× (сеть {1}×), около {2}% работы уходит на мультипликатор, в основном поздний кредит.",
+"zh": "你的区块平均 {0}×（全网 {1}×），约 {2}% 的工作量耗在乘数上，主要是延迟积分。"
+},
+"Your blocks average {0}× (network {1}×), about {2}% of the work goes to the multiplier, mostly near-certain steps.": {
+"ru": "Ваши блоки в среднем {0}× (сеть {1}×), около {2}% работы уходит на мультипликатор, в основном почти детерминированные шаги.",
+"zh": "你的区块平均 {0}×（全网 {1}×），约 {2}% 的工作量耗在乘数上，主要是近乎确定的步骤。"
+},
+"Your blocks average {0}× (network {1}×), about {2}% of the work goes to the multiplier, mostly sampling profile.": {
+"ru": "Ваши блоки в среднем {0}× (сеть {1}×), около {2}% работы уходит на мультипликатор, в основном профиль сэмплирования.",
+"zh": "你的区块平均 {0}×（全网 {1}×），约 {2}% 的工作量耗在乘数上，主要是采样特征。"
+},
+"Your blocks average {0}× (network {1}×), about {2}% of the work goes to the multiplier.": {
+"ru": "Ваши блоки в среднем {0}× (сеть {1}×), около {2}% работы уходит на мультипликатор.",
+"zh": "你的区块平均 {0}×（全网 {1}×），约 {2}% 的工作量耗在乘数上。"
+},
+"Your blocks average {0}× (network {1}×), no multiplier tax.": {
+"ru": "Ваши блоки в среднем {0}× (сеть {1}×), без налога мультипликатора.",
+"zh": "你的区块平均 {0}×（全网 {1}×），无乘数税。"
+},
+"Your email": {
+"ru": "Ваш email",
+"zh": "你的邮箱"
+},
+"Your pool": {
+"ru": "Ваш пул",
+"zh": "你的矿池"
+},
+"Your pool's blocks average {0}× (network {1}×), about {2}% of the work goes to the multiplier, mostly late credit.": {
+"ru": "Блоки вашего пула в среднем {0}× (сеть {1}×), около {2}% работы уходит на мультипликатор, в основном поздний кредит.",
+"zh": "你所在矿池的区块平均 {0}×（全网 {1}×），约 {2}% 的工作量耗在乘数上，主要是延迟积分。"
+},
+"Your pool's blocks average {0}× (network {1}×), about {2}% of the work goes to the multiplier, mostly near-certain steps.": {
+"ru": "Блоки вашего пула в среднем {0}× (сеть {1}×), около {2}% работы уходит на мультипликатор, в основном почти детерминированные шаги.",
+"zh": "你所在矿池的区块平均 {0}×（全网 {1}×），约 {2}% 的工作量耗在乘数上，主要是近乎确定的步骤。"
+},
+"Your pool's blocks average {0}× (network {1}×), about {2}% of the work goes to the multiplier, mostly sampling profile.": {
+"ru": "Блоки вашего пула в среднем {0}× (сеть {1}×), около {2}% работы уходит на мультипликатор, в основном профиль сэмплирования.",
+"zh": "你所在矿池的区块平均 {0}×（全网 {1}×），约 {2}% 的工作量耗在乘数上，主要是采样特征。"
+},
+"Your pool's blocks average {0}× (network {1}×), about {2}% of the work goes to the multiplier.": {
+"ru": "Блоки вашего пула в среднем {0}× (сеть {1}×), около {2}% работы уходит на мультипликатор.",
+"zh": "你所在矿池的区块平均 {0}×（全网 {1}×），约 {2}% 的工作量耗在乘数上。"
+},
+"Your pool's blocks average {0}× (network {1}×), no multiplier tax.": {
+"ru": "Блоки вашего пула в среднем {0}× (сеть {1}×), без налога мультипликатора.",
+"zh": "你所在矿池的区块平均 {0}×（全网 {1}×），无乘数税。"
+},
+"Your rig": {
+"ru": "Ваш риг",
+"zh": "你的矿机"
+},
+"Your setup": {
+"ru": "Ваша конфигурация",
+"zh": "你的配置"
+},
+"a pool": {
+"ru": "пул",
+"zh": "某矿池"
+},
+"above {0}×": {
+"ru": "выше {0}×",
+"zh": "高于 {0}×"
+},
+"active": {
+"ru": "активно",
+"zh": "生效中"
+},
+"addresses paying batches of ≥{0} miners": {
+"ru": "адреса, платящие пакетами ≥{0} майнерам",
+"zh": "批量付款给 ≥{0} 名矿工的地址"
+},
+"addresses with positive / negative net flow": {
+"ru": "адреса с положительным / отрицательным потоком",
+"zh": "净流量为正 / 负的地址"
+},
+"alert": {
+"ru": "тревога",
+"zh": "警报"
+},
+"and": {
+"ru": "и",
+"zh": "以及"
+},
+"and deadlines.": {
+"ru": "и сроки.",
+"zh": "和截止时间。"
+},
+"and who finds the": {
+"ru": "и кто находит",
+"zh": "以及谁在"
+},
+"announced": {
+"ru": "объявлено",
+"zh": "已公布"
+},
+"at ${0}": {
+"ru": "при ${0}",
+"zh": "按 ${0}"
+},
+"base (bits) · PoI multiplier of the latest block ×{0}": {
+"ru": "база (bits) · мультипликатор PoI последнего блока ×{0}",
+"zh": "基础（bits）· 最新区块的 PoI 乘数 ×{0}"
+},
+"before pool fee, at today's network": {
+"ru": "до комиссии пула, при текущей сети",
+"zh": "未扣矿池费，按今天的全网数据"
+},
+"block #{0}": {
+"ru": "блок #{0}",
+"zh": "区块 #{0}"
+},
+"block producers": {
+"ru": "производители блоков",
+"zh": "出块者"
+},
+"block producers, nodes": {
+"ru": "производители блоков, ноды",
+"zh": "出块者、节点"
+},
+"blocks": {
+"ru": "блоков",
+"zh": "区块"
+},
+"calculator.": {
+"ru": "калькулятор.",
+"zh": "计算器。"
+},
+"check": {
+"ru": "проверить",
+"zh": "检查"
+},
+"checked {0} {m0} {1}": {
+"ru": "проверено {0} {m0} {1}",
+"zh": "检查于 {1}年{m0}{0}日"
+},
+"completed": {
+"ru": "завершено",
+"zh": "已完成"
+},
+"contact": {
+"ru": "контакты",
+"zh": "联系"
+},
+"cost per mined TSC": {
+"ru": "себестоимость добытого TSC",
+"zh": "每个挖出 TSC 的成本"
+},
+"cost: own RTX {0}, ${1}/kWh": {
+"ru": "себестоимость: своя RTX {0}, ${1}/кВт·ч",
+"zh": "成本：自有 RTX {0}，${1}/kWh"
+},
+"cost: own RTX {0}, ${1}/kWh:": {
+"ru": "себестоимость: своя RTX {0}, ${1}/кВт·ч:",
+"zh": "成本：自有 RTX {0}，${1}/kWh："
+},
+"cost: rented H{0} ${1}/h": {
+"ru": "себестоимость: аренда H{0} ${1}/ч",
+"zh": "成本：租用 H{0} ${1}/小时"
+},
+"cost: rented H{0} ${1}/h:": {
+"ru": "себестоимость: аренда H{0} ${1}/ч:",
+"zh": "成本：租用 H{0} ${1}/小时："
+},
+"cost: rented RTX {0} ${1}/h": {
+"ru": "себестоимость: аренда RTX {0} ${1}/ч",
+"zh": "成本：租用 RTX {0} ${1}/小时"
+},
+"cost: rented RTX {0} ${1}/h:": {
+"ru": "себестоимость: аренда RTX {0} ${1}/ч:",
+"zh": "成本：租用 RTX {0} ${1}/小时："
+},
+"current": {
+"ru": "текущая",
+"zh": "当前"
+},
+"daily close": {
+"ru": "закрытие дня",
+"zh": "日收盘价"
+},
+"daily close:": {
+"ru": "закрытие дня:",
+"zh": "日收盘价："
+},
+"daily issuance, USD": {
+"ru": "дневная эмиссия, USD",
+"zh": "每日发行，USD"
+},
+"daily issuance, USD:": {
+"ru": "дневная эмиссия, USD:",
+"zh": "每日发行，USD："
+},
+"daily value": {
+"ru": "стоимость за день",
+"zh": "每日价值"
+},
+"daily value:": {
+"ru": "стоимость за день:",
+"zh": "每日价值："
+},
+"daily volume, USD": {
+"ru": "дневной объём, USD",
+"zh": "每日成交额，USD"
+},
+"daily volume, USD:": {
+"ru": "дневной объём, USD:",
+"zh": "每日成交额，USD："
+},
+"daily, {0}:{1}–{2}:{3} UTC": {
+"ru": "ежедневно, {0}:{1}–{2}:{3} UTC",
+"zh": "每日 {0}:{1}–{2}:{3} UTC"
+},
+"dashboard": {
+"ru": "панель",
+"zh": "面板"
+},
+"deadline": {
+"ru": "срок",
+"zh": "截止"
+},
+"details": {
+"ru": "подробнее",
+"zh": "详情"
+},
+"difficulty (daily avg)": {
+"ru": "сложность (среднее за день)",
+"zh": "难度（日均）"
+},
+"difficulty (daily avg):": {
+"ru": "сложность (среднее за день):",
+"zh": "难度（日均）："
+},
+"efficiency": {
+"ru": "эффективность",
+"zh": "效率"
+},
+"enter hardware cost": {
+"ru": "введите стоимость железа",
+"zh": "输入硬件成本"
+},
+"event": {
+"ru": "событие",
+"zh": "事件"
+},
+"everyone": {
+"ru": "все",
+"zh": "所有人"
+},
+"first {0} {m0} {1} · last {2} {m1} {3}": {
+"ru": "первый {0} {m0} {1} · последний {2} {m1} {3}",
+"zh": "首次 {1}年{m0}{0}日 · 最近 {3}年{m1}{2}日"
+},
+"fix": {
+"ru": "исправление",
+"zh": "修复"
+},
+"for each producer's intelligence multiplier.": {
+"ru": "— мультипликатор интеллекта каждого производителя.",
+"zh": "查看每个出块者的智能乘数。"
+},
+"funded addresses": {
+"ru": "адреса с балансом",
+"zh": "有余额地址"
+},
+"funded addresses:": {
+"ru": "адреса с балансом:",
+"zh": "有余额地址："
+},
+"h1:Contact <em>tsc.watch</em>.": {
+"ru": "Связаться с <em>tsc.watch</em>",
+"zh": "联系 <em>tsc.watch</em>"
+},
+"h1:Largest <em>TSC holders</em>.": {
+"ru": "Крупнейшие <em>держатели TSC</em>",
+"zh": "最大的 <em>TSC 持有者</em>"
+},
+"h1:Miner <em>dashboard</em>.": {
+"ru": "<em>Панель</em> майнера",
+"zh": "矿工<em>面板</em>"
+},
+"h1:Mining <em>profitability</em> calculator.": {
+"ru": "Калькулятор <em>доходности</em> майнинга",
+"zh": "挖矿<em>收益</em>计算器"
+},
+"h1:Network <em>work rate</em> and who finds the <em>blocks</em>.": {
+"ru": "<em>Мощность</em> сети и кто находит <em>блоки</em>",
+"zh": "全网<em>算力</em>，以及谁在<em>出块</em>"
+},
+"h1:Proof <em>efficiency</em>: the intelligence-multiplier tax.": {
+"ru": "<em>Эффективность</em> доказательств: налог мультипликатора интеллекта",
+"zh": "证明<em>效率</em>：智能乘数税"
+},
+"h1:Protocol <em>upgrades</em> and deadlines.": {
+"ru": "<em>Обновления</em> протокола и сроки",
+"zh": "协议<em>升级</em>与截止时间"
+},
+"h1:Start <em>mining</em> in five minutes.": {
+"ru": "Начните <em>майнить</em> за пять минут",
+"zh": "五分钟开始<em>挖矿</em>"
+},
+"h1:TensorCash (TSC) <em>market</em> and <em>issuance</em>.": {
+"ru": "TensorCash (TSC): <em>рынок</em> и <em>эмиссия</em>",
+"zh": "TensorCash (TSC) <em>市场</em>与<em>发行</em>"
+},
+"highest {0}h avg": {
+"ru": "максимум среднего за {0} ч",
+"zh": "最高 {0} 小时均值"
+},
+"hourly estimate": {
+"ru": "часовая оценка",
+"zh": "每小时估算"
+},
+"hourly estimate (noisy, clipped to scale)": {
+"ru": "часовая оценка (шумная, обрезана по шкале)",
+"zh": "每小时估算（噪声大，按刻度截断）"
+},
+"hourly estimate:": {
+"ru": "часовая оценка:",
+"zh": "每小时估算："
+},
+"ideal {0}×": {
+"ru": "идеал {0}×",
+"zh": "理想值 {0}×"
+},
+"ideal {0}×:": {
+"ru": "идеал {0}×:",
+"zh": "理想值 {0}×："
+},
+"in five minutes.": {
+"ru": "за пять минут.",
+"zh": "五分钟即可完成。"
+},
+"in {0} blocks": {
+"ru": "через {0} блоков",
+"zh": "{0} 个区块后"
+},
+"in {0} d {1} h {2} min": {
+"ru": "через {0} д {1} ч {2} мин",
+"zh": "{0} 天 {1} 小时 {2} 分钟后"
+},
+"in {0}h · {1}d:": {
+"ru": "за {0} ч · {1} д:",
+"zh": "{0} 小时内 · {1} 天："
+},
+"issuance": {
+"ru": "эмиссия",
+"zh": "发行量"
+},
+"last hour to tip: {0} K proof/s · explorer: {1} K proof/s · highest {2}h avg: {3} K proof/s ({4} {m0})": {
+"ru": "последний час до вершины: {0} K proof/s · обозреватель: {1} K proof/s · максимум среднего за {2} ч: {3} K proof/s ({4} {m0})",
+"zh": "最近一小时至链顶：{0} K proof/s · 浏览器：{1} K proof/s · 最高 {2} 小时均值：{3} K proof/s（{m0}{4}日）"
+},
+"late credit": {
+"ru": "поздний кредит",
+"zh": "延迟积分"
+},
+"mandatory": {
+"ru": "обязательно",
+"zh": "强制"
+},
+"market": {
+"ru": "рынок",
+"zh": "市场"
+},
+"market cap, USD": {
+"ru": "капитализация, USD",
+"zh": "市值，USD"
+},
+"market cap, USD:": {
+"ru": "капитализация, USD:",
+"zh": "市值，USD："
+},
+"max in {0}h: ×—": {
+"ru": "максимум за {0} ч: ×—",
+"zh": "{0} 小时最高：×—"
+},
+"measure with a {0}-minute run, then use the calculator": {
+"ru": "измерьте за {0} мин работы, затем используйте калькулятор",
+"zh": "先运行 {0} 分钟测速，再使用计算器"
+},
+"median {0}× · {1}% of blocks ≤ {2}× · {3} blocks": {
+"ru": "медиана {0}× · {1}% блоков ≤ {2}× · {3} блоков",
+"zh": "中位数 {0}× · {1}% 的区块 ≤ {2}× · {3} 个区块"
+},
+"methodology": {
+"ru": "методология",
+"zh": "方法说明"
+},
+"miner": {
+"ru": "майнер",
+"zh": "矿工"
+},
+"miner dashboard": {
+"ru": "панели майнера",
+"zh": "矿工面板"
+},
+"miners, pools": {
+"ru": "майнеры, пулы",
+"zh": "矿工、矿池"
+},
+"mining": {
+"ru": "майнинг",
+"zh": "挖矿"
+},
+"near-certain steps; highest seen: {0}": {
+"ru": "почти детерминированные шаги; максимум: {0}",
+"zh": "近乎确定的步骤；最高记录：{0}"
+},
+"new release": {
+"ru": "новый релиз",
+"zh": "新版本"
+},
+"next: {0} TSC from block #{1}": {
+"ru": "далее: {0} TSC с блока #{1}",
+"zh": "下一阶段：从区块 #{1} 起 {0} TSC"
+},
+"no batch payouts: solo or private": {
+"ru": "нет пакетных выплат: соло или приватный",
+"zh": "无批量付款：独立或私有"
+},
+"no public benchmark": {
+"ru": "нет публичного бенчмарка",
+"zh": "无公开基准数据"
+},
+"node operators": {
+"ru": "операторы нод",
+"zh": "节点运营者"
+},
+"now {0} · ≈ ${1}/day at today's price": {
+"ru": "сейчас {0} · ≈ ${1}/день по текущей цене",
+"zh": "当前 {0} · 按今天价格 ≈ ${1}/天"
+},
+"of {0} blocks in {1}h": {
+"ru": "из {0} блоков за {1} ч",
+"zh": "占 {1} 小时内 {0} 个区块"
+},
+"official TensorCash channels": {
+"ru": "официальные каналы TensorCash",
+"zh": "TensorCash 官方渠道"
+},
+"ok": {
+"ru": "ок",
+"zh": "正常"
+},
+"optional": {
+"ru": "необязательно",
+"zh": "可选"
+},
+"optional, only if you want a reply": {
+"ru": "необязательно, только если нужен ответ",
+"zh": "可选，仅在需要回复时填写"
+},
+"paid all its miners {0}%. Your share of the pool: {1}%.": {
+"ru": "выплатил всем майнерам {0}%. Ваша доля в пуле: {1}%.",
+"zh": "付给全体矿工的金额变化 {0}%。你在矿池中的份额：{1}%。"
+},
+"payout addresses · largest: {0}% of blocks": {
+"ru": "адресов выплат · крупнейший: {0}% блоков",
+"zh": "收款地址 · 最大者：{0}% 的区块"
+},
+"pays about every {0} h. Check that the rig is online and on the current miner version.": {
+"ru": "платит примерно каждые {0} ч. Проверьте, что риг онлайн и на актуальной версии майнера.",
+"zh": "大约每 {0} 小时付款一次。请检查矿机是否在线，以及是否使用当前挖矿软件版本。"
+},
+"pending transactions": {
+"ru": "ожидающие транзакции",
+"zh": "待确认交易"
+},
+"per TSC · datacenter-grade marginal miner": {
+"ru": "за TSC · маржинальный майнер уровня дата-центра",
+"zh": "每 TSC · 数据中心级边际矿工"
+},
+"per TSC · price is —× this cost": {
+"ru": "за TSC · цена = —× этой себестоимости",
+"zh": "每 TSC · 价格为该成本的 —×"
+},
+"per TSC · vs {0} day ago — · vs {1} days ago —": {
+"ru": "за TSC · к {0} дн. назад — · к {1} дн. назад —",
+"zh": "每 TSC · 较 {0} 天前 — · 较 {1} 天前 —"
+},
+"per explorer (addresses with a balance)": {
+"ru": "по обозревателю (адреса с балансом)",
+"zh": "来自浏览器（有余额的地址）"
+},
+"per matured block (~{0} h)": {
+"ru": "за созревший блок (~{0} ч)",
+"zh": "每个成熟区块（约 {0} 小时）"
+},
+"pools, solo miners": {
+"ru": "пулы, соло-майнеры",
+"zh": "矿池、独立矿工"
+},
+"pools, verifiers": {
+"ru": "пулы, верификаторы",
+"zh": "矿池、验证器"
+},
+"price, {0}h candles": {
+"ru": "цена, свечи {0} ч",
+"zh": "价格，{0} 小时 K 线"
+},
+"pricing starts": {
+"ru": "начало тарификации",
+"zh": "定价开始"
+},
+"profitability": {
+"ru": "доходность",
+"zh": "盈利能力"
+},
+"protocol target ~{0} min · {1}d: {2} min": {
+"ru": "цель протокола ~{0} мин · {1} д: {2} мин",
+"zh": "协议目标约 {0} 分钟 · {1} 天：{2} 分钟"
+},
+"recommended": {
+"ru": "рекомендуется",
+"zh": "推荐"
+},
+"reference": {
+"ru": "эталон",
+"zh": "参考"
+},
+"sampling profile": {
+"ru": "профиль сэмплирования",
+"zh": "采样特征"
+},
+"seconds per block": {
+"ru": "секунд на блок",
+"zh": "每块秒数"
+},
+"seconds per block:": {
+"ru": "секунд на блок:",
+"zh": "每块秒数："
+},
+"see release notes": {
+"ru": "см. примечания к релизу",
+"zh": "见版本说明"
+},
+"share of blocks with proof v{0}, per {1} blocks": {
+"ru": "доля блоков с proof v{0}, на {1} блоков",
+"zh": "proof v{0} 区块占比，每 {1} 个区块"
+},
+"share of blocks with proof v{0}, per {1} blocks:": {
+"ru": "доля блоков с proof v{0}, на {1} блоков:",
+"zh": "proof v{0} 区块占比，每 {1} 个区块："
+},
+"share of issued supply": {
+"ru": "доля выпущенного предложения",
+"zh": "占已发行量比例"
+},
+"share of network {0}%": {
+"ru": "доля сети {0}%",
+"zh": "占全网 {0}%"
+},
+"since genesis": {
+"ru": "с генезиса",
+"zh": "自创世以来"
+},
+"since listing": {
+"ru": "с листинга",
+"zh": "自上线以来"
+},
+"solo": {
+"ru": "соло",
+"zh": "独立"
+},
+"suprnova ({0}% fee)": {
+"ru": "suprnova (комиссия {0}%)",
+"zh": "suprnova（费率 {0}%）"
+},
+"suprnova / supr-meow users": {
+"ru": "пользователи suprnova / supr-meow",
+"zh": "suprnova / supr-meow 用户"
+},
+"the next day: payouts should continue.": {
+"ru": "на следующий день: выплаты должны продолжиться.",
+"zh": "第二天：付款应继续正常进行。"
+},
+"the pool": {
+"ru": "пул",
+"zh": "该矿池"
+},
+"tsc.watch is independent. For wallet or node support use the": {
+"ru": "tsc.watch — независимый проект. За поддержкой по кошельку или ноде обращайтесь в",
+"zh": "tsc.watch 是独立项目。钱包或节点问题请使用"
+},
+"up to {0}×": {
+"ru": "до {0}×",
+"zh": "最高 {0}×"
+},
+"upgrades": {
+"ru": "обновления",
+"zh": "升级"
+},
+"verifier": {
+"ru": "верификатор",
+"zh": "验证器"
+},
+"verifiers, pools": {
+"ru": "верификаторы, пулы",
+"zh": "验证器、矿池"
+},
+"v{0} blocks": {
+"ru": "блоки v{0}",
+"zh": "v{0} 区块"
+},
+"v{0} sunset": {
+"ru": "отключение v{0}",
+"zh": "v{0} 停用"
+},
+"v{0} sunset: proof v{1} mandatory, AMBER/RED rules enforced, stricter verifier.": {
+"ru": "отключение v{0}: proof v{1} обязателен, правила AMBER/RED в силе, строже верификатор.",
+"zh": "v{0} 停用：proof v{1} 成为强制，执行 AMBER/RED 规则，验证器更严格。"
+},
+"v{0}.{1} · TensorCash {2}.{3} (test fixture) · in {4} blocks ≈ {5} days": {
+"ru": "v{0}.{1} · TensorCash {2}.{3} (тестовые данные) · через {4} блоков ≈ {5} дн.",
+"zh": "v{0}.{1} · TensorCash {2}.{3}（测试数据）· {4} 个区块后 ≈ {5} 天"
+},
+"work rate": {
+"ru": "мощность",
+"zh": "算力"
+},
+"your pool": {
+"ru": "ваш пул",
+"zh": "你的矿池"
+},
+"{0} K proof/s": {
+"ru": "{0} K proof/s",
+"zh": "{0} K proof/s"
+},
+"{0} TSC mined in {1}h ≈ ${2} — the supply miners can bring to market every day at today's price": {
+"ru": "{0} TSC добыто за {1} ч ≈ ${2} — предложение, которое майнеры могут выносить на рынок каждый день по текущей цене",
+"zh": "{1} 小时挖出 {0} TSC ≈ ${2}——按今天价格，这是矿工每天可以带到市场上的供应量"
+},
+"{0} TSC · SafeTrade ticker, rolling {1} hours": {
+"ru": "{0} TSC · тикер SafeTrade, скользящие {1} ч",
+"zh": "{0} TSC · SafeTrade 行情，滚动 {1} 小时"
+},
+"{0} TSC ≈ ${1}": {
+"ru": "{0} TSC ≈ ${1}",
+"zh": "{0} TSC ≈ ${1}"
+},
+"{0} TSC/day": {
+"ru": "{0} TSC/день",
+"zh": "{0} TSC/天"
+},
+"{0} blocks": {
+"ru": "{0} блоков",
+"zh": "{0} 个区块"
+},
+"{0} blocks in {1}h · {2}-day avg: {3}/day": {
+"ru": "{0} блоков за {1} ч · среднее за {2} дн.: {3}/день",
+"zh": "{1} 小时 {0} 个区块 · {2} 日均值：{3}/天"
+},
+"{0} blocks × {1} TSC · SafeTrade traded {2}K TSC in {3}h": {
+"ru": "{0} блоков × {1} TSC · на SafeTrade за {3} ч продано {2}K TSC",
+"zh": "{0} 个区块 × {1} TSC · SafeTrade {3} 小时成交 {2}K TSC"
+},
+"{0} d ago": {
+"ru": "{0} д назад",
+"zh": "{0} 天前"
+},
+"{0} days": {
+"ru": "{0} дн.",
+"zh": "{0} 天"
+},
+"{0} days: {1}K TSC": {
+"ru": "{0} дн.: {1}K TSC",
+"zh": "{0} 天：{1}K TSC"
+},
+"{0} h": {
+"ru": "{0} ч",
+"zh": "{0} 小时"
+},
+"{0} h ago": {
+"ru": "{0} ч назад",
+"zh": "{0} 小时前"
+},
+"{0} kWh/day": {
+"ru": "{0} кВт·ч/день",
+"zh": "{0} kWh/天"
+},
+"{0} of {1} v{2} blocks": {
+"ru": "{0} из {1} блоков v{2}",
+"zh": "{1} 个 v{2} 区块中的 {0} 个"
+},
+"{0} paid by pools + {1} solo block finders": {
+"ru": "{0} получают от пулов + {1} соло-майнеров",
+"zh": "{0} 由矿池付款 + {1} 个独立出块者"
+},
+"{0} proof/s": {
+"ru": "{0} proof/s",
+"zh": "{0} proof/s"
+},
+"{0} s target": {
+"ru": "цель {0} с",
+"zh": "目标 {0} 秒"
+},
+"{0} s target:": {
+"ru": "цель {0} с:",
+"zh": "目标 {0} 秒："
+},
+"{0} {m0}": {
+"ru": "{0} {m0}",
+"zh": "{m0}{0}日"
+},
+"{0} {m0} {1}": {
+"ru": "{0} {m0} {1}",
+"zh": "{1}年{m0}{0}日"
+},
+"{0} {m0} {1} · from ATH: {2}%": {
+"ru": "{0} {m0} {1} · от ATH: {2}%",
+"zh": "{1}年{m0}{0}日 · 距历史最高：{2}%"
+},
+"{0} {m0} {1}, {2}:{3} UTC": {
+"ru": "{0} {m0} {1}, {2}:{3} UTC",
+"zh": "{1}年{m0}{0}日 {2}:{3} UTC"
+},
+"{0} {m0} {1}:{2}": {
+"ru": "{0} {m0} {1}:{2}",
+"zh": "{m0}{0}日 {1}:{2}"
+},
+"{0} × {1}h, {2} × {3}d": {
+"ru": "{0} × {1} ч, {2} × {3} д",
+"zh": "{0} × {1}小时，{2} × {3}天"
+},
+"{0}-hour average": {
+"ru": "среднее за {0} ч",
+"zh": "{0} 小时均值"
+},
+"{0}-hour average:": {
+"ru": "среднее за {0} ч:",
+"zh": "{0} 小时均值："
+},
+"{0}-{1}-{2} · git.tensorcash.org · {3} releases listed": {
+"ru": "{0}-{1}-{2} · git.tensorcash.org · релизов в списке: {3}",
+"zh": "{0}-{1}-{2} · git.tensorcash.org · 共 {3} 个版本"
+},
+"{0}K TSC of {1}M circulating": {
+"ru": "{0}K TSC из {1}M в обращении",
+"zh": "{1}M 流通量中的 {0}K TSC"
+},
+"{0}M TSC issued = {1}% of max supply · FDV ${2}": {
+"ru": "выпущено {0}M TSC = {1}% макс. предложения · FDV ${2}",
+"zh": "已发行 {0}M TSC = 最大供应量的 {1}% · 完全稀释估值 ${2}"
+},
+"{0}M of {1}M TSC": {
+"ru": "{0}M из {1}M TSC",
+"zh": "{0}M / {1}M TSC"
+},
+"{0}d: {1} · since genesis: {2}": {
+"ru": "{0} д: {1} · с генезиса: {2}",
+"zh": "{0} 天：{1} · 自创世：{2}"
+},
+"{0}h": {
+"ru": "{0}ч",
+"zh": "{0}小时"
+},
+"{0}h volume": {
+"ru": "Объём за {0} ч",
+"zh": "{0} 小时成交量"
+},
+"{0}× (no tax)": {
+"ru": "{0}× (без налога)",
+"zh": "{0}×（无税）"
+},
+"{0}×: {1} blocks ({2}%)": {
+"ru": "{0}×: {1} блоков ({2}%)",
+"zh": "{0}×：{1} 个区块（{2}%）"
+},
+"{0}–{1}: {2} blocks ({3}%)": {
+"ru": "{0}–{1}: {2} блоков ({3}%)",
+"zh": "{0}–{1}：{2} 个区块（{3}%）"
+},
+"· balances and flows from the explorer": {
+"ru": "· балансы и потоки из обозревателя",
+"zh": "· 余额和资金流来自浏览器"
+},
+"· {0} {m0} {1}, {2}:{3} UTC · price read {4} {m1} {5}, {6}:{7} UTC": {
+"ru": "· {0} {m0} {1}, {2}:{3} UTC · цена получена {4} {m1} {5}, {6}:{7} UTC",
+"zh": "· {1}年{m0}{0}日 {2}:{3} UTC · 价格读取于 {5}年{m1}{4}日 {6}:{7} UTC"
+},
+"· {0} {m0} {1}, {2}:{3} UTC · {4}h window ends {5} {m1} {6}, {7}:{8} UTC": {
+"ru": "· {0} {m0} {1}, {2}:{3} UTC · окно {4} ч заканчивается {5} {m1} {6}, {7}:{8} UTC",
+"zh": "· {1}年{m0}{0}日 {2}:{3} UTC · {4} 小时窗口截至 {6}年{m1}{5}日 {7}:{8} UTC"
+},
+"· {0}d:": {
+"ru": "· {0} д:",
+"zh": "· {0} 天："
+},
+"— height, time, miner address, base and effective difficulty, PoI multiplier. In the database: {0} blocks ({1}–{2}), full history since genesis ({3} {m0} {4}).": {
+"ru": "— высота, время, адрес майнера, базовая и эффективная сложность, мультипликатор PoI. В базе: {0} блоков ({1}–{2}), полная история с генезиса ({3} {m0} {4}).",
+"zh": "——高度、时间、矿工地址、基础与有效难度、PoI 乘数。数据库中：{0} 个区块（{1}–{2}），自创世（{4}年{m0}{3}日）以来的完整历史。"
+},
+"≈ ${0} at today's price": {
+"ru": "≈ ${0} по текущей цене",
+"zh": "按今天价格 ≈ ${0}"
+},
+"≈ ${0}/day · {1}-day average of active miners": {
+"ru": "≈ ${0}/день · среднее активных майнеров за {1} дн.",
+"zh": "≈ ${0}/天 · 活跃矿工 {1} 日均值"
+},
+"≈ RTX {0}s": {
+"ru": "≈ RTX {0}",
+"zh": "≈ RTX {0}"
+},
+"≈ {0} TSC ≈ ${1} at today's price": {
+"ru": "≈ {0} TSC ≈ ${1} по текущей цене",
+"zh": "≈ {0} TSC，按今天价格 ≈ ${1}"
+},
+"≈ {0} h after pricing started; {1}% only at the sunset block": {
+"ru": "≈ через {0} ч после начала тарификации; {1}% — только на блоке отключения",
+"zh": "≈ 定价开始后 {0} 小时；直到停用区块才达到 {1}%"
+},
+"≈ {0} {m0} {1} at {2} min/block ({3}-day avg)": {
+"ru": "≈ {0} {m0} {1} при {2} мин/блок (среднее за {3} дн.)",
+"zh": "≈ {1}年{m0}{0}日，按 {2} 分钟/区块（{3} 日均值）"
+},
+"≈ — at ${0} · before pool fees, electricity and luck · last {1} hours": {
+"ru": "≈ — при ${0} · до комиссии пула, электричества и удачи · последние {1} ч",
+"zh": "按 ${0} ≈ — · 未扣矿池费、电费和运气 · 最近 {1} 小时"
+},
+"≥ {0}: {1} blocks ({2}%)": {
+"ru": "≥ {0}: {1} блоков ({2}%)",
+"zh": "≥ {0}：{1} 个区块（{2}%）"
+}
+}

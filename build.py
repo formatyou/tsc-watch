@@ -13,6 +13,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 
 import costs
+import i18n
 import miners
 import guides
 
@@ -537,7 +538,10 @@ def nav_html(active):
 
 
 NAV_CSS = """
-.top{position:relative}.menu{display:flex;align-items:center;gap:4px}
+.top{position:relative}.brand{margin-right:auto}
+.langs{display:flex;gap:2px;padding:2px;border:1px solid var(--line);border-radius:999px;background:#fff}
+.lg{padding:5px 9px;border-radius:999px;color:var(--soft);text-decoration:none;font:11.5px var(--mono);letter-spacing:.04em;line-height:1}
+.lg:hover{color:var(--acc);background:var(--acc-tint)}.lg.on{background:var(--acc);color:#fff}.lg:focus-visible{outline:2px solid var(--acc);outline-offset:2px}.menu{display:flex;align-items:center;gap:4px}
 .grp{position:relative}.gbtn{display:flex;align-items:center;gap:6px;border:0;background:transparent;padding:7px 12px;border-radius:999px;color:var(--acc);font:500 14px var(--sans);cursor:pointer}
 .gbtn:hover,.gbtn[aria-expanded=true]{background:var(--acc-tint)}.grp.on>.gbtn{color:var(--acc-deep);font-weight:600;background:var(--acc-tint)}
 .gbtn:focus-visible,.cta:focus-visible,.drop a:focus-visible,.burger:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
@@ -552,7 +556,7 @@ NAV_CSS = """
 .burger{display:none;width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;flex-direction:column;justify-content:center;align-items:center;gap:4px}
 .burger span{display:block;width:16px;height:1.5px;background:var(--ink);transition:transform .15s,opacity .15s}
 .burger[aria-expanded=true] span:nth-child(1){transform:translateY(5.5px) rotate(45deg)}.burger[aria-expanded=true] span:nth-child(2){opacity:0}.burger[aria-expanded=true] span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
-@media(max-width:760px){.burger{display:flex}.menu{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;background:var(--bg);border-bottom:1px solid var(--line);padding:6px 16px 16px;box-shadow:0 16px 24px rgba(15,17,21,.08)}
+@media(max-width:760px){.burger{display:flex;order:3}.langs{order:2}.menu{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;background:var(--bg);border-bottom:1px solid var(--line);padding:6px 16px 16px;box-shadow:0 16px 24px rgba(15,17,21,.08)}
 .menu.open{display:flex}.grp{border-bottom:1px solid var(--line);padding:8px 0}.gbtn{display:none}.drop{display:grid;grid-template-columns:1fr 1fr;position:static;box-shadow:none;border:0;padding:0;background:transparent;min-width:0}
 .drop .gl{display:block;grid-column:1/-1;font:10.5px var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--soft);padding:6px 12px 2px}
 .cta{margin:14px 0 0;text-align:center;padding:12px}}
@@ -569,7 +573,7 @@ if(bur)bur.addEventListener('click',()=>{const o=menu.classList.toggle('open');b
 """
 
 
-def page(title, active, body, gen_ts, tip_h, tip_ts):
+def page(title, active, body, gen_ts, tip_h, tip_ts, fn="index.html"):
     dom = site_domain()
     name = dom or "tsc.watch"
     og = (f'<meta property="og:title" content="{esc(title)} · {esc(name)}"><meta property="og:description" content="{esc(DESC)}">'
@@ -578,7 +582,8 @@ def page(title, active, body, gen_ts, tip_h, tip_ts):
     href_of["start"] = "start.html"
     if dom:
         og += f'<link rel="canonical" href="https://{esc(dom)}/{"" if active == "market" else href_of.get(active, active + ".html")}">'
-    nav = nav_html(active)
+    og += i18n.hreflang(fn, dom)
+    nav = nav_html(active) + i18n.switcher(fn)
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)} · {esc(name)}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><meta name="theme-color" content="#F7F8F9">{og}<style>{CSS}{NAV_CSS}{miners.CSS}{guides.CSS}</style></head><body>
 <header><div class="top"><a class="brand" href="index.html">{brand(dom)}</a>{nav}</div></header>
@@ -960,7 +965,22 @@ def main():
     }
     for fn, (title, key, body) in pages.items():
         with open(os.path.join(SITE, fn), "w", encoding="utf-8") as f:
-            f.write(page(title, key, body, gen, c["tip_h"], c["tip_ts"]))
+            f.write(page(title, key, body, gen, c["tip_h"], c["tip_ts"], fn))
+    # translated copies: /zh/*.html and /ru/*.html (+ dictionaries for text created by JS)
+    missing = {}
+    for lang in i18n.LANGS:
+        if lang == "en":
+            continue
+        os.makedirs(os.path.join(SITE, lang), exist_ok=True)
+        dic, miss = i18n.load(lang), set()
+        for fn in pages:
+            with open(os.path.join(SITE, fn), encoding="utf-8") as f:
+                en = f.read()
+            i18n.translate_html(en, dic, miss, lang)
+            with open(os.path.join(SITE, lang, fn), "w", encoding="utf-8") as f:
+                f.write(i18n.localize(en, lang, fn, site_domain()))
+        missing[lang] = len(miss)
+    i18n.write_runtime(SITE)
     with open(os.path.join(SITE, "data.json"), "w", encoding="utf-8") as f:
         json.dump(export_json(d, c), f, ensure_ascii=False, indent=1)
     with open(os.path.join(SITE, "miners.json"), "w", encoding="utf-8") as f:
@@ -972,7 +992,7 @@ def main():
             f.write(dom + "\n")
     with open(os.path.join(SITE, "robots.txt"), "w") as f:
         f.write("User-agent: *\nAllow: /\n")
-    print(time.strftime("%Y-%m-%d %H:%M:%S"), f"build ok → {SITE} (block {c['tip_h']}, {len(pages)} pages)")
+    print(time.strftime("%Y-%m-%d %H:%M:%S"), f"build ok → {SITE} (block {c['tip_h']}, {len(pages)} pages, untranslated strings: {missing})")
 
 
 if __name__ == "__main__":

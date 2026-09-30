@@ -366,7 +366,7 @@ const f2=(x,d=2)=>x==null||!isFinite(x)?'—':x.toLocaleString('en-US',{minimumF
 const usd=(x,d=2)=>x==null||!isFinite(x)?'—':'$'+f2(x,d);const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const dt=t=>{if(!t)return '—';const d=new Date(t*1000);return d.getUTCDate()+' '+MON[d.getUTCMonth()]+' '+d.getUTCFullYear()};
 const rate=x=>x>=1e3?f2(x/1e3,1)+' K PoI/s':f2(x,1)+' PoI/s';const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
-async function data(){if(!D){R.innerHTML='<p class="note">Loading miner data…</p>';D=await fetch('miners.json',{cache:'no-cache'}).then(r=>r.json())}return D}
+async function data(){if(!D){R.innerHTML='<p class="note">Loading miner data…</p>';D=await fetch('/miners.json',{cache:'no-cache'}).then(r=>r.json())}return D}
 function bars(daily,day0){const W=900,H=200,pl=58,pr=16,pt=14,pb=30,n=30,bw=(W-pl-pr)/n;const v=Array(n).fill(0);daily.forEach(([k,x])=>{if(k>=0&&k<n)v[k]+=x});
  const mx=Math.max(...v,0.0001)*1.08;const Y=y=>pt+(H-pt-pb)-y/mx*(H-pt-pb);let s='<svg viewBox="0 0 '+W+' '+H+'" class="chart" role="img">';
  for(let i=0;i<=4;i++){const t=mx*i/4,y=Y(t);s+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'" class="grid"/><text x="'+(pl-6)+'" y="'+(y+4)+'" class="tick" text-anchor="end">'+f2(t,t<10?1:0)+'</text>'}
@@ -378,7 +378,7 @@ function bars(daily,day0){const W=900,H=200,pl=58,pr=16,pt=14,pb=30,n=30,bw=(W-p
 function health(d,kind,pool,last,est,daily,pm,m0first){const H=[],now=d.generated_at,hh=x=>x<1?Math.max(1,Math.round(x*60))+' min':x<10?f2(x,1)+' h':x<48?Math.round(x)+' h':f2(x/24,1)+' days',rank={ok:0,warn:1,bad:2};
  const age=(now-last)/3600;
  if(kind===1){const gap=((pool&&pool.gap)||86400)/3600;const lvl=age<=1.5*gap+3?'ok':age<=3*gap?'warn':'bad';
-  H.push([lvl,'Payouts',lvl==='ok'?'Last payout '+hh(age)+' ago. '+(pool?esc(pool.name):'Your pool')+' pays about every '+hh(gap)+'.':'No payout for '+hh(age)+', while '+(pool?esc(pool.name):'your pool')+' pays about every '+hh(gap)+'. Check that the rig is online and on the current miner version.'])}
+  H.push([lvl,'Payouts',lvl==='ok'?'Last payout '+hh(age)+' ago. '+'<span>'+(pool?esc(pool.name):'Your pool')+'</span>'+' pays about every '+hh(gap)+'.':'No payout for '+hh(age)+', while '+'<span>'+(pool?esc(pool.name):'your pool')+'</span>'+' pays about every '+hh(gap)+'. Check that the rig is online and on the current miner version.'])}
  else if(est>0){const exp=d.block_time*d.net_rate/est/3600;const lvl=age<=3*exp?'ok':age<=6*exp?'warn':'bad';
   H.push([lvl,'Blocks',(lvl==='ok'?'Last block '+hh(age)+' ago. ':'No block for '+hh(age)+'. ')+'At this rate expect one about every '+hh(exp)+'.'+(lvl!=='ok'?' Check the node, the miner version and the verifier.':'')])}
  else H.push(['bad','Blocks','No block in the last 7 days.']);
@@ -388,7 +388,7 @@ function health(d,kind,pool,last,est,daily,pm,m0first){const H=[],now=d.generate
  else if(kind===0&&e0>0&&e0<5*50)H.push(['ok','Weekly trend','Too few blocks per week for a reliable trend; luck dominates.']);
  else if(e0>0){const ref=kind===1?(pool&&pool.weeks):d.net_weeks;const pct=x=>(x>=0?'+':'')+Math.round(x)+'%';const ch=(e1/e0-1)*100;
   if(ref&&ref[0]>0&&ref[1]>0){const rc=(ref[1]/ref[0]-1)*100,rel=((e1/e0)/(ref[1]/ref[0])-1)*100,lvl=rel>=-25?'ok':rel>=-50?'warn':'bad';
-   H.push([lvl,'Weekly trend','Earned '+pct(ch)+' vs the week before; '+(kind===1?(pool?esc(pool.name):'the pool')+' paid all its miners '+pct(rc):'the network issued '+pct(rc))+'. '+(kind===1?'Your share of the pool: ':'Your share of blocks: ')+pct(rel)+'.'+(lvl!=='ok'?' Falling behind '+(kind===1?'the rest of the pool':'the network')+' usually means rigs offline, an old miner version or rejected work.':'')])}
+   H.push([lvl,'Weekly trend','Earned '+pct(ch)+' vs the week before; '+(kind===1?'<span>'+(pool?esc(pool.name):'the pool')+'</span>'+' paid all its miners '+pct(rc):'the network issued '+pct(rc))+'. '+(kind===1?'Your share of the pool: ':'Your share of blocks: ')+pct(rel)+'.'+(lvl!=='ok'?' Falling behind '+(kind===1?'the rest of the pool':'the network')+' usually means rigs offline, an old miner version or rejected work.':'')])}
   else H.push(['ok','Weekly trend','Earned '+pct(ch)+' vs the week before.'])}
  const pmx=kind===1?(pool&&pool.mult):pm;if(pmx){const mm=pmx[0],lim=Math.max(1.05,(d.net_mult||1)+0.02),lvl=mm<=lim?'ok':mm<=1.15?'warn':'bad',who=kind===1?'Your pool\'s blocks':'Your blocks';
   H.push([lvl,'Proof multiplier',who+' average '+f2(mm,3)+'× (network '+f2(d.net_mult,3)+'×), '+(mm>1?'about '+Math.round((1-1/mm)*100)+'% of the work goes to the multiplier':'no multiplier tax')+(pmx[1]?', mostly '+pmx[1]:'')+'. <a href="proof.html">Details</a>'])}
@@ -397,7 +397,7 @@ function health(d,kind,pool,last,est,daily,pm,m0first){const H=[],now=d.generate
 async function show(a){a=(a||'').trim();if(!a)return;const d=await data();const m=d.miners[a];
  if(!m){R.innerHTML='<div class="mcard"><b>No mining income found for this address.</b><p class="note">We track solo block finders and payouts from pools that pay on-chain in batches. Payouts sent from a separate pool wallet, or very new addresses, may be missing. <a href="https://tscscan.xyz/address/'+encodeURIComponent(a)+'" target="_blank" rel="noopener noreferrer">Open in explorer ↗</a></p></div>';return}
  const [kind,pi,total,n,first,last,t7,est,daily,pm]=m;const pool=pi>=0?d.pools[pi]:null;const perDay=t7/7;
- const via=kind===1?'Pool miner · paid by '+esc(pool?pool.name:'a pool')+(pool&&pool.fee!=null?' (fee '+pool.fee+'%)':''):'Solo miner · finds blocks directly';
+ const via=kind===1?'Pool miner · paid by '+'<span>'+esc(pool?pool.name:'a pool')+'</span>'+(pool&&pool.fee!=null?' (fee '+pool.fee+'%)':''):'Solo miner · finds blocks directly';
  const k=[['TSC per day, 7-day avg',f2(perDay,3),usd(perDay*d.price)+' per day at '+usd(d.price,3)],['Estimated proof rate',est?rate(est):'—',est?'≈ '+f2(est/d.ref_gpu.poi,1)+' × '+d.ref_gpu.name:'no income in the last 7 days'],
   ['Earned since first seen',f2(total,2)+' TSC','≈ '+usd(total*d.price,0)+' at today\'s price'],[kind===1?'Payouts received':'Blocks found',f2(n,0),'first '+dt(first)+' · last '+dt(last)]];
  R.innerHTML='<div class="mcard"><div class="mhead"><span class="badge">'+via+'</span> <a class="mono" href="https://tscscan.xyz/address/'+encodeURIComponent(a)+'" target="_blank" rel="noopener noreferrer">'+esc(a)+' ↗</a></div><div class="kpis">'+
