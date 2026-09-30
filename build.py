@@ -520,7 +520,7 @@ NAV_GROUPS = [
     ("Mining", [("mining", "mining.html", "Network & blocks"), ("miners", "miner.html", "Miners & pools"),
                 ("proof", "proof.html", "Proof efficiency"), ("calc", "calc.html", "Calculator")]),
     ("Resources", [("upgrades", "upgrades.html", "Upgrades & deadlines"), ("links", "links.html", "Official links"),
-                   ("about", "about.html", "About the data")]),
+                   ("about", "about.html", "About the data"), ("contact", "contact.html", "Contact")]),
 ]
 
 
@@ -583,8 +583,8 @@ def page(title, active, body, gen_ts, tip_h, tip_ts):
 <title>{esc(title)} · {esc(name)}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><meta name="theme-color" content="#F7F8F9">{og}<style>{CSS}{NAV_CSS}{miners.CSS}{guides.CSS}</style></head><body>
 <header><div class="top"><a class="brand" href="index.html">{brand(dom)}</a>{nav}</div></header>
 <main>{body}</main>
-<footer>Generated {fdt(gen_ts)} · on-chain data through block #{fnum(tip_h)} ({fdt(tip_ts)}) · sources: tscscan.xyz, SafeTrade · independent project, not investment advice · <a href="about.html">methodology</a></footer>
-<script>{JS}{NAV_JS}{miners.CALC_JS}{miners.MINER_JS}{miners.EPOCH_JS}{guides.START_JS}</script></body></html>"""
+<footer>Generated {fdt(gen_ts)} · on-chain data through block #{fnum(tip_h)} ({fdt(tip_ts)}) · sources: tscscan.xyz, SafeTrade · independent project, not investment advice · <a href="about.html">methodology</a> · <a href="contact.html">contact</a></footer>
+<script>{JS}{NAV_JS}{miners.CALC_JS}{miners.MINER_JS}{miners.EPOCH_JS}{guides.START_JS}{guides.CONTACT_JS}</script></body></html>"""
 
 
 def tabs_block(group, panes, default=0):
@@ -950,6 +950,7 @@ def main():
         "mining.html": ("TSC mining", "mining", build_mining(d, c)),
         "proof.html": ("TSC proof efficiency", "proof", guides.proof_page(sys.modules[__name__], agg, d["aliases"], price, reward_at(c["epochs"], c["tip_h"])) if agg else "<section class=card>No proof-v4 data yet.</section>"),
         "upgrades.html": ("TSC protocol upgrades", "upgrades", guides.upgrades_page(sys.modules[__name__], agg or {"buckets": []}, c["tip_h"], c["tip_ts"], c["7d"]["block_time"] or 600, d["releases"])),
+        "contact.html": ("Contact tsc.watch", "contact", guides.contact_page(sys.modules[__name__], os.environ.get("CONTACT_FORM_KEY", "").strip())),
         "start.html": ("Start mining TSC", "start", guides.start_page(sys.modules[__name__], c["24h"]["rate"], c["24h"]["new_tsc"], price)),
         "miner.html": ("TSC miner dashboard & pools", "miners", miners.build_miner_page(sys.modules[__name__], mc, ep, c)),
         "calc.html": ("TSC mining calculator", "calc", miners.build_calc_page(sys.modules[__name__], c, ep, price)),

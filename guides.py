@@ -295,6 +295,43 @@ def start_page(B, net_rate, new_day, price):
 <script>window.TSC_START={json.dumps(params)}</script>"""
 
 
+
+# ---------------------------------------------------------------- 4. contact
+
+def contact_page(B, key):
+    ready = bool(key)
+    form = f"""<form id="cform" class="cform" novalidate data-key="{B.esc(key or '')}">
+<div class="row2"><label>Name <span class="opt">optional</span><input id="c_name" name="name" maxlength="80" autocomplete="off"></label>
+<label>Your email <span class="opt">optional, only if you want a reply</span><input id="c_email" name="email" type="email" maxlength="120" autocomplete="off"></label></div>
+<label>Topic<select id="c_topic" name="topic"><option>Data looks wrong</option><option>Feature idea</option><option>Pool or miner label</option><option>Something else</option></select></label>
+<label>Message<textarea id="c_msg" name="message" rows="7" maxlength="4000" required placeholder="What should we know? Block heights, addresses or links help."></textarea></label>
+<input type="checkbox" name="botcheck" id="c_bot" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+<div class="cfoot"><button type="submit" class="cbtn">Send message</button><span id="c_status" class="note" role="status" aria-live="polite"></span></div>
+</form>""" if ready else '<p class="verdict warn">The contact form is being set up. Please check back soon.</p>'
+    return f"""<section class="hero"><h1>Contact <em>tsc.watch</em>.</h1>
+<p class="lead">Spotted a wrong number, want a pool labelled or have an idea for the dashboard? Send a message. No account needed, and you can stay anonymous.</p></section>
+<div class="contact"><section class="card"><h2>Send a message</h2>{form}</section>
+<section class="card"><h2>Good to know</h2><dl>
+<dt>Never send</dt><dd>Seed phrases, private keys or passwords. Nobody from tsc.watch will ever ask for them.</dd>
+<dt>Replies</dt><dd>Only if you leave an email. Otherwise the message stays one-way.</dd>
+<dt>Delivery</dt><dd>Messages are forwarded by the Web3Forms service; they are not stored on this site.</dd>
+<dt>Not the team</dt><dd>tsc.watch is independent. For wallet or node support use the <a href="links.html">official TensorCash channels</a>.</dd>
+</dl></section></div>"""
+
+
+CONTACT_JS = r"""
+(function(){const F=document.getElementById('cform');if(!F)return;const S=document.getElementById('c_status'),B=F.querySelector('.cbtn');
+F.addEventListener('submit',async e=>{e.preventDefault();const msg=F.message.value.trim(),em=F.email.value.trim();
+ if(msg.length<5){S.textContent='Please write a message first.';F.message.focus();return}
+ if(em&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){S.textContent='That email address does not look right. Fix it or leave it empty.';F.email.focus();return}
+ if(F.botcheck.checked)return;B.disabled=true;S.textContent='Sending…';
+ const body={access_key:F.dataset.key,subject:'tsc.watch: '+F.topic.value,from_name:'tsc.watch contact form',name:F.name.value.trim()||'Anonymous',email:em||'no-reply@tsc.watch',replyto:em||undefined,topic:F.topic.value,message:msg,page:document.referrer||location.href};
+ try{const r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body)});const j=await r.json().catch(()=>({}));
+  if(r.ok&&j.success){F.reset();S.textContent='Thanks, your message was sent.';S.className='note up'}else{S.textContent='Sending failed ('+(j.message||r.status)+'). Please try again in a minute.';S.className='note down'}}
+ catch(err){S.textContent='Sending failed: no connection to the form service. Please try again later.';S.className='note down'}
+ B.disabled=false})})();
+"""
+
 START_JS = r"""
 (function(){const P=window.TSC_START;if(!P)return;const $=id=>document.getElementById(id);
 const f2=(x,d=2)=>x==null||!isFinite(x)?'—':x.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -325,6 +362,13 @@ function run(){const g=P.gpus[+$('s_gpu').value],n=Math.max(1,+$('s_n').value||1
 """
 
 CSS = """
+.contact{display:grid;grid-template-columns:3fr 2fr;gap:16px;align-items:start}.contact>*{min-width:0}@media(max-width:900px){.contact{grid-template-columns:1fr}}
+.cform label{display:block;font:10.5px/1.5 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--soft);margin:0 0 12px}.cform .opt{text-transform:none;letter-spacing:0;font-family:var(--sans)}
+.cform input,.cform select,.cform textarea{display:block;width:100%;margin-top:4px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:15px/1.5 var(--sans);text-transform:none;letter-spacing:0;color:var(--ink);background:#fff}
+.cform textarea{resize:vertical;min-height:140px}.cform input:focus,.cform select:focus,.cform textarea:focus{outline:none;border-color:rgba(115,29,48,.5);box-shadow:0 0 0 3px var(--acc-tint)}
+.hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;opacity:0}
+.cfoot{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.cbtn{padding:11px 22px;border-radius:999px;border:1px solid rgba(115,29,48,.35);background:var(--acc);color:#fff;font:12px var(--mono);text-transform:uppercase;letter-spacing:.1em;cursor:pointer}
+.cbtn:hover{background:var(--acc-deep)}.cbtn:disabled{opacity:.6;cursor:wait}.cbtn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .labtag{display:inline-block;margin-bottom:12px;padding:4px 12px;border-radius:999px;border:1px dashed rgba(115,29,48,.5);font:10.5px var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--acc);background:#fff}
 nav a.lab{border:1px dashed rgba(115,29,48,.4)}
 td.wrap{white-space:normal;min-width:240px;text-align:left}
