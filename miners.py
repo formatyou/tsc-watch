@@ -270,7 +270,7 @@ def build_miner_page(B, mc, ep, c):
         f"<td>{esc(p['scheme'])}</td><td>{esc(p['min'])}</td><td>{esc(p['payout'])}</td></tr>" for p in POOL_DIR)
     pools = f"""<section class="card" id="pools"><h2>Pool comparison</h2><p class="sub">What each pool does on-chain: share of blocks, how many miners it actually paid, and how regularly. Sorted by 7-day share.</p>
 <div style="overflow:auto"><table><thead><tr><th>Pool</th><th>Share 24h</th><th>Share 7d</th><th>Share 30d</th><th>Miners paid, 7d</th><th>Payout batches, 7d</th><th>Typical gap</th><th>Last payout</th><th>Paid ÷ mined, 30d</th><th>Fee</th></tr></thead><tbody>{''.join(prow) or '<tr><td colspan=10>No data yet</td></tr>'}</tbody></table></div>
-<p class="note">Paid ÷ mined compares TSC paid out to miners with TSC the pool's address earned from blocks over 30 days. Around 100% minus the fee is normal. Big gaps can come from immature rewards or payouts sent from a different wallet.</p>
+<p class="note">Paid ÷ mined compares TSC paid out to miners with TSC the pool's address earned from blocks over 30 days. Around 100% minus the fee is normal. Big gaps can come from immature rewards or payouts sent from a different wallet. The fee is only half the cost: see <a href="proof.html">Proof efficiency</a> for each producer's intelligence multiplier.</p>
 <h3>Pool directory</h3><div style="overflow:auto"><table><thead><tr><th>Pool</th><th>Fee</th><th>Scheme</th><th>Minimum payout</th><th>Payouts</th></tr></thead><tbody>{dirrows}</tbody></table></div>
 <p class="note">As published on the pools' websites, {POOL_DIR_DATE}. Not an endorsement. Spreading work across pools keeps the network decentralised.</p></section>"""
     return lookup + kpis + epoch_card(B, ep, price) + pools + board
@@ -283,7 +283,7 @@ def build_calc_page(B, c, ep, price):
               "blocks_day": ep["blocks_day"] if ep else 144, "gpus": gpus, "elec": costs.ELEC_USD_KWH}
     opts = "".join(f'<option value="{i}"{" selected" if g["name"] == costs.REF_GPU else ""}>{B.esc(g["name"])} · {B.fnum(g["poi"], 1)} PoI/s</option>' for i, g in enumerate(gpus))
     return f"""<section class="hero"><h1>Mining <em>profitability</em> calculator.</h1>
-<p class="lead">Estimate what your GPUs earn on TensorCash today and after the next reward cut. Network data is taken from the chain (last 24 hours) and refreshed with the site. Change any number.</p></section>
+<p class="lead">Estimate what your GPUs earn on TensorCash today and after the next reward cut. Network data is taken from the chain (last 24 hours) and refreshed with the site. Change any number. New to TensorCash? <a href="start.html">Check your GPU and get a ready config</a>.</p></section>
 <div class="calc"><section class="card"><h2>Your setup</h2>
 <label>GPU<select id="c_gpu">{opts}<option value="custom">Custom</option></select></label>
 <div class="row2"><label>PoI/s per GPU<input id="c_poi" type="number" step="0.1" min="0"></label><label>Power per GPU, W<input id="c_w" type="number" step="10" min="0"></label></div>

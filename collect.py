@@ -83,6 +83,9 @@ def _fixture(url):
         if not os.path.exists(f):
             return {"address": {"address": addr}, "transactions": [], "pagination": {"has_next": False, "page": page}}
         return json.load(open(f))
+    if "git.tensorcash.org" in url:
+        f = os.path.join(FIXTURES, "releases.json")
+        return json.load(open(f)) if os.path.exists(f) else []
     if path.startswith("/api/block/"):
         return {"items": [], "block": None}
     raise RuntimeError("no fixture for " + url)
@@ -194,11 +197,21 @@ CREATE TABLE IF NOT EXISTS meta (
 """
 
 
+PROOF_COLS = [("proof_version", "INTEGER"), ("proof_mult", "REAL"), ("p_late", "REAL"), ("p_profile", "REAL"),
+              ("p_state", "REAL"), ("p_pin", "REAL"), ("near_pin", "INTEGER")]
+V4_PRICING = 26950
+
+
 def db():
     os.makedirs(DATA_DIR, exist_ok=True)
     con = sqlite3.connect(DB_PATH, timeout=60)
     con.execute("PRAGMA journal_mode=WAL")
     con.executescript(SCHEMA)
+    have = {r[1] for r in con.execute("PRAGMA table_info(blocks)")}
+    for col, typ in PROOF_COLS:           # proof-v4 fields, added 30 Sep 2026
+        if col not in have:
+            con.execute(f"ALTER TABLE blocks ADD COLUMN {col} {typ}")
+    con.commit()
     return con
 
 
@@ -220,6 +233,8 @@ def log(msg):
 def upsert_blocks(con, items):
     rows = []
     for b in items:
+        pr = b.get("proof") or {}
+        comp = pr.get("components") or {}
         rows.append((
             b["height"], b["timestamp"], b.get("miner_address"),
             float(b.get("effective_difficulty") or b.get("difficulty") or 0),
@@ -227,11 +242,52 @@ def upsert_blocks(con, items):
             float(b.get("effective_multiplier") or 1.0),
             float(b.get("core_normalized_difficulty") or 0),
             b.get("tx_count"), b.get("size"), b.get("hash"),
+            pr.get("version"), pr.get("multiplier"), comp.get("late"), comp.get("profile"), comp.get("state"), comp.get("pin"),
+            pr.get("near_pin_count"),
         ))
     con.executemany("""INSERT OR REPLACE INTO blocks
-        (height,timestamp,miner,difficulty,base_difficulty,multiplier,core_norm_difficulty,tx_count,size,hash)
-        VALUES (?,?,?,?,?,?,?,?,?,?)""", rows)
+        (height,timestamp,miner,difficulty,base_difficulty,multiplier,core_norm_difficulty,tx_count,size,hash,
+         proof_version,proof_mult,p_late,p_profile,p_state,p_pin,near_pin)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", rows)
     return len(rows)
+
+
+def backfill_proofs(con, page_size=100):
+    """One-off: blocks stored before proof fields were collected get re-fetched (newest first down to v4 pricing)."""
+    missing = con.execute("SELECT COUNT(*) FROM blocks WHERE height>=? AND proof_version IS NULL", (V4_PRICING,)).fetchone()[0]
+    if not missing or meta_get(con, "proof_backfill_done") == "1":
+        return 0
+    page, n = 1, 0
+    while True:
+        items = (http_json(f"{EXPLORER}/api/blocks?page={page}&page_size={page_size}").get("items") or [])
+        if not items:
+            break
+        n += upsert_blocks(con, items)
+        con.commit()
+        if min(b["height"] for b in items) <= V4_PRICING:
+            break
+        page += 1
+        time.sleep(0.12)
+    meta_set(con, "proof_backfill_done", "1")
+    con.commit()
+    return n
+
+
+GITEA = "https://git.tensorcash.org/api/v1/repos/tensorcash/tensorcash/releases?limit=50"
+
+
+def sync_releases(con):
+    """Official releases (tag, date, name, notes excerpt) — every 3 hours."""
+    now = int(time.time())
+    if now - int(meta_get(con, "releases_ts", 0)) < 3 * 3600:
+        return None
+    raw = http_json(GITEA)
+    rel = [{"tag": r.get("tag_name"), "date": (r.get("published_at") or "")[:10], "name": r.get("name"),
+            "body": (r.get("body") or "")[:1500]} for r in raw if not r.get("draft")]
+    meta_set(con, "releases_json", json.dumps(rel, separators=(",", ":")))
+    meta_set(con, "releases_ts", now)
+    con.commit()
+    return len(rel)
 
 
 def known_range(con):
@@ -502,7 +558,7 @@ def import_state(con):
         con.executemany(f"INSERT OR IGNORE INTO {t} ({','.join(cols)}) VALUES ({','.join('?'*len(cols))})", spec["rows"])
         n += len(spec["rows"])
     for k, v in (st.get("meta") or {}).items():
-        if k != "last_collect_ts" and not k.startswith("payouts_done_"):
+        if k != "last_collect_ts" and not k.startswith("payouts_done_") and k not in ("proof_backfill_done", "releases_ts"):
             con.execute("INSERT OR IGNORE INTO meta(key,value) VALUES(?,?)", (k, v))
     con.commit()
     if have == 0:
@@ -548,6 +604,20 @@ def main(argv):
             log(f"holders: {k} addresses")
     except Exception as e:
         log(f"ERROR snapshot: {e}")
+
+    try:
+        k = backfill_proofs(con)
+        if k:
+            log(f"proof fields backfilled: {k} blocks")
+    except Exception as e:
+        log(f"ERROR proof backfill: {e}")
+
+    try:
+        k = sync_releases(con)
+        if k is not None:
+            log(f"releases: {k}")
+    except Exception as e:
+        log(f"ERROR releases: {e}")
 
     try:
         sync_all_payouts(con)

@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 
 import costs
 import miners
+import guides
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(ROOT, "data", "tsc.db")
@@ -307,6 +308,15 @@ def load(con):
     d["holders_ts"] = hs
     d["holders"] = con.execute("SELECT rank,address,balance,net_flow_7d,net_flow_30d,supply_share,tx_count,last_seen_ts FROM holders_snapshots WHERE ts=? ORDER BY rank", (hs,)).fetchall() if hs else []
     d["meta"] = dict(con.execute("SELECT key,value FROM meta").fetchall())
+    try:
+        d["proof"] = con.execute("SELECT height,timestamp,miner,proof_version,proof_mult,p_late,p_profile,p_state,near_pin FROM blocks "
+                                 "WHERE height>=? AND proof_version IS NOT NULL ORDER BY height", (guides.V4_PRICING,)).fetchall()
+    except sqlite3.OperationalError:
+        d["proof"] = []
+    try:
+        d["releases"] = guides.parse_releases(json.loads(d["meta"].get("releases_json") or "[]"))
+    except (ValueError, TypeError):
+        d["releases"] = []
     return d
 
 
@@ -422,7 +432,6 @@ a{color:var(--acc);text-decoration-color:rgba(115,29,48,.35);text-underline-offs
 header{position:sticky;top:0;z-index:50;background:rgba(247,248,249,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .top{max-width:1100px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .brand{font-weight:700;font-size:19px;letter-spacing:-.02em;text-decoration:none;color:var(--ink)}.brand span{color:var(--acc)}
-nav{display:flex;gap:2px;flex-wrap:wrap}nav a{padding:6px 10px;border-radius:999px;text-decoration:none;color:var(--acc);font-size:13.5px;font-weight:500}nav a:hover{background:var(--acc-tint)}nav a.on{background:var(--acc-tint);color:var(--acc-deep);font-weight:600}
 main{max-width:1100px;margin:0 auto;padding:16px}
 .hero{padding:34px 0 10px;margin-bottom:18px;border-bottom:1px solid var(--line)}
 .hero h1 em{font-style:normal;color:var(--acc)}.hero h1{margin:0 0 10px;font-size:44px;line-height:1.08;font-weight:600;letter-spacing:-.035em;color:var(--ink);max-width:900px}
@@ -506,24 +515,76 @@ def brand(dom):
     return 'tsc<span>.watch</span>'
 
 
+NAV_GROUPS = [
+    ("Market", [("market", "index.html", "Price & volume"), ("holders", "holders.html", "Holders")]),
+    ("Mining", [("mining", "mining.html", "Network & blocks"), ("miners", "miner.html", "Miners & pools"),
+                ("proof", "proof.html", "Proof efficiency"), ("calc", "calc.html", "Calculator")]),
+    ("Resources", [("upgrades", "upgrades.html", "Upgrades & deadlines"), ("links", "links.html", "Official links"),
+                   ("about", "about.html", "About the data")]),
+]
+
+
+def nav_html(active):
+    groups = []
+    for i, (label, items) in enumerate(NAV_GROUPS):
+        on = any(k == active for k, _, _ in items)
+        links = "".join(f'<a href="{h}"{" class=on aria-current=page" if k == active else ""}>{esc(l)}</a>' for k, h, l in items)
+        groups.append(f'<div class="grp{" on" if on else ""}"><button type="button" class="gbtn" aria-expanded="false" aria-controls="dd{i}">{label}<span class="car" aria-hidden="true"></span></button>'
+                      f'<div class="drop" id="dd{i}"><span class="gl">{label}</span>{links}</div></div>')
+    cta = f'<a class="cta{" on" if active == "start" else ""}" href="start.html">Start mining</a>'
+    return (f'<button type="button" class="burger" aria-expanded="false" aria-controls="menu" aria-label="Menu"><span></span><span></span><span></span></button>'
+            f'<nav id="menu" class="menu">{"".join(groups)}{cta}</nav>')
+
+
+NAV_CSS = """
+.top{position:relative}.menu{display:flex;align-items:center;gap:4px}
+.grp{position:relative}.gbtn{display:flex;align-items:center;gap:6px;border:0;background:transparent;padding:7px 12px;border-radius:999px;color:var(--acc);font:500 14px var(--sans);cursor:pointer}
+.gbtn:hover,.gbtn[aria-expanded=true]{background:var(--acc-tint)}.grp.on>.gbtn{color:var(--acc-deep);font-weight:600;background:var(--acc-tint)}
+.gbtn:focus-visible,.cta:focus-visible,.drop a:focus-visible,.burger:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.car{width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .15s}
+.gbtn[aria-expanded=true] .car{transform:rotate(-135deg) translateY(-1px)}
+.drop{display:none;position:absolute;top:calc(100% + 6px);left:0;min-width:210px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(15,17,21,.12);padding:6px;z-index:60}
+.gbtn[aria-expanded=true]+.drop{display:block}
+.drop a{display:block;padding:9px 12px;border-radius:8px;text-decoration:none;color:var(--ink);font-size:14px}.drop a:hover{background:var(--acc-tint);color:var(--acc)}
+.drop a.on{color:var(--acc);font-weight:600;background:var(--acc-tint)}.drop .gl{display:none}
+.cta{margin-left:8px;padding:8px 16px;border-radius:999px;border:1px solid rgba(115,29,48,.35);background:var(--acc);color:#fff;text-decoration:none;font:11.5px var(--mono);text-transform:uppercase;letter-spacing:.1em}
+.cta:hover{background:var(--acc-deep);color:#fff}.cta.on{background:var(--acc-deep)}
+.burger{display:none;width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;flex-direction:column;justify-content:center;align-items:center;gap:4px}
+.burger span{display:block;width:16px;height:1.5px;background:var(--ink);transition:transform .15s,opacity .15s}
+.burger[aria-expanded=true] span:nth-child(1){transform:translateY(5.5px) rotate(45deg)}.burger[aria-expanded=true] span:nth-child(2){opacity:0}.burger[aria-expanded=true] span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
+@media(max-width:760px){.burger{display:flex}.menu{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;background:var(--bg);border-bottom:1px solid var(--line);padding:6px 16px 16px;box-shadow:0 16px 24px rgba(15,17,21,.08)}
+.menu.open{display:flex}.grp{border-bottom:1px solid var(--line);padding:8px 0}.gbtn{display:none}.drop{display:grid;grid-template-columns:1fr 1fr;position:static;box-shadow:none;border:0;padding:0;background:transparent;min-width:0}
+.drop .gl{display:block;grid-column:1/-1;font:10.5px var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--soft);padding:6px 12px 2px}
+.cta{margin:14px 0 0;text-align:center;padding:12px}}
+@media(prefers-reduced-motion:reduce){.car,.burger span{transition:none}}
+"""
+
+NAV_JS = """
+(function(){const btns=[...document.querySelectorAll('.gbtn')],menu=document.getElementById('menu'),bur=document.querySelector('.burger');
+const close=ex=>btns.forEach(b=>{if(b!==ex)b.setAttribute('aria-expanded','false')});
+btns.forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const o=b.getAttribute('aria-expanded')==='true';close();b.setAttribute('aria-expanded',o?'false':'true')}));
+document.addEventListener('click',e=>{if(!e.target.closest('.grp'))close()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){close();if(bur){bur.setAttribute('aria-expanded','false');menu.classList.remove('open')}}});
+if(bur)bur.addEventListener('click',()=>{const o=menu.classList.toggle('open');bur.setAttribute('aria-expanded',o?'true':'false')});})();
+"""
+
+
 def page(title, active, body, gen_ts, tip_h, tip_ts):
     dom = site_domain()
     name = dom or "tsc.watch"
     og = (f'<meta property="og:title" content="{esc(title)} · {esc(name)}"><meta property="og:description" content="{esc(DESC)}">'
           f'<meta name="description" content="{esc(DESC)}"><meta name="twitter:card" content="summary">')
+    href_of = {k: h for _, items in NAV_GROUPS for k, h, _ in items}
+    href_of["start"] = "start.html"
     if dom:
-        og += f'<link rel="canonical" href="https://{esc(dom)}/{"" if active == "market" else active + ".html"}">'
-    nav = "".join(f'<a href="{href}" class="{"on" if key == active else ""}">{lbl}</a>'
-                  for key, href, lbl in (("market", "index.html", "Market"), ("mining", "mining.html", "Mining"),
-                                          ("miners", "miner.html", "Miners"), ("calc", "calc.html", "Calculator"),
-                                          ("holders", "holders.html", "Holders"), ("links", "links.html", "Official links"),
-                                          ("about", "about.html", "About the data")))
+        og += f'<link rel="canonical" href="https://{esc(dom)}/{"" if active == "market" else href_of.get(active, active + ".html")}">'
+    nav = nav_html(active)
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{esc(title)} · {esc(name)}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><meta name="theme-color" content="#F7F8F9">{og}<style>{CSS}{miners.CSS}</style></head><body>
-<header><div class="top"><a class="brand" href="index.html">{brand(dom)}</a><nav>{nav}</nav></div></header>
+<title>{esc(title)} · {esc(name)}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><meta name="theme-color" content="#F7F8F9">{og}<style>{CSS}{NAV_CSS}{miners.CSS}{guides.CSS}</style></head><body>
+<header><div class="top"><a class="brand" href="index.html">{brand(dom)}</a>{nav}</div></header>
 <main>{body}</main>
 <footer>Generated {fdt(gen_ts)} · on-chain data through block #{fnum(tip_h)} ({fdt(tip_ts)}) · sources: tscscan.xyz, SafeTrade · independent project, not investment advice · <a href="about.html">methodology</a></footer>
-<script>{JS}{miners.CALC_JS}{miners.MINER_JS}{miners.EPOCH_JS}</script></body></html>"""
+<script>{JS}{NAV_JS}{miners.CALC_JS}{miners.MINER_JS}{miners.EPOCH_JS}{guides.START_JS}</script></body></html>"""
 
 
 def tabs_block(group, panes, default=0):
@@ -798,6 +859,7 @@ def build_about(d, c):
 <dt>Issuance vs. volume</dt><dd>New TSC over 24h × current price ÷ 24h volume in USD. Shows how much of the turnover miner reward sales alone could account for.</dd>
 <dt>Reward per 1 K proof/s</dt><dd>New TSC in the day × (1000 ÷ the day's work rate). Before pool fees (~1%), electricity and variance.</dd>
 {costs.about_dl()}
+<dt>Intelligence multiplier</dt><dd>Proof-v4 price of each block (proof.multiplier, 1–12×): the header target is divided by it, so a 1.2× block needs 20% more work. Mean per block finder since block 26,950; "blocks lost" = blocks × (mean − 1).</dd>
 <dt>Pools needed for a majority</dt><dd>The smallest number of addresses whose combined 7-day share of blocks exceeds 50%.</dd>
 <dt>Days and times</dt><dd>Daily aggregates use UTC days; all timestamps are shown in UTC.</dd>
 </dl>
@@ -880,11 +942,15 @@ def main():
     mc = miners.compute(con, d, c, reward_at, price)
     ep = miners.epoch_info(c, reward_at)
     c["epoch"] = ep
+    agg = guides.compute_agg(d["proof"], c["tip_h"], c["tip_ts"])
     os.makedirs(SITE, exist_ok=True)
     gen = int(time.time())
     pages = {
         "index.html": ("TSC market", "market", build_market(d, c)),
         "mining.html": ("TSC mining", "mining", build_mining(d, c)),
+        "proof.html": ("TSC proof efficiency", "proof", guides.proof_page(sys.modules[__name__], agg, d["aliases"], price, reward_at(c["epochs"], c["tip_h"])) if agg else "<section class=card>No proof-v4 data yet.</section>"),
+        "upgrades.html": ("TSC protocol upgrades", "upgrades", guides.upgrades_page(sys.modules[__name__], agg or {"buckets": []}, c["tip_h"], c["tip_ts"], c["7d"]["block_time"] or 600, d["releases"])),
+        "start.html": ("Start mining TSC", "start", guides.start_page(sys.modules[__name__], c["24h"]["rate"], c["24h"]["new_tsc"], price)),
         "miner.html": ("TSC miner dashboard & pools", "miners", miners.build_miner_page(sys.modules[__name__], mc, ep, c)),
         "calc.html": ("TSC mining calculator", "calc", miners.build_calc_page(sys.modules[__name__], c, ep, price)),
         "holders.html": ("TSC holders", "holders", build_holders(d, c)),
