@@ -768,6 +768,71 @@ def sync_dormant(con, check_per_run=120, max_blocks_per_run=30):
     return f"ok ({len(moved)} alerts, {left} to verify)"
 
 
+# ---------------------------------------------------------------- daily private digest
+
+TG_CHANNEL = "https://t.me/s/TensorCash_org"
+DIGEST_HOUR_UTC = 6
+
+
+def _channel_posts():
+    import html as _h
+    import re as _re
+    req = urllib.request.Request(TG_CHANNEL, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        page = r.read().decode("utf-8", "replace")
+    posts = []
+    for blk in page.split('data-post="TensorCash_org/')[1:]:
+        m = _re.match(r"(\d+)", blk)
+        t = _re.search(r'js-message_text[^>]*>(.*?)</div>', blk, _re.S)
+        if not m or not t:
+            continue
+        txt = _re.sub(r"<br\s*/?>", " ", t.group(1))
+        txt = _h.unescape(_re.sub(r"<[^>]+>", "", txt))
+        posts.append((int(m.group(1)), " ".join(txt.split())))
+    return posts
+
+
+def daily_digest(con):
+    """Once a day: official channel posts, block producers of the last 24 h and new big producers."""
+    con.executescript(DORMANT_SCHEMA)
+    now = time.gmtime()
+    day = time.strftime("%Y-%m-%d", now)
+    if now.tm_hour < DIGEST_HOUR_UTC or _dm_get(con, "digest_day") == day:
+        return "skip"
+    lines = [f"tsc.watch · dzienna notatka {day}"]
+    # 1) official announcements (public Telegram channel)
+    try:
+        last = int(_dm_get(con, "tg_post", 0))
+        posts = _channel_posts()
+        new = [p for p in posts if p[0] > last]
+        if last == 0:
+            new = new[-2:]
+        if new:
+            lines.append("\nOgłoszenia TensorCash:")
+            lines += [f"• {t[:220]}{'…' if len(t) > 220 else ''}" for _, t in new[-5:]]
+        else:
+            lines.append("\nOgłoszenia TensorCash: brak nowych")
+        if posts:
+            _dm_set(con, "tg_post", max(p[0] for p in posts))
+    except Exception as e:
+        lines.append(f"\nOgłoszenia: nie udało się pobrać ({type(e).__name__})")
+    # 2) block producers
+    t1 = int(time.time())
+    rows = con.execute("SELECT miner, COUNT(*) FROM blocks WHERE timestamp>=? GROUP BY miner ORDER BY 2 DESC", (t1 - 86400,)).fetchall()
+    tot = sum(r[1] for r in rows) or 1
+    lines.append(f"\nBloki 24 h: {tot}")
+    lines += [f"• {(m or '?')[:10]}…{(m or '')[-6:]}: {c / tot * 100:.0f}%" for m, c in rows[:4]]
+    old = {r[0] for r in con.execute("SELECT miner FROM blocks WHERE timestamp BETWEEN ? AND ? GROUP BY miner HAVING COUNT(*)>=10", (t1 - 8 * 86400, t1 - 86400))}
+    fresh = [(m, c) for m, c in rows if c / tot >= 0.05 and m not in old]
+    if fresh:
+        lines.append("Nowi duzi producenci: " + ", ".join(f"…{m[-6:]} ({c / tot * 100:.0f}%)" for m, c in fresh))
+    lines.append("\nDiscord (czat): na życzenie, ręcznie.")
+    ok = notify_private("\n".join(lines))
+    _dm_set(con, "digest_day", day)
+    con.commit()
+    return "sent" if ok else f"not sent ({TG_LAST})"
+
+
 # ---------------------------------------------------------------- main
 
 def main(argv):
@@ -830,6 +895,11 @@ def main(argv):
         log("xwatch: " + sync_exchange_boot(con))
     except Exception as e:
         log(f"ERROR xwatch: {type(e).__name__}")
+
+    try:
+        log("digest: " + daily_digest(con))
+    except Exception as e:
+        log(f"ERROR digest: {type(e).__name__}")
 
     try:
         log("watch: " + sync_dormant(con))
