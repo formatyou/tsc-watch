@@ -462,7 +462,7 @@ table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:ta
 .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:800px){.two{grid-template-columns:1fr}.hero h1{font-size:32px}.hero .cell .v{font-size:27px}}
 .donut{width:180px;height:180px}.donutwrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
 .note{font-size:13px;color:var(--mute)}.empty{padding:30px;text-align:center;color:var(--mute)}
-footer{max-width:1100px;margin:28px auto 0;padding:22px 16px 44px;color:var(--soft);font:11px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.08em;border-top:1px solid var(--line)}footer a{color:var(--mute)}
+footer{max-width:1100px;margin:28px auto 0;padding:22px 16px 44px;color:var(--soft);font:11px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.08em;border-top:1px solid var(--line)}footer{display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:13px}footer a{color:var(--mute)}footer a:hover{color:var(--acc)}footer .xl{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid var(--line);border-radius:999px;background:#fff}footer .xl:hover{border-color:var(--acc)}footer .xl img{width:18px;height:18px;display:block;opacity:.85}footer .xl:hover img{opacity:1}
 .badge{display:inline-block;padding:3px 10px;border-radius:999px;font:10.5px var(--mono);text-transform:uppercase;letter-spacing:.08em;background:var(--acc-tint);color:var(--acc)}
 dl{display:grid;grid-template-columns:max-content 1fr;gap:8px 18px;font-size:14px}dt{color:var(--mute)}dd{margin:0}@media(max-width:600px){dl{grid-template-columns:1fr}}
 """
@@ -588,7 +588,7 @@ def page(title, active, body, gen_ts, tip_h, tip_ts, fn="index.html"):
 <title>{esc(title)} · {esc(name)}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><meta name="theme-color" content="#F7F8F9">{og}<style>{CSS}{NAV_CSS}{miners.CSS}{guides.CSS}</style></head><body>
 <header><div class="top"><a class="brand" href="index.html">{brand(dom)}</a>{nav}</div></header>
 <main>{body}</main>
-<footer>© 2026 · <a href="https://x.com/TSCwatch" target="_blank" rel="noopener noreferrer">X</a> · <a href="contact.html">Contact</a></footer>
+<footer><span>© 2026 tsc.watch</span><a class="xl" href="https://x.com/TSCwatch" target="_blank" rel="noopener noreferrer" aria-label="tsc.watch on X"><img src="https://cdn.jsdelivr.net/npm/simple-icons@13/icons/x.svg" alt="X" width="22" height="22"></a><a href="contact.html">Contact</a></footer>
 <script>{JS}{NAV_JS}{miners.CALC_JS}{miners.MINER_JS}{miners.EPOCH_JS}{guides.START_JS}{guides.CONTACT_JS}</script></body></html>"""
 
 
