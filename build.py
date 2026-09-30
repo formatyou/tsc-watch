@@ -963,7 +963,7 @@ def main():
     with open(os.path.join(SITE, "data.json"), "w", encoding="utf-8") as f:
         json.dump(export_json(d, c), f, ensure_ascii=False, indent=1)
     with open(os.path.join(SITE, "miners.json"), "w", encoding="utf-8") as f:
-        json.dump(miners.export_json(mc, c), f, separators=(",", ":"))
+        json.dump(miners.export_json(mc, c, agg), f, separators=(",", ":"))
     open(os.path.join(SITE, ".nojekyll"), "w").close()
     dom = site_domain()
     if dom:

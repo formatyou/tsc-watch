@@ -188,24 +188,40 @@ def epoch_info(c, reward_at):
 
 # ---------------------------------------------------------------- export
 
-def export_json(mc, c):
+def export_json(mc, c, agg=None):
     pools = mc["pools"]
     pidx = {p: i for i, p in enumerate(pools)}
+    pm = {m[0]: m for m in (agg or {}).get("miners", [])}          # proof-v4 stats per block finder
+
+    def mult(addr):
+        x = pm.get(addr)
+        if not x:
+            return None
+        drv = max((("late credit", x[6]), ("sampling profile", x[7]), ("state", x[8])), key=lambda t: t[1])
+        return [x[2], drv[0] if drv[1] > 1.02 else None, x[1]]
+
     m = {}
     for a, r in mc["miners"].items():
         if a in mc["pool_set"]:
             continue
         daily = [[k, round(v, 3)] for k, v in sorted(r["daily"].items()) if v]
         m[a] = [r["kind"], pidx.get(r["pool"], -1), round(r["total"], 3), r["n"], r["first"], r["last"],
-                round(r["t7"], 3), round(r["rate"], 1), daily]
+                round(r["t7"], 3), round(r["rate"], 1), daily, mult(a) if r["kind"] == 0 else None]
     pool_list = []
     for p in pools:
         row = next((x for x in mc["pool_rows"] if x["addr"] == p), {})
-        pool_list.append({"addr": p, "name": row.get("name", p), "fee": row.get("fee")})
+        pool_list.append({"addr": p, "name": row.get("name", p), "fee": row.get("fee"), "gap": row.get("gap"), "mult": mult(p)})
+    # network yield per UTC day: TSC one PoI/s earned that day (for hardware-vs-network trend)
+    yld = []
+    for day, x in c["daily"].items():
+        k = (day - mc["day0"]) // DAY
+        if 0 <= k < 30 and x["work"]:
+            yld.append([k, round(x["new_tsc"] / (x["work"] / DAY), 6)])
     return {"generated_at": c["now"], "price": mc["price"], "net_new_tsc_day": mc["net_new_day"], "net_rate": mc["net_rate"],
-            "ref_gpu": {"name": "RTX 5090", "poi": REF_GPU_POI}, "day0": mc["day0"], "pools": pool_list,
+            "block_time": c["7d"]["block_time"] or 600, "net_mult": (agg or {}).get("all", {}).get("mean"),
+            "ref_gpu": {"name": "RTX 5090", "poi": REF_GPU_POI}, "day0": mc["day0"], "pools": pool_list, "yield": yld,
             "fields": ["kind(0=block finder,1=pool miner)", "pool_index", "total_tsc", "blocks_or_payouts", "first_ts", "last_ts",
-                       "tsc_7d", "est_poi_s", "daily_30d[[day_index,tsc]]"],
+                       "tsc_7d", "est_poi_s", "daily_30d[[day_index,tsc]]", "proof_v4[mean_multiplier,main_driver,blocks] (block finders)"],
             "miners": m}
 
 
@@ -352,15 +368,32 @@ function bars(daily,day0){const W=900,H=200,pl=58,pr=16,pt=14,pb=30,n=30,bw=(W-p
   bs.push([+(X+bw/2).toFixed(1),day0+i*86400,[['TSC',  '#731D30',f2(x,3)+' TSC ≈ '+usd(x*D.price)]]])});
  s+='</svg>';const w=document.createElement('div');w.className='cw';w.innerHTML=s;const svg=w.firstChild;
  svg.setAttribute('data-tip',JSON.stringify({d:1,b:[pt,H-pb],l:pl,r:W-pr,bw:+bw.toFixed(1),bars:bs}));return w}
+function health(d,kind,pool,last,est,daily,pm){const H=[],now=d.generated_at,hh=x=>x<48?Math.round(x)+' h':f2(x/24,1)+' days',rank={ok:0,warn:1,bad:2};
+ const age=(now-last)/3600;
+ if(kind===1){const gap=((pool&&pool.gap)||86400)/3600;const lvl=age<=1.5*gap+3?'ok':age<=3*gap?'warn':'bad';
+  H.push([lvl,'Payouts',lvl==='ok'?'Last payout '+hh(age)+' ago. '+(pool?esc(pool.name):'Your pool')+' pays about every '+hh(gap)+'.':'No payout for '+hh(age)+', while '+(pool?esc(pool.name):'your pool')+' pays about every '+hh(gap)+'. Check that the rig is online and on the current miner version.'])}
+ else if(est>0){const exp=d.block_time*d.net_rate/est/3600;const lvl=age<=3*exp?'ok':age<=6*exp?'warn':'bad';
+  H.push([lvl,'Blocks',(lvl==='ok'?'Last block '+hh(age)+' ago. ':'No block for '+hh(age)+'. ')+'At this rate expect one about every '+hh(exp)+'.'+(lvl!=='ok'?' Check the node, the miner version and the verifier.':'')])}
+ else H.push(['bad','Blocks','No block in the last 7 days.']);
+ const v=Array(30).fill(0);daily.forEach(([k,x])=>{if(k>=0&&k<30)v[k]+=x});const y=Array(30).fill(0);(d.yield||[]).forEach(([k,x])=>{if(k>=0&&k<30)y[k]=x});
+ const sum=(a,i,j)=>a.slice(i,j).reduce((s,x)=>s+x,0);const e1=sum(v,22,29),e0=sum(v,15,22),y1=sum(y,22,29),y0=sum(y,15,22);
+ if(kind===0&&e0>0&&e0<5*50)H.push(['ok','Weekly trend','Too few blocks per week for a reliable trend; luck dominates.']);
+ else if(e0>0&&y0>0&&y1>0){const r1=e1/y1,r0=e0/y0,ch=(r1/r0-1)*100,net=(y1/y0-1)*100;const lvl=ch>=-20?'ok':ch>=-50?'warn':'bad';
+  H.push([lvl,'Weekly trend','Earned '+(e1>=e0?'+':'')+Math.round((e1/e0-1)*100)+'% vs the week before; the network paid '+(net>=0?'+':'')+Math.round(net)+'% per PoI/s. Your implied proof rate: '+(ch>=0?'+':'')+Math.round(ch)+'%.'+(lvl!=='ok'?' A drop this size usually means rigs offline or rejected work, not the network.':'')])}
+ const pmx=kind===1?(pool&&pool.mult):pm;if(pmx){const mm=pmx[0],lim=Math.max(1.05,(d.net_mult||1)+0.02),lvl=mm<=lim?'ok':mm<=1.15?'warn':'bad',who=kind===1?'Your pool\'s blocks':'Your blocks';
+  H.push([lvl,'Proof multiplier',who+' average '+f2(mm,3)+'× (network '+f2(d.net_mult,3)+'×), '+(mm>1?'about '+Math.round((1-1/mm)*100)+'% of the work goes to the multiplier':'no multiplier tax')+(pmx[1]?', mostly '+pmx[1]:'')+'. <a href="proof.html">Details</a>'])}
+ const worst=H.reduce((w,h)=>rank[h[0]]>rank[w]?h[0]:w,'ok');const title={ok:'Looks healthy',warn:'Worth a look',bad:'Needs attention'}[worst];
+ return '<div class="health '+worst+'"><div class="hh"><span class="hdot"></span><b>'+title+'</b><span class="note">checked '+dt(now)+'</span></div>'+H.map(h=>'<div class="hrow"><span class="pill '+(h[0]==='ok'?'up':h[0]==='warn'?'warn':'down')+'">'+(h[0]==='ok'?'ok':h[0]==='warn'?'check':'alert')+'</span><span><b>'+h[1]+'.</b> '+h[2]+'</span></div>').join('')+'</div>'}
 async function show(a){a=(a||'').trim();if(!a)return;const d=await data();const m=d.miners[a];
  if(!m){R.innerHTML='<div class="mcard"><b>No mining income found for this address.</b><p class="note">We track solo block finders and payouts from pools that pay on-chain in batches. Payouts sent from a separate pool wallet, or very new addresses, may be missing. <a href="https://tscscan.xyz/address/'+encodeURIComponent(a)+'" target="_blank" rel="noopener noreferrer">Open in explorer ↗</a></p></div>';return}
- const [kind,pi,total,n,first,last,t7,est,daily]=m;const pool=pi>=0?d.pools[pi]:null;const perDay=t7/7;
+ const [kind,pi,total,n,first,last,t7,est,daily,pm]=m;const pool=pi>=0?d.pools[pi]:null;const perDay=t7/7;
  const via=kind===1?'Pool miner · paid by '+esc(pool?pool.name:'a pool')+(pool&&pool.fee!=null?' (fee '+pool.fee+'%)':''):'Solo miner · finds blocks directly';
  const k=[['TSC per day, 7-day avg',f2(perDay,3),usd(perDay*d.price)+' per day at '+usd(d.price,3)],['Estimated proof rate',est?rate(est):'—',est?'≈ '+f2(est/d.ref_gpu.poi,1)+' × '+d.ref_gpu.name:'no income in the last 7 days'],
   ['Earned since first seen',f2(total,2)+' TSC','≈ '+usd(total*d.price,0)+' at today\'s price'],[kind===1?'Payouts received':'Blocks found',f2(n,0),'first '+dt(first)+' · last '+dt(last)]];
  R.innerHTML='<div class="mcard"><div class="mhead"><span class="badge">'+via+'</span> <a class="mono" href="https://tscscan.xyz/address/'+encodeURIComponent(a)+'" target="_blank" rel="noopener noreferrer">'+esc(a)+' ↗</a></div><div class="kpis">'+
   k.map(r=>'<div class="kpi"><div class="k">'+r[0]+'</div><div class="v">'+r[1]+'</div><div class="s">'+r[2]+'</div></div>').join('')+'</div><h3>'+(kind===1?'Payouts':'Block rewards')+' per UTC day, last 30 days</h3><div class="legend"><span class="lg"><i style="background:#731D30"></i>TSC</span></div></div>';
  const c=bars(daily,d.day0);R.querySelector('.mcard').appendChild(c);window.tscTip&&window.tscTip(c.querySelector('svg'));
+ R.querySelector('.kpis').insertAdjacentHTML('beforebegin',health(d,kind,pool,last,est,daily,pm));
  R.querySelector('.mcard').insertAdjacentHTML('beforeend','<p class="note">'+(kind===1?'Pools pay in batches, so single days jump around; the 7-day average is the fairer number. Proof rate is grossed up by the pool fee.':'Block rewards at the epoch reward; luck makes daily numbers noisy.')+'</p>')}
 F.addEventListener('submit',e=>{e.preventDefault();const a=document.getElementById('maddr').value.trim();if(a){history.replaceState(null,'','#'+a);show(a)}});
 function fromHash(){const a=decodeURIComponent(location.hash.slice(1));if(a.startsWith('tc1')){document.getElementById('maddr').value=a;show(a);F.scrollIntoView({behavior:'smooth'})}}
@@ -374,6 +407,11 @@ document.querySelectorAll('[data-left]').forEach(e=>{const t=+e.dataset.left;con
 """
 
 CSS = """
+.health{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 14px;background:#fff}
+.health.ok{border-color:#CFE5D8;background:#F6FAF7}.health.warn{border-color:#EFDDBF;background:#FDF8F0}.health.bad{border-color:#F0CFCB;background:#FCF3F2}
+.hh{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}.hh .note{margin-left:auto}
+.hdot{width:10px;height:10px;border-radius:50%;background:#2F7A55}.health.warn .hdot{background:#B26A00}.health.bad .hdot{background:#B42318}
+.pill.up{border-color:rgba(47,122,85,.35);color:#2F7A55}.hrow{display:flex;gap:10px;align-items:baseline;padding:5px 0;font-size:14px;border-top:1px solid rgba(15,17,21,.06)}.hrow .pill{flex:0 0 auto;min-width:52px;text-align:center}
 [hidden]{display:none!important}
 .look{display:flex;gap:8px;margin:6px 0 18px;flex-wrap:wrap}.look input{flex:1;min-width:220px;padding:12px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);font:14px var(--mono)}
 .look input:focus{outline:none;border-color:rgba(115,29,48,.5);box-shadow:0 0 0 3px var(--acc-tint)}.look input::placeholder{color:var(--soft)}
