@@ -566,6 +566,100 @@ def import_state(con):
     return n
 
 
+# ---------------------------------------------------------------- dormant supply (private)
+# Early miner: blocks 1–7,359, each reward on a fresh address that was never spent.
+# Kept in its own tables (never exported to the public state.json, never printed in detail):
+# the public site only shows a locked tile. Alerts go privately to Telegram if configured.
+
+EARLY_MAX_H = 7359
+DORMANT_SCHEMA = """
+CREATE TABLE IF NOT EXISTS dormant (address TEXT PRIMARY KEY, height INTEGER, checked INTEGER DEFAULT 0, spent_height INTEGER);
+CREATE TABLE IF NOT EXISTS dormant_meta (key TEXT PRIMARY KEY, value TEXT);
+"""
+
+
+def _dm_get(con, k, d=None):
+    r = con.execute("SELECT value FROM dormant_meta WHERE key=?", (k,)).fetchone()
+    return r[0] if r else d
+
+
+def _dm_set(con, k, v):
+    con.execute("INSERT OR REPLACE INTO dormant_meta(key,value) VALUES(?,?)", (k, str(v)))
+
+
+def notify_private(text):
+    """Telegram message to the owner; silently skipped when TG_BOT_TOKEN / TG_CHAT_ID are not set."""
+    tok, chat = os.environ.get("TG_BOT_TOKEN"), os.environ.get("TG_CHAT_ID")
+    if not tok or not chat or FIXTURES:
+        return False
+    data = urllib.parse.urlencode({"chat_id": chat, "text": text, "disable_web_page_preview": "true"}).encode()
+    try:
+        urllib.request.urlopen(urllib.request.Request(f"https://api.telegram.org/bot{tok}/sendMessage", data=data), timeout=20)
+        return True
+    except Exception:
+        return False
+
+
+def sync_dormant(con, check_per_run=400, max_blocks_per_run=30):
+    con.executescript(DORMANT_SCHEMA)
+    if con.execute("SELECT COUNT(*) FROM dormant").fetchone()[0] == 0:
+        mn = con.execute("SELECT MIN(height) FROM blocks").fetchone()[0]
+        if mn is None or mn > 1:
+            return "waiting for early blocks"
+        con.execute("""INSERT OR IGNORE INTO dormant(address,height)
+                       SELECT miner, MIN(height) FROM blocks WHERE height BETWEEN 1 AND ? AND miner IS NOT NULL
+                       GROUP BY miner HAVING COUNT(*)=1""", (EARLY_MAX_H,))
+        con.commit()
+    # 1) one-time verification that each address is still unspent (a few hundred per run)
+    todo = [r[0] for r in con.execute("SELECT address FROM dormant WHERE checked=0 LIMIT ?", (check_per_run,))]
+    for a in todo:
+        try:
+            d = http_json(f"{EXPLORER}/api/address/{a}?page=1&page_size=1")["address"]
+        except Exception:
+            break
+        spent = (d.get("sent_sats") or 0) > 0
+        con.execute("UPDATE dormant SET checked=1, spent_height=? WHERE address=?",
+                    (d.get("last_seen_height") if spent else None, a))
+    con.commit()
+    # 2) watch new blocks: any input spending from a dormant address
+    tip = con.execute("SELECT MAX(height) FROM blocks").fetchone()[0] or 0
+    h0 = int(_dm_get(con, "scan_h", tip))
+    moved = []
+    h = h0
+    while h < tip and h - h0 < max_blocks_per_run:
+        h += 1
+        try:
+            page, txids = 1, []
+            while True:
+                j = http_json(f"{EXPLORER}/api/block/{h}?page={page}&page_size=100")
+                txids += [t["txid"] for t in j.get("transactions", []) if not t.get("is_coinbase")]
+                if not (j.get("pagination") or {}).get("has_next"):
+                    break
+                page += 1
+            for tx in txids:
+                ins = http_json(f"{EXPLORER}/api/tx/{tx}")["transaction"].get("inputs", [])
+                for i in ins:
+                    a = i.get("address")
+                    if a and con.execute("SELECT 1 FROM dormant WHERE address=? AND spent_height IS NULL", (a,)).fetchone():
+                        con.execute("UPDATE dormant SET spent_height=? WHERE address=?", (h, a))
+                        moved.append((h, a, tx))
+        except Exception:
+            h -= 1
+            break
+    _dm_set(con, "scan_h", h)
+    con.commit()
+    if moved:
+        lines = [f"block {bh}: {a[:12]}… tx {tx[:12]}…" for bh, a, tx in moved[:10]]
+        notify_private("tsc.watch: early-miner coins moved!\n" + "\n".join(lines))
+    left = con.execute("SELECT COUNT(*) FROM dormant WHERE checked=0").fetchone()[0]
+    if left == 0 and _dm_get(con, "verified_note") != "1":
+        n, sp = con.execute("SELECT COUNT(*), SUM(spent_height IS NOT NULL) FROM dormant").fetchone()
+        notify_private(f"tsc.watch: early-miner check complete — {n - (sp or 0)} of {n} addresses untouched.")
+        _dm_set(con, "verified_note", "1")
+        con.commit()
+    return f"ok ({len(moved)} alerts, {left} to verify)"
+
+
 # ---------------------------------------------------------------- main
 
 def main(argv):
@@ -623,6 +717,11 @@ def main(argv):
         sync_all_payouts(con)
     except Exception as e:
         log(f"ERROR payouts: {e}")
+
+    try:
+        log("watch: " + sync_dormant(con))
+    except Exception as e:
+        log(f"ERROR watch: {type(e).__name__}")
 
     meta_set(con, "last_collect_ts", int(time.time()))
     con.commit()

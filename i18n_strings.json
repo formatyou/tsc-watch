@@ -263,6 +263,10 @@
 "ru": "Код:",
 "zh": "代码："
 },
+"Coins mined in the first month and never moved, with an alert the moment they move. For subscribers — coming soon.": {
+"ru": "Монеты, добытые в первый месяц и ни разу не тронутые, с оповещением в момент движения. Для подписчиков — скоро.",
+"zh": "第一个月挖出且从未移动过的币，一旦移动立即提醒。订阅功能，即将推出。"
+},
 "Collector status": {
 "ru": "Статус сборщика",
 "zh": "采集器状态"
@@ -379,6 +383,10 @@
 "ru": "Скачайте TensorMiner для macOS: https://tensorcash.org/blog/how-to-mine/",
 "zh": "下载 macOS 版 TensorMiner：https://tensorcash.org/blog/how-to-mine/"
 },
+"Early miner · blocks {0}–{1}": {
+"ru": "Ранний майнер · блоки {0}–{1}",
+"zh": "早期矿工 · 区块 {0}–{1}"
+},
 "Earned since first seen": {
 "ru": "Заработано с первого появления",
 "zh": "首次出现以来的收益"
@@ -466,6 +474,10 @@
 "First start downloads the model (≥{0} GB); keep the cache between runs. Verify the .sha{1} checksum from the release page.": {
 "ru": "При первом запуске скачивается модель (≥{0} ГБ); сохраняйте кэш между запусками. Сверьте контрольную сумму .sha{1} со страницы релиза.",
 "zh": "首次启动会下载模型（≥{0} GB）；请在多次运行之间保留缓存。请核对发布页上的 .sha{1} 校验和。"
+},
+"Free float": {
+"ru": "Free float",
+"zh": "自由流通量"
 },
 "From the explorer: transactions and new addresses per UTC day. With exchange volume this thin, a high count of new addresses is mostly pool payouts, not new buyers.": {
 "ru": "Из обозревателя: транзакции и новые адреса по суткам UTC. При таком тонком объёме на бирже много новых адресов — это в основном выплаты пулов, а не новые покупатели.",
@@ -702,10 +714,6 @@
 "Messages are forwarded by the Web{0}Forms service; they are not stored on this site.": {
 "ru": "Сообщения пересылаются через сервис Web{0}Forms; на сайте они не хранятся.",
 "zh": "留言通过 Web{0}Forms 服务转发，本站不存储。"
-},
-"Mined by the largest producer": {
-"ru": "Добыто крупнейшим производителем",
-"zh": "最大出块者挖出的份额"
 },
 "Miner": {
 "ru": "Майнер",
@@ -1346,6 +1354,10 @@
 "Sum of effective difficulty of its blocks ÷ {0} s.": {
 "ru": "Сумма эффективной сложности его блоков ÷ {0} с.",
 "zh": "其区块有效难度之和 ÷ {0} 秒。"
+},
+"Supply that actually trades, and market cap measured on it. For subscribers — coming soon.": {
+"ru": "Реально торгуемое предложение и капитализация по нему. Для подписчиков — скоро.",
+"zh": "实际流通交易的供应量，以及据此计算的市值。订阅功能，即将推出。"
 },
 "Supply, holders, concentration, daily activity": {
 "ru": "Предложение, держатели, концентрация, дневная активность",
@@ -2303,9 +2315,9 @@
 "ru": "доля выпущенного предложения",
 "zh": "占已发行量比例"
 },
-"share of issued supply, counted per address — understates concentration: see the next tile": {
-"ru": "доля выпущенного предложения по отдельным адресам — занижает концентрацию: см. следующую плитку",
-"zh": "占已发行量比例，按单个地址计算——会低估集中度：见下一格"
+"share of issued supply, counted per address — understates concentration: one early miner spread its coins over thousands of addresses": {
+"ru": "доля выпущенного предложения по отдельным адресам — занижает концентрацию: один ранний майнер разнёс монеты по тысячам адресов",
+"zh": "占已发行量比例，按单个地址计算——会低估集中度：一位早期矿工把币分散在数千个地址上"
 },
 "share of network {0}%": {
 "ru": "доля сети {0}%",
@@ -2542,10 +2554,6 @@
 "· balances and flows from the explorer": {
 "ru": "· балансы и потоки из обозревателя",
 "zh": "· 余额和资金流来自浏览器"
-},
-"· top {0} producers: {1}% of all TSC ever mined. The top-{2} figure counts addresses, so coins a producer spread over many addresses drop out of it. For a pool, part of this went on to its miners.": {
-"ru": "· топ-{0} производителей: {1}% всех когда-либо добытых TSC. Показатель топ-{2} считает адреса, поэтому монеты, разнесённые производителем по множеству адресов, в него не попадают. У пула часть этого ушла его майнерам.",
-"zh": "· 前 {0} 名出块者：占全部已挖 TSC 的 {1}%。前 {2} 地址指标按地址计算，出块者分散到大量地址的币不会计入其中。若是矿池，其中一部分已付给矿池矿工。"
 },
 "· {0} {m0} {1}, {2}:{3} UTC · price read {4} {m1} {5}, {6}:{7} UTC": {
 "ru": "· {0} {m0} {1}, {2}:{3} UTC · цена получена {4} {m1} {5}, {6}:{7} UTC",
