@@ -497,7 +497,7 @@ document.querySelectorAll('.tabs').forEach(t=>{t.querySelectorAll('button').forE
 """
 
 DOMAIN_FILE = os.path.join(ROOT, "data", "domain.txt")
-DESC = "Independent TensorCash (TSC) dashboard: SafeTrade price and volume, issuance, network work rate, mining pools, top holders. Computed from the chain, refreshed hourly."
+DESC = "Independent TensorCash (TSC) dashboard: SafeTrade price and volume, issuance, network work rate, mining pools, top holders. Computed from the chain."
 
 
 def site_domain():
@@ -873,7 +873,7 @@ def build_mining(d, c):
 
     hero = f"""
 <section class="hero"><h1>Network <em>work rate</em> and who finds the <em>blocks</em>.</h1>
-<p class="lead">How much proof-of-inference work secures the network, who finds the blocks and what mining earns. Everything computed from the chain (difficulty × blocks), refreshed hourly.</p>
+<p class="lead">How much proof-of-inference work secures the network, who finds the blocks and what mining earns. Everything computed from the chain (difficulty × blocks).</p>
 <div class="snap">On-chain snapshot: <b>block #{fnum(c['tip_h'])}</b> · {fdt(c['tip_ts'])} · 24h window ends {fdt(c['ref'])}</div>
 <div class="grid">
 <div class="cell"><div class="k">Network work rate, 24h</div><div class="v">{frate(rate24)}</div><div class="s">last hour to tip: {frate(w1['rate'])} · explorer: {frate(expl24)} · highest 24h avg: {frate(ath_v)} ({fdt(ath_ts,'%d %b') if ath_ts else '—'})</div></div>
