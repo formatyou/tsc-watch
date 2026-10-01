@@ -171,7 +171,7 @@ def svg_line(series, width=900, height=260, yfmt=fshort, xfmt=fday, area=True, y
         keep = raw[::step] + ([raw[-1]] if (len(raw) - 1) % step else [])
         tip_s.append([esc(s.get("name", "")), s.get("color", PALETTE[k % len(PALETTE)]),
                       [[round(X(x), 1), round(Y(y), 1), int(x), tf(y)] for x, y in keep]])
-    tip = {"d": int(all(x % DAY == 0 for x in xs)), "b": [pad_t, pad_t + H], "l": pad_l, "r": width - pad_r, "s": tip_s}
+    tip = {"d": int(all(x % DAY == 0 for x in xs)), "h": int(max(xs) < 10**8), "b": [pad_t, pad_t + H], "l": pad_l, "r": width - pad_r, "s": tip_s}
     out = [f'<svg viewBox="0 0 {width} {height}" class="chart" role="img" data-tip="{esc(json.dumps(tip, separators=(",", ":")))}">']
     for t in _ticks(ylo, yhi):
         y = Y(t)
@@ -180,7 +180,7 @@ def svg_line(series, width=900, height=260, yfmt=fshort, xfmt=fday, area=True, y
     n = 6
     for i in range(n + 1):
         x = x0 + (x1 - x0) * i / n
-        out.append(f'<text x="{X(x):.1f}" y="{height-8}" class="tick" text-anchor="middle">{esc(xfmt(x))}</text>')
+        out.append(f'<text x="{X(x):.1f}" y="{height-8}" class="tick" text-anchor="{"start" if i == 0 else ("end" if i == n else "middle")}">{esc(xfmt(x))}</text>')
     for k, s in enumerate(series):
         pts = [(X(x), Y(y)) for x, y in s["points"] if y is not None]
         if len(pts) < 2:
@@ -485,7 +485,7 @@ window.tscTip=function(svg){if(!svg||svg.__tip)return;svg.__tip=1;
   else{T.s.forEach((s,i)=>{const a=s[2];if(!a.length||x<a[0][0]-8||x>a[a.length-1][0]+8){dots[i].style.display='none';return}
    const p=near(a,x);if(hx===null){hx=p[0];ts=p[2]}dots[i].style.display='';dots[i].setAttribute('cx',p[0]);dots[i].setAttribute('cy',p[1]);rows+=row(s[0],s[1],p[3])});
    if(hx===null)return hide();vl.setAttribute('x1',hx);vl.setAttribute('x2',hx)}
-  g.style.display='';tip.innerHTML='<div class="th">'+fd(ts,T.d)+'</div>'+rows;tip.style.display='block';
+  g.style.display='';tip.innerHTML='<div class="th">'+(T.h?'Block #'+Number(ts).toLocaleString('en-US'):fd(ts,T.d))+'</div>'+rows;tip.style.display='block';
   const px=hx/k,w=tip.offsetWidth;let left=px+14;if(left+w>r.width)left=px-w-14;if(left<0)left=0;
   const wr=wrap.getBoundingClientRect();tip.style.left=(r.left-wr.left+left)+'px';tip.style.top=(r.top-wr.top+6)+'px'}
  svg.addEventListener('mousemove',e=>move(e.clientX));svg.addEventListener('mouseleave',hide);
@@ -607,6 +607,7 @@ footer{border-top:1px solid var(--line)}footer .xl{border-color:#AEBBB8}
 @media(max-width:760px){.menu{background:var(--dark);border-bottom:0}.grp{border-bottom:1px solid #33454E}.drop a{color:#E3E9EB}.drop a:hover,.drop a.on{background:rgba(255,255,255,.08);color:#fff}.drop .gl{color:#8FA0A6}.soon{padding:12px 12px;border-bottom:1px solid #33454E}}
 .hero .cell:last-child{border-right:0}
 main,.top,footer{max-width:1360px}
+.legend .lg{padding:0;border-radius:0;background:none;color:var(--mute);font:500 12.5px var(--sans);letter-spacing:0}.legend .lg:hover{background:none;color:var(--mute)}
 .strip{background:#0F1B21;color:#C9D3D6;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;display:flex;justify-content:space-between;gap:12px;padding:7px max(16px,calc((100% - 1328px)/2))}
 .strip span{display:flex;align-items:center;gap:8px}.strip b{color:#fff;font-weight:600}.strip .sq{width:6px;height:6px;background:var(--acc);display:inline-block}.strip .dot{width:7px;height:7px;border-radius:50%;background:#3FA37A;display:inline-block}
 .eyebrow{font:700 11px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--acc);display:flex;align-items:center;gap:9px}.eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--acc)}
