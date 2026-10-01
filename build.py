@@ -526,7 +526,9 @@ NAV_GROUPS = [
 
 
 WALLET_URL = "https://wallettensor.cash/"
-WALLET_LIVE = False  # flip to True when the wallet is tested
+WALLET_LIVE = True
+WALLET_ANNOUNCE_UNTIL = 1792627200  # 2026-10-22 00:00 UTC: "New" strip announcement ends
+WALLET_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/></svg>'
 
 
 def nav_html(active):
@@ -537,11 +539,13 @@ def nav_html(active):
         groups.append(f'<div class="grp{" on" if on else ""}"><button type="button" class="gbtn" aria-expanded="false" aria-controls="dd{i}">{label}<span class="car" aria-hidden="true"></span></button>'
                       f'<div class="drop" id="dd{i}"><span class="gl">{label}</span>{links}</div></div>')
     cta = f'<a class="cta{" on" if active == "start" else ""}" href="start.html">Start mining</a>'
+    wm = ""
     if WALLET_LIVE:
-        soon = f'<a class="walletl" href="{WALLET_URL}" target="_blank" rel="noopener">Wallet ↗</a>'
+        soon = f'<a class="walletb" href="{WALLET_URL}" target="_blank" rel="noopener">{WALLET_ICON}<span>Wallet</span></a>'
+        wm = f'<a class="walletb wm" href="{WALLET_URL}" target="_blank" rel="noopener" aria-label="Open the TSC Watch Wallet">{WALLET_ICON}<span>Wallet</span></a>'
     else:
         soon = '<span class="soon" aria-disabled="true" title="Coming soon">Wallet<em>soon</em></span>'
-    return (f'<button type="button" class="burger" aria-expanded="false" aria-controls="menu" aria-label="Menu"><span></span><span></span><span></span></button>'
+    return (wm + f'<button type="button" class="burger" aria-expanded="false" aria-controls="menu" aria-label="Menu"><span></span><span></span><span></span></button>'
             f'<nav id="menu" class="menu">{"".join(groups)}{soon}{cta}</nav>')
 
 
@@ -585,6 +589,12 @@ header{background:var(--dark);backdrop-filter:none;-webkit-backdrop-filter:none;
 .lg:hover{background:rgba(255,255,255,.08);color:#fff}.lg.on{background:#fff;color:var(--dark)}
 .burger{background:transparent;border-color:#3A4C55;border-radius:3px}.burger span{background:#fff}
 .walletl{color:#D6DEE0;text-decoration:none;font:500 14px var(--sans);padding:7px 10px;border-radius:3px}.walletl:hover{background:rgba(255,255,255,.08);color:#fff}
+.walletb{display:inline-flex;align-items:center;gap:7px;background:#fff;color:var(--dark);text-decoration:none;font:750 13px var(--sans);padding:9px 14px;border-radius:3px;margin-left:8px}.walletb:hover{background:#E6ECEE;color:var(--dark)}.walletb svg{display:block}
+.wm{display:none}
+.strip .ann{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none}.strip .ann b{background:var(--acc);color:#fff;padding:3px 7px;font-weight:700}.strip .ann:hover .al{text-decoration:underline}.strip .as{display:none}
+.wtile{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:24px;background:#fff;border:1px solid var(--line);border-left:6px solid var(--acc);padding:22px 26px;margin-bottom:16px}
+.wtile h2{margin:4px 0 6px;font-size:26px;font-weight:710;letter-spacing:-.04em;color:#151417}.wtile h2 em{font-style:normal;font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--acc)}.wtile p{margin:0;font-size:14px;color:var(--mute)}
+@media(max-width:760px){.top{flex-wrap:nowrap;gap:8px}.brand{font-size:17px}.langs .lg{padding:7px 6px;font-size:11px}.wm{display:inline-flex;order:2;margin-left:0;height:40px;padding:0 10px;font-size:12.5px;gap:6px}.menu .walletb{display:none}.langs{order:1}.wm span{display:inline}.strip .ann .al{display:none}.strip .ann .as{display:inline}.strip>span:last-child{display:none}.wtile{grid-template-columns:1fr;border-left-width:1px;border-top:4px solid var(--acc)}.wtile .btn{display:block;text-align:center}}
 .soon{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;color:#6F8188;font:500 14px var(--sans);cursor:not-allowed;user-select:none}
 .soon em{font:600 9.5px var(--mono);font-style:normal;text-transform:uppercase;letter-spacing:.1em;border:1px solid #3A4C55;color:#8FA0A6;padding:2px 6px;border-radius:2px}
 .hero{border-bottom:0;padding:44px 0 18px}
@@ -655,6 +665,14 @@ if(bur)bur.addEventListener('click',()=>{const o=menu.classList.toggle('open');b
 """
 
 
+def wallet_ann():
+    if not WALLET_LIVE or time.time() >= WALLET_ANNOUNCE_UNTIL:
+        return ""
+    return (f'<a class="ann" href="{WALLET_URL}" target="_blank" rel="noopener"><b>New</b>'
+            f'<span class="al">TSC Watch Wallet is live — self-custody, keys stay on your device →</span>'
+            f'<span class="as">TSC Watch Wallet is live →</span></a>')
+
+
 def page(title, active, body, gen_ts, tip_h, tip_ts, fn="index.html"):
     dom = site_domain()
     name = dom or "tsc.watch"
@@ -668,7 +686,7 @@ def page(title, active, body, gen_ts, tip_h, tip_ts, fn="index.html"):
     nav = nav_html(active) + i18n.switcher(fn)
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)} · {esc(name)}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><meta name="theme-color" content="#17262E">{og}<style>{CSS}{NAV_CSS}{miners.CSS}{guides.CSS}{THEME_CSS}</style></head><body>
-<div class="strip"><span><i class="sq"></i>Independent TensorCash dashboard</span><span><i class="dot"></i>Chain data {fdt(tip_ts, "%d %b, %H:%M UTC")} · <b>#{fnum(tip_h)}</b></span></div>
+<div class="strip">{wallet_ann() or '<span><i class="sq"></i>Independent TensorCash dashboard</span>'}<span><i class="dot"></i>Chain data {fdt(tip_ts, "%d %b, %H:%M UTC")} · <b>#{fnum(tip_h)}</b></span></div>
 <header><div class="top"><a class="brand" href="index.html">{brand(dom)}</a>{nav}</div></header>
 <main>{body}</main>
 <footer><span>© 2026 tsc.watch</span><a class="xl" href="https://x.com/TSCwatch" target="_blank" rel="noopener noreferrer" aria-label="tsc.watch on X"><img src="https://cdn.jsdelivr.net/npm/simple-icons@13/icons/x.svg" alt="X" width="22" height="22"></a><a href="contact.html">Contact</a></footer>
@@ -720,6 +738,11 @@ def build_market(d, c):
     epochs = c["epochs"]
     cur_ep = next((e for e in epochs if e[0] <= c["tip_h"] < e[1]), epochs[-1])
 
+    wallet_tile = (f'<section class="wtile"><div class="wt-t"><div class="eyebrow sm">New · TSC Watch Wallet</div>'
+                   f'<h2>Your TSC, <em>in your browser.</em></h2>'
+                   f'<p>Self-custody web wallet: create or restore, send and receive. Keys are created and kept on your device — no account, no email.</p></div>'
+                   f'<div class="wt-b"><a class="btn" href="{WALLET_URL}" target="_blank" rel="noopener">Open the wallet ↗</a></div></section>') if WALLET_LIVE else ""
+
     hero = f"""
 <section class="hero hx"><div class="hx-l">
 <h1>The TensorCash market,<br><em>read from the blocks.</em></h1>
@@ -732,7 +755,7 @@ def build_market(d, c):
 <div class="cell"><div class="k">24h volume</div><div class="v">{fusd(vol_usd,0)}</div><div class="s">{fnum(vol_tsc,0)} TSC traded</div></div>
 <div class="cell"><div class="k">Daily issuance vs. volume</div><div class="v">{fpct(emis_ratio,0,False)}</div><div class="s">{fnum(new_tsc_24h,0)} TSC mined in 24h ≈ {fusd(emis_usd,0)}</div></div>
 </div></section>
-<section class="net">
+{wallet_tile}<section class="net">
 <div class="cell"><div class="k">Network work rate · 24h</div><div class="v big">{frate(rate24)}</div><div class="s {'up' if (rate_ch or 0) >= 0 else 'down'}">{'↗' if (rate_ch or 0) >= 0 else '↘'} {fpct(rate_ch,1)} vs. previous 24h</div></div>
 <div class="cell"><div class="k">Effective difficulty</div><div class="v">{fshort(blocks[-1][3],2)}</div><div class="s">block #{fnum(c['tip_h'])} · ×{fnum(blocks[-1][5],2)} PoI multiplier</div></div>
 <div class="cell"><div class="k">Block reward</div><div class="v">{fnum(cur_ep[2],4)} <small>TSC</small></div><div class="s">next cut at block #{fnum(cur_ep[1])}</div></div>

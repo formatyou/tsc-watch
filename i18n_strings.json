@@ -851,6 +851,10 @@
 "ru": "Никогда не отправляйте",
 "zh": "切勿发送"
 },
+"New": {
+"ru": "Новое",
+"zh": "新"
+},
 "New TSC in the day × ({0} ÷ the day's work rate). Before pool fees (~{1}%), electricity and variance.": {
 "ru": "Новые TSC за день × ({0} ÷ мощность сети за день). До комиссии пула (~{1}%), электричества и дисперсии.",
 "zh": "当日新增 TSC × （{0} ÷ 当日全网算力）。未扣除矿池费（约 {1}%）、电费和波动。"
@@ -866,6 +870,10 @@
 "New addresses / day": {
 "ru": "Новые адреса / день",
 "zh": "新地址 / 天"
+},
+"New · TSC Watch Wallet": {
+"ru": "Новое · TSC Watch Wallet",
+"zh": "新 · TSC Watch 钱包"
 },
 "Newest first. \"Block producers\" = pool operators and solo miners; pool participants follow their pool.": {
 "ru": "Сначала новые. «Производители блоков» = операторы пулов и соло-майнеры; участники пулов следуют за своим пулом.",
@@ -939,9 +947,17 @@
 "ru": "Открыть в обозревателе ↗",
 "zh": "在浏览器中打开 ↗"
 },
+"Open the TSC Watch Wallet": {
+"ru": "Открыть TSC Watch Wallet",
+"zh": "打开 TSC Watch 钱包"
+},
 "Open the miner calculator ↗": {
 "ru": "Открыть калькулятор майнинга ↗",
 "zh": "打开挖矿计算器 ↗"
+},
+"Open the wallet ↗": {
+"ru": "Открыть кошелёк ↗",
+"zh": "打开钱包 ↗"
 },
 "Own RTX {0}, electricity only": {
 "ru": "Своя RTX {0}, только электричество",
@@ -1287,6 +1303,10 @@
 "ru": "Некастодиальный веб-кошелёк от tsc.watch",
 "zh": "由 tsc.watch 开发的自托管网页钱包"
 },
+"Self-custody web wallet: create or restore, send and receive. Keys are created and kept on your device — no account, no email.": {
+"ru": "Некастодиальный веб-кошелёк: создайте или восстановите, отправляйте и получайте. Ключи создаются и хранятся на вашем устройстве — без аккаунта и e-mail.",
+"zh": "自托管网页钱包：创建或恢复、发送和接收。密钥在您的设备上生成并保存——无需账户，无需邮箱。"
+},
 "Send a message": {
 "ru": "Отправить сообщение",
 "zh": "发送留言"
@@ -1446,6 +1466,14 @@
 "TSC / day": {
 "ru": "TSC / день",
 "zh": "TSC / 天"
+},
+"TSC Watch Wallet is live — self-custody, keys stay on your device →": {
+"ru": "TSC Watch Wallet запущен — ключи остаются на вашем устройстве →",
+"zh": "TSC Watch 钱包已上线——自托管，密钥保存在您的设备上 →"
+},
+"TSC Watch Wallet is live →": {
+"ru": "TSC Watch Wallet запущен →",
+"zh": "TSC Watch 钱包已上线 →"
 },
 "TSC address": {
 "ru": "Адрес TSC",
@@ -1823,6 +1851,10 @@
 "ru": "Ваш адрес TSC",
 "zh": "你的 TSC 地址"
 },
+"Your TSC,": {
+"ru": "Ваши TSC —",
+"zh": "您的 TSC，"
+},
 "Your blocks average {0}× (network {1}×), about {2}% of the work goes to the multiplier, mostly late credit.": {
 "ru": "Ваши блоки в среднем {0}× (сеть {1}×), около {2}% работы уходит на мультипликатор, в основном поздний кредит.",
 "zh": "你的区块平均 {0}×（全网 {1}×），约 {2}% 的工作量耗在乘数上，主要是延迟积分。"
@@ -2178,6 +2210,10 @@
 "in five minutes.": {
 "ru": "за пять минут.",
 "zh": "五分钟即可完成。"
+},
+"in your browser.": {
+"ru": "прямо в браузере.",
+"zh": "就在浏览器中。"
 },
 "in {0} blocks": {
 "ru": "через {0} блоков",
