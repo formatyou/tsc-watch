@@ -136,7 +136,7 @@ def _ticks(lo, hi, n=4):
     return t
 
 
-def svg_line(series, width=900, height=260, yfmt=fshort, xfmt=fday, area=True, y0=True, markers=None, tipfmt=None):
+def svg_line(series, width=900, height=260, yfmt=fshort, xfmt=fday, area=True, y0=True, markers=None, tipfmt=None, xdays=False):
     """series: list of dict(name, points=[(x,y)], color, width, dash, area, scale). Shared X axis (unix ts)."""
     pad_l, pad_r, pad_t, pad_b = 58, 16, 14, 30
     pts_all = [p for s in series for p in s["points"] if p[1] is not None]
@@ -178,6 +178,15 @@ def svg_line(series, width=900, height=260, yfmt=fshort, xfmt=fday, area=True, y
         out.append(f'<line x1="{pad_l}" x2="{width-pad_r}" y1="{y:.1f}" y2="{y:.1f}" class="grid"/>')
         out.append(f'<text x="{pad_l-6}" y="{y+4:.1f}" class="tick" text-anchor="end">{esc(yfmt(t))}</text>')
     n = 6
+    if xdays and x1 - x0 > DAY:
+        mids = list(range(int(-(-x0 // DAY)) * DAY, int(x1) + 1, DAY))
+        st = max(1, -(-len(mids) // 6))
+        for x in mids[::st]:
+            px = X(x)
+            anc = "start" if px < pad_l + 24 else ("end" if px > width - pad_r - 24 else "middle")
+            out.append(f'<line x1="{px:.1f}" x2="{px:.1f}" y1="{pad_t+H}" y2="{pad_t+H+4}" class="grid"/>')
+            out.append(f'<text x="{px:.1f}" y="{height-8}" class="tick" text-anchor="{anc}">{esc(fday(x))}</text>')
+        n = -1
     for i in range(n + 1):
         x = x0 + (x1 - x0) * i / n
         out.append(f'<text x="{X(x):.1f}" y="{height-8}" class="tick" text-anchor="{"start" if i == 0 else ("end" if i == n else "middle")}">{esc(xfmt(x))}</text>')
@@ -827,8 +836,8 @@ def build_market(d, c):
     snaps = d["snaps"]
     if len(snaps) >= 3:
         hist_card = f"""<section class="card"><h2>Trend: funded addresses and market cap</h2><p class="sub">Based on tsc.watch snapshots, one per data refresh. The chart grows longer every day.</p>
-<div class="two"><div>{svg_line([{"name": "funded addresses", "points": [(s[0], s[2]) for s in snaps if s[2]]}], width=560, y0=False, xfmt=lambda x: fdt(x, "%d %b %H:%M"))}</div>
-<div>{svg_line([{"name": "market cap, USD", "points": [(s[0], s[4]) for s in snaps if s[4]], "color": PALETTE[2]}], width=560, yfmt=lambda v: fusd(v, 0), xfmt=lambda x: fdt(x, "%d %b %H:%M"))}</div></div></section>"""
+<div class="two"><div>{svg_line([{"name": "funded addresses", "points": [(s[0], s[2]) for s in snaps if s[2]]}], width=560, y0=False, xdays=True)}</div>
+<div>{svg_line([{"name": "market cap, USD", "points": [(s[0], s[4]) for s in snaps if s[4]], "color": PALETTE[2]}], width=560, yfmt=lambda v: f"${v/1e6:.0f}M" if v >= 1e6 else fusd(v, 0), tipfmt=lambda v: f"${v/1e6:.2f}M", xdays=True)}</div></div></section>"""
 
     epochs = c["epochs"]
     cur = next((e for e in epochs if e[0] <= c["tip_h"] < e[1]), epochs[-1])
