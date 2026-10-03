@@ -591,22 +591,24 @@ TG_LAST = "not tried"
 
 
 def notify_private(text):
-    """Telegram message to the owner; silently skipped when TG_BOT_TOKEN / TG_CHAT_ID are not set."""
+    """Telegram message to the owner(s); silently skipped when TG_BOT_TOKEN / TG_CHAT_ID are not set.
+    TG_CHAT_ID may hold several chat ids separated by commas."""
     tok, chat = os.environ.get("TG_BOT_TOKEN"), os.environ.get("TG_CHAT_ID")
     if not tok or not chat or FIXTURES:
         return False
-    data = urllib.parse.urlencode({"chat_id": chat, "text": text, "disable_web_page_preview": "true"}).encode()
     global TG_LAST
-    try:
-        urllib.request.urlopen(urllib.request.Request(f"https://api.telegram.org/bot{tok}/sendMessage", data=data), timeout=20)
-        TG_LAST = "sent"
-        return True
-    except urllib.error.HTTPError as e:
-        TG_LAST = f"http {e.code}"
-        return False
-    except Exception as e:
-        TG_LAST = type(e).__name__
-        return False
+    res = []
+    for cid in [c.strip() for c in chat.replace(";", ",").split(",") if c.strip()]:
+        data = urllib.parse.urlencode({"chat_id": cid, "text": text, "disable_web_page_preview": "true"}).encode()
+        try:
+            urllib.request.urlopen(urllib.request.Request(f"https://api.telegram.org/bot{tok}/sendMessage", data=data), timeout=20)
+            res.append("sent")
+        except urllib.error.HTTPError as e:
+            res.append(f"http {e.code}")
+        except Exception as e:
+            res.append(type(e).__name__)
+    TG_LAST = res[0] if len(res) == 1 else ", ".join(f"#{i + 1} {r}" for i, r in enumerate(res))
+    return "sent" in res
 
 
 # ---------------------------------------------------------------- exchange watch (private)
