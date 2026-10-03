@@ -741,7 +741,7 @@ def cls_pct(x):
 LOCK_ICON = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>'
 LOCKED = {
     "safetrade": ("SafeTrade flows,<br><em>who sends and who holds.</em>",
-                  "Deposits, withdrawals and the exchange balance, read from the chain — and which block producers send their coins to the exchange.",
+                  "Deposits, withdrawals and the exchange balance, read from the chain.",
                   ["Exchange balance and daily net flow", "Deposits and withdrawals over 24 hours and 7 days",
                    "Block producers → exchange: direct and through one wallet", "Alerts for large deposits"],
                   "SafeTrade flows"),
