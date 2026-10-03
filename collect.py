@@ -628,6 +628,7 @@ EXCH_SCHEMA = """
 CREATE TABLE IF NOT EXISTS exch_addr (address TEXT PRIMARY KEY, added_h INTEGER);
 CREATE TABLE IF NOT EXISTS exch_queue (address TEXT PRIMARY KEY);
 CREATE TABLE IF NOT EXISTS exch_maybe (address TEXT PRIMARY KEY, grp TEXT, h INTEGER);
+CREATE TABLE IF NOT EXISTS exch_flow (txid TEXT PRIMARY KEY, h INTEGER, kind TEXT, sats INTEGER, src TEXT);
 """
 
 
@@ -702,6 +703,15 @@ def exch_tx(con, h, t, alerts):
             _exch_add(con, addrs, h)
             con.execute("DELETE FROM exch_maybe WHERE grp=?", (g,))
             _dm_set(con, "exch_promoted", int(_dm_get(con, "exch_promoted", 0)) + len(addrs))
+        # withdrawal size: outputs leaving the cluster. With two unknown outputs one is the change
+        # (it goes to a fresh address): the payout is the one ending in .99 (round amount minus the
+        # 0.01 fee), otherwise the larger one (true for ~90% of resolved cases).
+        ext = [o.get("value_sats") or 0 for o in t.get("outputs") or [] if o.get("address") and not known(o["address"])]
+        if len(ext) == 2 and len(t.get("outputs") or []) == 2:
+            nn = [v for v in ext if v % 10**8 == 99 * 10**6]
+            ext = [nn[0]] if len(nn) == 1 else [max(ext)]
+        if ext:
+            con.execute("INSERT OR IGNORE INTO exch_flow(txid,h,kind,sats,src) VALUES(?,?,?,?,?)", (t.get("txid"), h, "w", sum(ext), None))
         return
     dep = [(o.get("address"), o.get("value_sats") or 0) for o in t.get("outputs") or [] if o.get("address") and known(o["address"])]
     total = sum(v for _, v in dep)
@@ -719,6 +729,9 @@ def exch_tx(con, h, t, alerts):
             g = prev[0]
         for a in set(ins):
             con.execute("INSERT OR IGNORE INTO exch_maybe(address, grp, h) VALUES(?,?,?)", (a, g, h))
+    if total > 0:
+        top = max(t.get("inputs") or [], key=lambda i: i.get("value_sats") or 0).get("address") or ins[0]
+        con.execute("INSERT OR IGNORE INTO exch_flow(txid,h,kind,sats,src) VALUES(?,?,?,?,?)", (t.get("txid"), h, "d", total, top))
     if total >= EXCH_ALERT_TSC * 10**8:
         src = sorted(set(ins))
         alerts.append(f"SafeTrade deposit: {total / 1e8:,.0f} TSC · block {h}\n"
@@ -871,6 +884,17 @@ def daily_digest(con):
         nx = con.execute("SELECT COUNT(*) FROM exch_addr").fetchone()[0]
         nm, ng = con.execute("SELECT COUNT(*), COUNT(DISTINCT grp) FROM exch_maybe").fetchone()
         lines.append(f"\nSafeTrade: {nx} znanych adresów · kandydaci {nm} w {ng} grupach · dołączone z kandydatów: {_dm_get(con, 'exch_promoted', 0)}")
+        h24 = con.execute("SELECT MIN(height) FROM blocks WHERE timestamp>=?", (t1 - 86400,)).fetchone()[0]
+        if h24 is not None:
+            fl = {k: (n, v or 0) for k, n, v in con.execute("SELECT kind, COUNT(*), SUM(sats) FROM exch_flow WHERE h>=? GROUP BY kind", (h24,))}
+            dn, dv = fl.get("d", (0, 0))
+            wn, wv = fl.get("w", (0, 0))
+            lines.append(f"Giełda 24 h: wpłaty {dv / 1e8:,.0f} TSC ({dn}) · wypłaty ~{wv / 1e8:,.0f} TSC ({wn}) · saldo {(dv - wv) / 1e8:+,.0f} TSC".replace(",", " "))
+            prod = []
+            for m, c in rows[:4]:
+                v = con.execute("SELECT SUM(sats) FROM exch_flow WHERE kind='d' AND src=? AND h>=?", (m, h24)).fetchone()[0] or 0
+                prod.append(f"…{(m or '?')[-6:]} {v / 1e8:,.0f}".replace(",", " "))
+            lines.append("Producenci → giełda 24 h (bezpośrednio, TSC): " + ", ".join(prod))
     except Exception:
         pass
     lines.append("\nDiscord (czat): na życzenie, ręcznie.")
