@@ -534,6 +534,8 @@ NAV_GROUPS = [
 ]
 
 
+NAV_PRO = [("safetrade", "safetrade.html", "SafeTrade"), ("float", "float.html", "Free float")]   # locked previews
+
 WALLET_URL = "https://wallettensor.cash/"
 WALLET_LIVE = True
 WALLET_ANNOUNCE_UNTIL = 1792627200  # 2026-10-22 00:00 UTC: "New" strip announcement ends
@@ -545,10 +547,9 @@ def nav_html(active):
     for i, (label, items) in enumerate(NAV_GROUPS):
         on = any(k == active for k, _, _ in items)
         links = "".join(f'<a href="{h}"{" class=on aria-current=page" if k == active else ""}>{esc(l)}</a>' for k, h, l in items)
-        if label == "Market":
-            links += '<span class="dsoon" aria-disabled="true" title="Coming soon">SafeTrade<em>soon · PRO</em></span>'
         groups.append(f'<div class="grp{" on" if on else ""}"><button type="button" class="gbtn" aria-expanded="false" aria-controls="dd{i}">{label}<span class="car" aria-hidden="true"></span></button>'
                       f'<div class="drop" id="dd{i}"><span class="gl">{label}</span>{links}</div></div>')
+    pro = "".join(f'<a class="nlink{" on" if k == active else ""}" href="{h}"{" aria-current=page" if k == active else ""}>{esc(l)}<em>PRO</em></a>' for k, h, l in NAV_PRO)
     cta = f'<a class="cta{" on" if active == "start" else ""}" href="start.html">Start mining</a>'
     wm = ""
     if WALLET_LIVE:
@@ -557,7 +558,7 @@ def nav_html(active):
     else:
         soon = '<span class="soon" aria-disabled="true" title="Coming soon">Wallet<em>soon</em></span>'
     return (wm + f'<button type="button" class="burger" aria-expanded="false" aria-controls="menu" aria-label="Menu"><span></span><span></span><span></span></button>'
-            f'<nav id="menu" class="menu">{"".join(groups)}{soon}{cta}</nav>')
+            f'<nav id="menu" class="menu">{"".join(groups)}{pro}{soon}{cta}</nav>')
 
 
 NAV_CSS = """
@@ -607,8 +608,26 @@ header{background:var(--dark);backdrop-filter:none;-webkit-backdrop-filter:none;
 .wtile h2{margin:4px 0 6px;font-size:26px;font-weight:710;letter-spacing:-.04em;color:#151417}.wtile h2 em{font-style:normal;font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--acc)}.wtile p{margin:0;font-size:14px;color:var(--mute)}
 @media(max-width:760px){.top{flex-wrap:nowrap;gap:8px}.brand{font-size:17px}.langs .lg{padding:7px 6px;font-size:11px}.wm{display:inline-flex;order:2;margin-left:0;height:40px;padding:0 10px;font-size:12.5px;gap:6px}.menu .walletb{display:none}.langs{order:1}.wm span{display:inline}.strip .ann .al{display:none}.strip .ann .as{display:inline}.strip>span:last-child{display:none}.wtile{grid-template-columns:1fr;border-left-width:1px;border-top:4px solid var(--acc)}.wtile .btn{display:block;text-align:center}}
 .soon{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;color:#6F8188;font:500 14px var(--sans);cursor:not-allowed;user-select:none}
-.drop .dsoon{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;color:#93A1A5;font-size:14px;cursor:not-allowed;user-select:none}
-.drop .dsoon em{font:600 9.5px var(--mono);font-style:normal;text-transform:uppercase;letter-spacing:.1em;border:1px solid currentColor;padding:2px 6px;border-radius:2px;white-space:nowrap}
+.nlink{display:inline-flex;align-items:center;gap:6px;padding:9px 11px;color:#D6DEE0;text-decoration:none;font:500 14px var(--sans);border-radius:3px;white-space:nowrap}
+.nlink:hover{color:#fff}.nlink.on{color:#fff;font-weight:600;box-shadow:inset 0 0 0 1px #3A4C55}.nlink:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.nlink em{font:700 9px var(--mono);font-style:normal;letter-spacing:.1em;background:var(--acc);color:#fff;padding:2px 5px;border-radius:2px}
+@media(min-width:761px) and (max-width:1040px){.nlink em{display:none}.nlink,.gbtn{padding-left:7px;padding-right:7px;font-size:13px}.menu .walletb span{display:none}.cta{padding-left:10px;padding-right:10px;margin-left:2px}}
+@media(min-width:761px) and (max-width:880px){.menu .cta{display:none}.nlink,.gbtn{padding-left:5px;padding-right:5px}}
+@media(max-width:760px){.nlink{padding:13px 12px;border-bottom:1px solid #33454E;color:#E3E9EB;justify-content:space-between}}
+a.kpi.locked{cursor:pointer;text-decoration:none;display:block}a.kpi.locked:hover{border-color:var(--acc)}
+.lockl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 28px;margin:0 0 24px;padding:0;list-style:none;max-width:860px}.lockl li{padding-left:18px;position:relative;color:var(--ink)}
+.lockl li::before{content:"";position:absolute;left:0;top:.55em;width:6px;height:6px;background:var(--acc)}
+.lockw{position:relative;border:1px solid var(--line);background:#fff;overflow:hidden;margin-bottom:28px}
+.lockp{filter:blur(4px);opacity:.9;pointer-events:none;user-select:none;padding:22px;display:grid;gap:18px}
+.skk{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.skc{border:1px solid var(--line);padding:16px;display:grid;gap:10px}
+.sk{background:#C3CCC8;border-radius:2px;height:10px}.sk.b{height:26px;width:62%;background:#9FADA8}.sk.w4{width:40%}.sk.w7{width:70%}
+.skr{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:16px;padding:12px 0;border-top:1px solid var(--line);align-items:center}
+.lockc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;padding:24px;background:radial-gradient(ellipse at center,rgba(255,255,255,.92) 0,rgba(255,255,255,.75) 32%,rgba(255,255,255,.15) 70%)}
+.lockc .li{width:56px;height:56px;border-radius:50%;background:var(--dark);color:#fff;display:flex;align-items:center;justify-content:center}
+.lockc h2{margin:0;font-size:28px;letter-spacing:-.8px}.lockc p{margin:0;max-width:470px;color:var(--mute);font-size:15px;line-height:1.5}
+.lockc .sp{font:700 12px var(--mono);letter-spacing:.16em;text-transform:uppercase;background:var(--acc);color:#fff;padding:13px 24px;border-radius:6px}
+.lockc a{font-size:13.5px;color:var(--acc)}
+@media(max-width:760px){.skk{grid-template-columns:1fr 1fr}.lockl{grid-template-columns:1fr}.lockc h2{font-size:23px}.skr{grid-template-columns:2fr 1fr 1fr}.skr .sk:last-child{display:none}}
 .soon em{font:600 9.5px var(--mono);font-style:normal;text-transform:uppercase;letter-spacing:.1em;border:1px solid #3A4C55;color:#8FA0A6;padding:2px 6px;border-radius:2px}
 .hero{border-bottom:0;padding:44px 0 18px}
 .hero h1{font-weight:710;letter-spacing:-.05em;line-height:1.02;color:#151417}
@@ -693,6 +712,7 @@ def page(title, active, body, gen_ts, tip_h, tip_ts, fn="index.html"):
           f'<meta name="description" content="{esc(DESC)}"><meta name="twitter:card" content="summary">')
     href_of = {k: h for _, items in NAV_GROUPS for k, h, _ in items}
     href_of["start"] = "start.html"
+    href_of.update({k: h for k, h, _ in NAV_PRO})
     if dom:
         og += f'<link rel="canonical" href="https://{esc(dom)}/{"" if active == "market" else href_of.get(active, active + ".html")}">'
     og += i18n.hreflang(fn, dom)
@@ -714,6 +734,43 @@ def tabs_block(group, panes, default=0):
 
 def cls_pct(x):
     return "up" if (x or 0) > 0 else ("down" if (x or 0) < 0 else "")
+
+
+# ---------------------------------------------------------------- locked PRO previews
+
+LOCK_ICON = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>'
+LOCKED = {
+    "safetrade": ("SafeTrade flows,<br><em>who sends and who holds.</em>",
+                  "Deposits, withdrawals and the exchange balance, read from the chain — and which block producers send their coins to the exchange.",
+                  ["Exchange balance and daily net flow", "Deposits and withdrawals over 24 hours and 7 days",
+                   "Block producers → exchange: direct and through one wallet", "Alerts for large deposits"],
+                  "SafeTrade flows"),
+    "float": ("Free float,<br><em>the supply that actually trades.</em>",
+              "Issued supply minus the coins that do not move: dormant early rewards, long-idle addresses and exchange reserves.",
+              ["Free float in TSC and as a share of supply", "Dormant supply and when it last moved",
+               "Market cap adjusted for free float", "Alerts when dormant coins move"],
+              "Free float"),
+}
+
+
+def build_locked(kind):
+    """Placeholder page for a PRO view that is not open yet: the preview is a skeleton, it carries no data."""
+    h1, lead, items, name = LOCKED[kind]
+    seed = 7 if kind == "float" else 3
+    ys, v = [], 60.0
+    for i in range(48):
+        seed = (seed * 1103515245 + 12345) % 2**31
+        v = min(100, max(18, v + (seed % 21) - 10))
+        ys.append(v)
+    pts = " ".join(f"{i * 20:.0f},{120 - y:.0f}" for i, y in enumerate(ys))
+    tiles = '<div class="skc"><div class="sk w4"></div><div class="sk b"></div><div class="sk w7"></div></div>' * 4
+    rows = '<div class="skr"><div class="sk w7"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>' * 6
+    return f"""<section class="hero"><div class="eyebrow">PRO preview</div><h1>{h1}</h1><p class="lead">{esc(lead)}</p></section>
+<ul class="lockl">{"".join(f"<li>{esc(x)}</li>" for x in items)}</ul>
+<section class="lockw"><div class="lockp" aria-hidden="true"><div class="skk">{tiles}</div>
+<svg viewBox="0 0 940 130" preserveAspectRatio="none" style="width:100%;height:200px"><polygon points="0,130 {pts} 940,130" fill="#731D30" opacity=".12"/><polyline points="{pts}" fill="none" stroke="#731D30" stroke-width="2"/></svg>
+<div>{rows}</div></div>
+<div class="lockc"><span class="li">{LOCK_ICON}</span><h2>{esc(name)}</h2><p>This view is part of tsc.watch PRO, which is not open yet.</p><span class="sp">Soon · PRO</span><a href="contact.html">Tell us you want it →</a></div></section>"""
 
 
 # ---------------------------------------------------------------- page: Market
@@ -778,7 +835,7 @@ def build_market(d, c):
     side = f"""<div class="side">
 <div class="kpi"><div class="k">Funded addresses</div><div class="v">{fnum(holders)}</div><div class="s">addresses with a balance</div></div>
 <div class="kpi"><div class="k">Top 10 / top 100</div><div class="v">{fpct(snap_val(d,'top10_pct'),1,False)} / {fpct(snap_val(d,'top100_pct'),1,False)}</div><div class="s">counted per address — understates concentration: one early miner spread its coins over thousands of addresses</div></div>
-<div class="kpi locked" aria-disabled="true"><div class="k">Free float <span class="pro">PRO</span></div><div class="v">•••••</div><div class="s">Supply that actually trades. For subscribers — coming soon.</div></div>
+<a class="kpi locked" href="float.html"><div class="k">Free float <span class="pro">PRO</span></div><div class="v">•••••</div><div class="s">Supply that actually trades. Soon · PRO — see the preview.</div></a>
 </div>"""
 
     last = blocks[-100:]
@@ -1117,6 +1174,8 @@ def main():
         "miner.html": ("TSC miner dashboard & pools", "miners", miners.build_miner_page(sys.modules[__name__], mc, ep, c)),
         "calc.html": ("TSC mining calculator", "calc", miners.build_calc_page(sys.modules[__name__], c, ep, price)),
         "holders.html": ("TSC holders", "holders", build_holders(d, c)),
+        "safetrade.html": ("SafeTrade flows", "safetrade", build_locked("safetrade")),
+        "float.html": ("TSC free float", "float", build_locked("float")),
         "links.html": ("Official TensorCash links", "links", build_links(d, c)),
         "about.html": ("About the data", "about", build_about(d, c)),
     }
