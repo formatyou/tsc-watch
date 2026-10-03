@@ -545,6 +545,8 @@ def nav_html(active):
     for i, (label, items) in enumerate(NAV_GROUPS):
         on = any(k == active for k, _, _ in items)
         links = "".join(f'<a href="{h}"{" class=on aria-current=page" if k == active else ""}>{esc(l)}</a>' for k, h, l in items)
+        if label == "Market":
+            links += '<span class="dsoon" aria-disabled="true" title="Coming soon">SafeTrade<em>soon · PRO</em></span>'
         groups.append(f'<div class="grp{" on" if on else ""}"><button type="button" class="gbtn" aria-expanded="false" aria-controls="dd{i}">{label}<span class="car" aria-hidden="true"></span></button>'
                       f'<div class="drop" id="dd{i}"><span class="gl">{label}</span>{links}</div></div>')
     cta = f'<a class="cta{" on" if active == "start" else ""}" href="start.html">Start mining</a>'
@@ -605,6 +607,8 @@ header{background:var(--dark);backdrop-filter:none;-webkit-backdrop-filter:none;
 .wtile h2{margin:4px 0 6px;font-size:26px;font-weight:710;letter-spacing:-.04em;color:#151417}.wtile h2 em{font-style:normal;font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--acc)}.wtile p{margin:0;font-size:14px;color:var(--mute)}
 @media(max-width:760px){.top{flex-wrap:nowrap;gap:8px}.brand{font-size:17px}.langs .lg{padding:7px 6px;font-size:11px}.wm{display:inline-flex;order:2;margin-left:0;height:40px;padding:0 10px;font-size:12.5px;gap:6px}.menu .walletb{display:none}.langs{order:1}.wm span{display:inline}.strip .ann .al{display:none}.strip .ann .as{display:inline}.strip>span:last-child{display:none}.wtile{grid-template-columns:1fr;border-left-width:1px;border-top:4px solid var(--acc)}.wtile .btn{display:block;text-align:center}}
 .soon{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;color:#6F8188;font:500 14px var(--sans);cursor:not-allowed;user-select:none}
+.drop .dsoon{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;color:#93A1A5;font-size:14px;cursor:not-allowed;user-select:none}
+.drop .dsoon em{font:600 9.5px var(--mono);font-style:normal;text-transform:uppercase;letter-spacing:.1em;border:1px solid currentColor;padding:2px 6px;border-radius:2px;white-space:nowrap}
 .soon em{font:600 9.5px var(--mono);font-style:normal;text-transform:uppercase;letter-spacing:.1em;border:1px solid #3A4C55;color:#8FA0A6;padding:2px 6px;border-radius:2px}
 .hero{border-bottom:0;padding:44px 0 18px}
 .hero h1{font-weight:710;letter-spacing:-.05em;line-height:1.02;color:#151417}
