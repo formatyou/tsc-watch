@@ -2798,5 +2798,81 @@
 "≥ {0}: {1} blocks ({2}%)": {
 "ru": "≥ {0}: {1} блоков ({2}%)",
 "zh": "≥ {0}：{1} 个区块（{2}%）"
+},
+"h1:SafeTrade flows,<br><em>who sends and who holds.</em>": {
+"ru": "Потоки SafeTrade:<br><em>кто отправляет и кто держит.</em>",
+"zh": "SafeTrade 资金流向，<br><em>谁在充值，谁在持有。</em>"
+},
+"h1:Free float,<br><em>the supply that actually trades.</em>": {
+"ru": "Free float:<br><em>предложение, которое реально торгуется.</em>",
+"zh": "自由流通量，<br><em>真正在交易的供应。</em>"
+},
+"Deposits, withdrawals and the exchange balance, read from the chain — and which block producers send their coins to the exchange.": {
+"ru": "Депозиты, выводы и баланс биржи по данным блокчейна — и какие производители блоков отправляют монеты на биржу.",
+"zh": "从链上读取的充值、提现和交易所余额，以及哪些出块者把币转入交易所。"
+},
+"Issued supply minus the coins that do not move: dormant early rewards, long-idle addresses and exchange reserves.": {
+"ru": "Выпущенное предложение минус монеты, которые не двигаются: спящие ранние награды, давно неактивные адреса и резервы биржи.",
+"zh": "已发行供应量减去不流动的币：沉睡的早期奖励、长期闲置地址和交易所储备。"
+},
+"Exchange balance and daily net flow": {
+"ru": "Баланс биржи и дневной чистый поток",
+"zh": "交易所余额与每日净流量"
+},
+"Deposits and withdrawals over 24 hours and 7 days": {
+"ru": "Депозиты и выводы за 24 часа и 7 дней",
+"zh": "24 小时和 7 天的充值与提现"
+},
+"Block producers → exchange: direct and through one wallet": {
+"ru": "Производители блоков → биржа: напрямую и через один кошелёк",
+"zh": "出块者 → 交易所：直接转入或经过一个钱包"
+},
+"Alerts for large deposits": {
+"ru": "Оповещения о крупных депозитах",
+"zh": "大额充值提醒"
+},
+"Free float in TSC and as a share of supply": {
+"ru": "Free float в TSC и как доля предложения",
+"zh": "以 TSC 计的自由流通量及其占供应量的比例"
+},
+"Dormant supply and when it last moved": {
+"ru": "Спящее предложение и когда оно двигалось в последний раз",
+"zh": "沉睡供应量及其最后一次移动时间"
+},
+"Market cap adjusted for free float": {
+"ru": "Капитализация с поправкой на free float",
+"zh": "按自由流通量调整的市值"
+},
+"Alerts when dormant coins move": {
+"ru": "Оповещения, когда спящие монеты двигаются",
+"zh": "沉睡币移动时提醒"
+},
+"SafeTrade flows": {
+"ru": "Потоки SafeTrade",
+"zh": "SafeTrade 资金流向"
+},
+"This view is part of tsc.watch PRO, which is not open yet.": {
+"ru": "Этот раздел входит в tsc.watch PRO, который ещё не открыт.",
+"zh": "此页面属于 tsc.watch PRO，目前尚未开放。"
+},
+"Soon · PRO": {
+"ru": "Скоро · PRO",
+"zh": "即将推出 · PRO"
+},
+"Tell us you want it →": {
+"ru": "Сообщите нам, что вам это нужно →",
+"zh": "告诉我们您需要它 →"
+},
+"PRO preview": {
+"ru": "Предпросмотр PRO",
+"zh": "PRO 预览"
+},
+"Supply that actually trades. Soon · PRO — see the preview.": {
+"ru": "Предложение, которое реально торгуется. Скоро · PRO — смотрите предпросмотр.",
+"zh": "真正在交易的供应。即将推出 · PRO — 查看预览。"
+},
+"TSC free float": {
+"ru": "Free float TSC",
+"zh": "TSC 自由流通量"
 }
 }
