@@ -661,6 +661,8 @@ main,.top,footer{max-width:1360px}
 .live{background:#fff;border:1px solid var(--line);margin-bottom:16px}
 .live-h{background:var(--dark);color:#fff;padding:13px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.live-h>span:first-child{font-size:13px;font-weight:690;letter-spacing:.08em;text-transform:uppercase}
 .live-h .src{font:500 11px var(--mono);color:#D9A441;display:flex;align-items:center;gap:7px}.live-h .src i{width:7px;height:7px;border-radius:50%;background:#D9A441;display:inline-block}
+a.src{text-decoration:none;border:1px solid #6B5A2A;border-radius:3px;padding:6px 10px;color:#F0C76A}a.src:hover{background:rgba(217,164,65,.14);color:#fff}a.src{flex-wrap:wrap;row-gap:3px}.srcl,.srcd{white-space:nowrap}.srcd{color:#9FB0B5}
+.ltrd{display:inline-block;margin-top:7px;font-size:12.5px;color:var(--acc);text-decoration:underline;text-underline-offset:3px}
 .live-g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.live-g .cell{padding:18px 20px;border-right:1px solid var(--line)}.live-g .cell:last-child{border-right:0}
 .live .v,.net .v,.side .v{font-family:var(--mono);font-weight:700;font-size:26px;letter-spacing:-.01em;margin:6px 0 4px;font-variant-numeric:tabular-nums}.live .s{font-size:13px;color:var(--mute)}
 .net{background:var(--dark);color:#fff;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:22px 0;margin-bottom:16px}
@@ -818,9 +820,9 @@ def build_market(d, c):
 <h1>The TensorCash market,<br><em>read from the blocks.</em></h1>
 <p class="lead">Price and volume from SafeTrade, issuance, network work rate, mining pools and holders — one independent view, no account needed.</p></div>
 <div class="hx-r"><a class="btn" href="calc.html">Open the miner calculator ↗</a><a class="btn ghost" href="upgrades.html">Upgrades &amp; deadlines</a></div></section>
-<section class="live"><div class="live-h"><span>Live market</span><span class="src"><i></i>SafeTrade · TSC/USDT · {fdt(snap_val(d,'ts'),'%d %b, %H:%M UTC')}</span></div>
+<section class="live"><div class="live-h"><span>Live market</span><a class="src" href="https://safetrade.com/exchange/TSC-USDT?type=basic" target="_blank" rel="noopener"><i></i><span class="srcl">TSC/USDT on SafeTrade<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true" style="margin-left:5px;vertical-align:-1px"><path d="M7 17 17 7M9 7h8v8"/></svg></span><span class="srcd">· {fdt(snap_val(d,'ts'),'%d %b, %H:%M UTC')}</span></a></div>
 <div class="live-g">
-<div class="cell"><div class="k">TSC price</div><div class="v">{fusd(price)}</div><div class="s"><span class="{cls_pct(ch24)}">{fpct(ch24,2)}</span> · 24h · 7d: <span class="{cls_pct(price_7d)}">{fpct(price_7d,1)}</span> · 30d: <span class="{cls_pct(price_30d)}">{fpct(price_30d,0)}</span></div></div>
+<div class="cell"><div class="k">TSC price</div><div class="v">{fusd(price)}</div><div class="s"><span class="{cls_pct(ch24)}">{fpct(ch24,2)}</span> · 24h · 7d: <span class="{cls_pct(price_7d)}">{fpct(price_7d,1)}</span> · 30d: <span class="{cls_pct(price_30d)}">{fpct(price_30d,0)}</span></div><a class="ltrd" href="https://safetrade.com/exchange/TSC-USDT?type=basic" target="_blank" rel="noopener">Last trade on SafeTrade<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true" style="margin-left:5px;vertical-align:-1px"><path d="M7 17 17 7M9 7h8v8"/></svg></a></div>
 <div class="cell"><div class="k">Market cap (issued)</div><div class="v">{fusd(mc,0)}</div><div class="s">{fshort(circ)} TSC issued · FDV {fusd(fdv,0)}</div></div>
 <div class="cell"><div class="k">24h volume</div><div class="v">{fusd(vol_usd,0)}</div><div class="s">{fnum(vol_tsc,0)} TSC traded</div></div>
 <div class="cell"><div class="k">Daily issuance vs. volume</div><div class="v">{fpct(emis_ratio,0,False)}</div><div class="s">{fnum(new_tsc_24h,0)} TSC mined in 24h ≈ {fusd(emis_usd,0)}</div></div>
