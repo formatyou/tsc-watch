@@ -739,6 +739,66 @@ def exch_tx(con, h, t, alerts):
                       f"\nto {dep[0][0][:14]}…\ntx {t.get('txid')}")
 
 
+EARLY_EPOCHS = [(0, 715, 715.0), (715, 2145, 429.0), (2145, 5005, 257.4), (5005, 10725, 154.44)]
+
+
+def _early_reward(h):
+    for s, e, r in EARLY_EPOCHS:
+        if s <= h < e:
+            return r
+    return 0.0
+
+
+def _pl(v):
+    return f"{v:,.0f}".replace(",", " ")
+
+
+def _short(a):
+    return f"{a[:8]}…{a[-6:]}" if a and len(a) > 16 else (a or "?")
+
+
+def early_alert(con, ev, more=0, more_tsc=0.0):
+    """One readable Telegram note per transaction that spends early-miner coins."""
+    left_n, left_tsc, all_tsc = 0, 0.0, 0.0
+    for hh, sp in con.execute("SELECT height, spent_height FROM dormant"):
+        r = _early_reward(hh)
+        all_tsc += r
+        if sp is None:
+            left_n += 1
+            left_tsc += r
+    known = lambda a: con.execute("SELECT 1 FROM exch_addr WHERE address=?", (a,)).fetchone() is not None
+    moved = sum(v for _, v, _ in ev["src"]) / 1e8
+    hs = sorted(x for _, _, x in ev["src"] if x)
+    rng = (f"blok {_pl(hs[0])}" if hs and hs[0] == hs[-1] else f"bloki {_pl(hs[0])}–{_pl(hs[-1])}") if hs else "?"
+    when = time.strftime("%d.%m %H:%M UTC", time.gmtime(ev["ts"])) if ev.get("ts") else ""
+    n = len(ev["src"])
+    lines = ["🚨 Wczesny górnik ruszył monety",
+             f"Blok {_pl(ev['h'])}" + (f" · {when}" if when else ""), "",
+             f"Ruszono: {_pl(moved)} TSC z {n} " + ("adresu" if n == 1 else "adresów") + f" (wykopane: {rng})",
+             "Dokąd:"]
+    outs = sorted(ev["outs"], key=lambda o: -o[1])
+    to_exch = 0
+    for a, v in outs[:4]:
+        ex = known(a)
+        to_exch += v if ex else 0
+        lines.append(f"• {_pl(v / 1e8)} TSC → " + ("SafeTrade (adres depozytowy)" if ex else "nieznany adres") + f" {_short(a)}")
+    if len(outs) > 4:
+        rest = outs[4:]
+        to_exch += sum(v for a, v in rest if known(a))
+        lines.append(f"• +{len(rest)} kolejnych wyjść, {_pl(sum(v for _, v in rest) / 1e8)} TSC")
+    lines.append("")
+    if to_exch > 0:
+        lines.append(f"Na giełdę: {_pl(to_exch / 1e8)} TSC — możliwa sprzedaż.")
+    else:
+        lines.append("Na giełdę: 0 TSC (na razie przesunięcie między portfelami).")
+    pct = f"{100 * left_tsc / all_tsc if all_tsc else 0:.1f}".replace(".", ",")
+    lines.append(f"Zostało nietknięte: {_pl(left_tsc)} TSC na {_pl(left_n)} adresach ({pct}% puli {_pl(all_tsc)} TSC)")
+    if more:
+        lines.append(f"Kolejne transakcje z tej puli w tym przebiegu: {more}, razem {_pl(more_tsc)} TSC.")
+    lines += ["", f"{EXPLORER}/tx/{ev['txid']}"]
+    return "\n".join(lines)
+
+
 def sync_dormant(con, check_per_run=120, max_blocks_per_run=30):
     con.executescript(DORMANT_SCHEMA)
     if con.execute("SELECT COUNT(*) FROM dormant").fetchone()[0] == 0:
@@ -782,19 +842,29 @@ def sync_dormant(con, check_per_run=120, max_blocks_per_run=30):
                 ins = t.get("inputs", [])
                 if xwatch:
                     exch_tx(con, h, t, xalerts)
+                src = []
                 for i in ins:
                     a = i.get("address")
-                    if a and con.execute("SELECT 1 FROM dormant WHERE address=? AND spent_height IS NULL", (a,)).fetchone():
+                    row = con.execute("SELECT height FROM dormant WHERE address=? AND spent_height IS NULL", (a,)).fetchone() if a else None
+                    if row:
                         con.execute("UPDATE dormant SET spent_height=? WHERE address=?", (h, a))
-                        moved.append((h, a, tx))
+                        src.append((a, i.get("value_sats") or int(_early_reward(row[0]) * 1e8), row[0]))
+                if src:
+                    ts = con.execute("SELECT timestamp FROM blocks WHERE height=?", (h,)).fetchone()
+                    moved.append({"h": h, "ts": ts[0] if ts else None, "txid": tx, "src": src,
+                                  "outs": [(o.get("address"), o.get("value_sats") or 0) for o in t.get("outputs") or [] if o.get("address")]})
         except Exception:
             h -= 1
             break
     _dm_set(con, "scan_h", h)
     con.commit()
     if moved:
-        lines = [f"block {bh}: {a[:12]}… tx {tx[:12]}…" for bh, a, tx in moved[:10]]
-        notify_private("tsc.watch: early-miner coins moved!\n" + "\n".join(lines))
+        moved.sort(key=lambda e: -sum(v for _, v, _ in e["src"]))
+        rest = moved[3:]
+        for k, ev in enumerate(moved[:3]):
+            last = k == min(len(moved), 3) - 1
+            notify_private(early_alert(con, ev, len(rest) if last else 0,
+                                       sum(v for e in rest for _, v, _ in e["src"]) / 1e8 if last else 0.0))
     for m in xalerts[:10]:
         notify_private(m)
     left = con.execute("SELECT COUNT(*) FROM dormant WHERE checked=0").fetchone()[0]
