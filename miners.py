@@ -170,7 +170,7 @@ def compute(con, d, c, reward_at, price):
             "active": len(active), "active_pool_miners": sum(1 for r in active.values() if r["kind"] == 1),
             "median_day": statistics.median(rates) if rates else None, "board": board, "day0": day0,
             "net_new_day": net_new_day, "net_rate": net_rate, "price": price, "has_payouts": bool(pays),
-            "pool_names": {r["addr"]: r["name"] for r in pool_rows}}
+            "pool_names": {r["addr"]: r["name"] for r in pool_rows}, "proof": d.get("proof") or []}
 
 
 def epoch_info(c, reward_at):
@@ -246,6 +246,78 @@ def epoch_card(B, ep, price):
 <p class="note">Progress through epoch {ep['index']}: {B.fnum(ep['progress'], 1)}% · date assumes the 7-day average block time ({B.fdur(ep['bt'])}). If the network keeps the same work rate, each miner's TSC per day falls by 40% at the cut.</p></section>"""
 
 
+BENCH_GPUS = [("B200", 56.0), ("H100 / H200", 40.0), ("RTX PRO 6000", 26.0), ("RTX 5090", 18.6), ("RTX A6000", 9.5)]
+BENCH_WINDOWS = [("24h", 1), ("7d", 7), ("30d", 30)]
+BENCH_MIN_BLOCKS = 3
+
+
+def bench_card(B, mc, c):
+    """Pool benchmark: net TSC/day of one GPU on each pool = network-average yield × (network mean
+    multiplier ÷ pool's mean multiplier) × (1 − fee). All inputs are on-chain except the published fee."""
+    esc, fnum, fusd = B.esc, B.fnum, B.fusd
+    price, ref = mc["price"], c["ref"]
+    proof = [r for r in mc.get("proof", []) if r[3] == 4 and r[4]]
+    on_chain = {(r["name"] or "").lower(): r for r in mc["pool_rows"]}
+    listed = set()
+    entries = []                                   # (label, sub, addr, fee, pool_row)
+    for r in mc["pool_rows"]:
+        entries.append((r["name"], r["addr"][:14] + "…", r["addr"], r["fee"], r))
+        listed.add((r["name"] or "").lower())
+    for p in POOL_DIR:
+        if p["alias"] and p["alias"].lower() in listed:
+            continue
+        entries.append((p["name"], None, None, p["fee"], None))
+    bodies = []
+    for key, days in BENCH_WINDOWS:
+        w = c[key]
+        if not w["blocks"] or not w["rate"]:
+            continue
+        per_poi = w["new_tsc"] / days / w["rate"]              # TSC/day per 1 PoI/s at the network average
+        rows_w = [r for r in proof if r[1] > ref - days * DAY]
+        net_m = sum(r[4] for r in rows_w) / len(rows_w) if rows_w else 1.0
+        top = per_poi * net_m                                  # bar scale: solo at 1.0×
+
+        def line(label, sub, y, mult, fee, ratio, bpd, conf, cls=""):
+            d = (y / per_poi - 1) * 100
+            col = "#2F7A55" if d > 0.5 else ("#B42318" if d < -0.5 else "inherit")
+            return (f"<tr class='{cls}'><td>{label}<div class='small'>{sub}</div></td>"
+                    f"<td><b class='bmv' data-y='{y:.8f}'>{fnum(y * REF_GPU_POI, 3)}</b><div class='bmbar'><i style='width:{min(100, y / top * 96):.1f}%'></i><u style='left:{per_poi / top * 96:.1f}%'></u></div></td>"
+                    f"<td class='bmu' data-y='{y:.8f}'>{fusd(y * REF_GPU_POI * price, 2) if price else '—'}</td>"
+                    f"<td style='color:{col};font-weight:600'>{'+' if d >= 0 else '−'}{fnum(abs(d), 1)}%</td><td>{mult}</td><td>{fee}</td><td>{ratio}</td><td>{bpd}</td><td>{conf}</td></tr>")
+
+        meas, na = [], []
+        for label, sub, addr, fee, pr in entries:
+            fee_s = "—" if fee is None else f"{fnum(fee, 0)}%"
+            m = [r[4] for r in rows_w if addr and r[2] == addr]
+            nb = w["miners"].get(addr, {}).get("blocks", 0) if addr else 0
+            sub_s = f"<span class='mono'>{esc(sub)}</span>" if sub else "no block-finding address seen"
+            if len(m) < BENCH_MIN_BLOCKS:
+                why = "no blocks on-chain" if not addr else (f"{fnum(nb)} blocks in this window" if nb else "no blocks in this window")
+                na.append(f"<tr class='muted'><td>{esc(label)}<div class='small'>{sub_s}</div></td><td colspan='3'><span class='bmna'>not measurable yet</span></td>"
+                          f"<td>—</td><td>{fee_s}</td><td>—</td><td>{fnum(nb / days, 1)}</td><td>{why}</td></tr>")
+                continue
+            pm = sum(m) / len(m)
+            y = per_poi * net_m / pm * (1 - (fee or 0) / 100)
+            ratio = f"{fnum(pr['paid30'] / pr['mined30'] * 100, 0)}%" if pr and pr["mined30"] else "—"
+            conf = ("high" if len(m) >= 100 else "medium" if len(m) >= 20 else "low") + f" · {fnum(len(m))} blocks"
+            meas.append((y, line(esc(label), sub_s + ("" if fee is not None else " · fee not published, shown before fee"), y, f"{fnum(pm, 3)}×", fee_s, ratio, fnum(nb / days, 1), conf)))
+        meas.sort(key=lambda x: -x[0])
+        refs = [line("Network average", "reference: every block finder, blended", per_poi, f"{fnum(net_m, 3)}×", "—", "—", fnum(w["blocks"] / days, 1), "—", "bmref"),
+                line("Solo at a perfect 1.0×", "ceiling: no fee, no multiplier tax", top, "1.000×", "0%", "—", "your share", "—", "bmref")]
+        bodies.append((key, f"{''.join(x[1] for x in meas)}{''.join(refs)}{''.join(na)}"))
+    if not bodies:
+        return ""
+    dflt = "7d" if any(k == "7d" for k, _ in bodies) else bodies[0][0]
+    keys = [k for k, _ in bodies]
+    bodies = [f"<tbody data-bw='{k}'{'' if k == dflt else ' hidden'}>{h}</tbody>" for k, h in bodies]
+    gp = "".join(f"<button type='button' data-poi='{poi}'{' class=on' if poi == REF_GPU_POI else ''}>{esc(n)}</button>" for n, poi in BENCH_GPUS)
+    wn = "".join(f"<button type='button' data-w='{k}'{' class=on' if k == dflt else ''}>{k}</button>" for k in keys)
+    return f"""<section class="card" id="bench" data-price="{price or 0}"><h2>Pool benchmark</h2><p class="sub">What the same GPU nets per day on each pool, after the pool's fee and its intelligence multiplier. Measured from blocks on-chain, not from what pools advertise.</p>
+<div class="bmctl"><div class="seg" id="bmgpu">{gp}</div><label class="bmcus">Custom PoI/s <input id="bmpoi" type="number" min="0" step="0.1" inputmode="decimal" aria-label="Custom PoI/s"></label><div class="seg" id="bmwin">{wn}</div></div>
+<div style="overflow:auto"><table class="bm"><thead><tr><th>Where you mine</th><th>Net TSC / day</th><th>USD / day</th><th>vs network avg</th><th>Multiplier</th><th>Fee</th><th>Paid ÷ mined, 30d</th><th>Blocks / day</th><th>Confidence</th></tr></thead>{''.join(bodies)}</table></div>
+<p class="note">Net TSC/day = network-average yield for this GPU × (network mean multiplier ÷ pool's multiplier) × (1 − fee). The thin line on each bar marks the network average. Small pools pay in bursts: with under 5 blocks a day the daily result swings a lot even when the long-run yield is the same. A pool with fewer than {BENCH_MIN_BLOCKS} blocks in the window cannot be benchmarked from the chain, whatever its fee. Multipliers: see <a href="proof.html">Proof efficiency</a>. Not an endorsement.</p></section>"""
+
+
 def build_miner_page(B, mc, ep, c):
     price = mc["price"]
     esc, fnum, fusd, fdt = B.esc, B.fnum, B.fusd, B.fdt
@@ -296,7 +368,7 @@ def build_miner_page(B, mc, ep, c):
 <p class="note">Paid ÷ mined compares TSC paid out to miners with TSC the pool's address earned from blocks over 30 days. Around 100% minus the fee is normal. Big gaps can come from immature rewards or payouts sent from a different wallet. The fee is only half the cost: see <a href="proof.html">Proof efficiency</a> for each producer's intelligence multiplier.</p>
 <h3>Pool directory</h3><div style="overflow:auto"><table><thead><tr><th>Pool</th><th>Fee</th><th>Scheme</th><th>Minimum payout</th><th>Payouts</th></tr></thead><tbody>{dirrows}</tbody></table></div>
 <p class="note">As published on the pools' websites, {POOL_DIR_DATE}. Not an endorsement. Spreading work across pools keeps the network decentralised.</p></section>"""
-    return lookup + kpis + epoch_card(B, ep, price) + pools + board
+    return lookup + kpis + epoch_card(B, ep, price) + bench_card(B, mc, c) + pools + board
 
 
 def build_calc_page(B, c, ep, price):
@@ -414,6 +486,13 @@ EPOCH_JS = r"""
 document.querySelectorAll('main table').forEach(t=>{if(getComputedStyle(t.parentNode).overflowX==='visible'){const w=document.createElement('div');w.style.overflowX='auto';t.before(w);w.appendChild(t)}});
 document.querySelectorAll('[data-left]').forEach(e=>{const t=+e.dataset.left;const tick=()=>{const s=t-Date.now()/1000;if(s<=0){e.textContent='any moment now';return}
  const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);e.textContent='in '+(d?d+' d ':'')+h+' h '+m+' min';};tick();setInterval(tick,30000)});
+(function(){const S=document.getElementById('bench');if(!S)return;const P=+S.dataset.price,G=document.getElementById('bmgpu'),W=document.getElementById('bmwin'),I=document.getElementById('bmpoi');
+ const f=(v,n)=>v.toLocaleString('en-US',{minimumFractionDigits:n,maximumFractionDigits:n});
+ const set=p=>{S.querySelectorAll('.bmv').forEach(e=>e.textContent=f(e.dataset.y*p,3));if(P)S.querySelectorAll('.bmu').forEach(e=>e.textContent='$'+f(e.dataset.y*p*P,2))};
+ G.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;G.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));I.value='';set(+b.dataset.poi)});
+ I.addEventListener('input',()=>{const v=parseFloat(I.value);if(!(v>0))return;G.querySelectorAll('button').forEach(x=>x.classList.remove('on'));set(v)});
+ W.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;W.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));S.querySelectorAll('tbody[data-bw]').forEach(t=>t.hidden=t.dataset.bw!==b.dataset.w)});
+})();
 """
 
 CSS = """
@@ -436,4 +515,8 @@ CSS = """
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.seg{display:inline-flex;gap:6px;margin:4px 0 14px}
 .seg button{border:1px solid var(--line);background:#fff;padding:6px 13px;border-radius:999px;font:11px var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--mute);cursor:pointer}.seg button.on{background:var(--acc-tint);border-color:rgba(115,29,48,.35);color:var(--acc)}
 .res .v{font-size:22px}
+.bmctl{display:flex;gap:6px 18px;flex-wrap:wrap;align-items:center;margin:4px 0 10px}.bmctl .seg{flex-wrap:wrap;margin:0}
+.bmcus{font:10.5px var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--soft);display:inline-flex;align-items:center;gap:8px}.bmcus input{width:86px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;font:13px var(--sans);color:var(--ink);background:#fff}
+.bmbar{position:relative;height:6px;background:var(--bg);border-radius:3px;margin-top:5px;min-width:120px}.bmbar i{display:block;height:100%;background:var(--acc);border-radius:3px}.bmbar u{position:absolute;top:-3px;width:2px;height:12px;background:var(--ink)}
+tr.bmref td{background:var(--paper);color:var(--mute)}tr.bmref .bmbar i{background:var(--soft)}.bmna{font-size:12px;border:1px dashed var(--soft);border-radius:999px;padding:3px 10px;white-space:nowrap}
 """
