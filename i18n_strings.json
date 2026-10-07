@@ -2882,5 +2882,105 @@
 "TSC free float": {
 "ru": "Free float TSC",
 "zh": "TSC 自由流通量"
+},
+"your share": {
+"ru": "ваша доля",
+"zh": "取决于你的份额"
+},
+"Pool benchmark": {
+"ru": "Бенчмарк пулов",
+"zh": "矿池基准测试"
+},
+"not measurable yet": {
+"ru": "пока нельзя измерить",
+"zh": "暂时无法测量"
+},
+"Multiplier": {
+"ru": "Множитель",
+"zh": "乘数"
+},
+"Confidence": {
+"ru": "Достоверность",
+"zh": "可信度"
+},
+"vs network avg": {
+"ru": "к среднему по сети",
+"zh": "对比全网平均"
+},
+"Blocks / day": {
+"ru": "Блоков / день",
+"zh": "区块 / 天"
+},
+"What the same GPU nets per day on each pool, after the pool's fee and its intelligence multiplier. Measured from blocks on-chain, not from what pools advertise.": {
+"ru": "Сколько одна и та же видеокарта приносит в день на каждом пуле после комиссии пула и его множителя интеллекта. Измерено по блокам в сети, а не по рекламе пулов.",
+"zh": "同一张显卡在各矿池每天的净收益，已扣除矿池手续费和智能乘数的影响。数据来自链上区块，而非矿池的宣传。"
+},
+"reference: every block finder, blended": {
+"ru": "ориентир: все находящие блоки, в среднем",
+"zh": "参考：所有出块者的综合平均"
+},
+"Net TSC/day = network-average yield for this GPU × (network mean multiplier ÷ pool's multiplier) × ({0} − fee). The thin line on each bar marks the network average. Small pools pay in bursts: with under {1} blocks a day the daily result swings a lot even when the long-run yield is the same. A pool with fewer than {2} blocks in the window cannot be benchmarked from the chain, whatever its fee. Multipliers: see": {
+"ru": "Чистый TSC/день = средняя по сети доходность этой видеокарты × (средний множитель сети ÷ множитель пула) × ({0} − комиссия). Тонкая черта на каждой полосе отмечает среднее по сети. Малые пулы платят рывками: при менее чем {1} блоках в день дневной результат сильно колеблется, даже если долгосрочная доходность та же. Пул, нашедший меньше {2} блоков за период, нельзя оценить по данным сети, какой бы ни была его комиссия. Множители: см.",
+"zh": "净 TSC/天 = 该显卡的全网平均收益 ×（全网平均乘数 ÷ 矿池乘数）×（{0} − 手续费）。每条柱上的细线表示全网平均值。小矿池的收益很不均匀：每天不足 {1} 个区块时，即使长期收益相同，单日结果也会大幅波动。统计期内出块少于 {2} 个的矿池，无论手续费多低，都无法根据链上数据进行评测。乘数详见"
+},
+"high · {0} blocks": {
+"ru": "высокая · {0} блоков",
+"zh": "高 · {0} 个区块"
+},
+"medium · {0} blocks": {
+"ru": "средняя · {0} блоков",
+"zh": "中 · {0} 个区块"
+},
+"low · {0} blocks": {
+"ru": "низкая · {0} блоков",
+"zh": "低 · {0} 个区块"
+},
+"Solo at a perfect {0}×": {
+"ru": "Соло при идеальном {0}×",
+"zh": "单独挖矿，理想 {0}×"
+},
+"ceiling: no fee, no multiplier tax": {
+"ru": "потолок: без комиссии и без налога множителя",
+"zh": "上限：无手续费，无乘数损耗"
+},
+"Net TSC / day": {
+"ru": "Чистый TSC / день",
+"zh": "净 TSC / 天"
+},
+"no blocks on-chain": {
+"ru": "нет блоков в сети",
+"zh": "链上没有区块"
+},
+"no block-finding address seen": {
+"ru": "адрес, находящий блоки, не обнаружен",
+"zh": "未发现出块地址"
+},
+". Not an endorsement.": {
+"ru": ". Не является рекомендацией.",
+"zh": "。不构成推荐。"
+},
+"Network average": {
+"ru": "Среднее по сети",
+"zh": "全网平均"
+},
+"Where you mine": {
+"ru": "Где вы майните",
+"zh": "在哪里挖矿"
+},
+"Custom PoI/s": {
+"ru": "Свой PoI/s",
+"zh": "自定义 PoI/s"
+},
+"no blocks in this window": {
+"ru": "нет блоков за этот период",
+"zh": "该统计期内没有区块"
+},
+"{0} blocks in this window": {
+"ru": "{0} блоков за этот период",
+"zh": "该统计期内 {0} 个区块"
+},
+"· fee not published, shown before fee": {
+"ru": "· комиссия не опубликована, показано до комиссии",
+"zh": "· 未公布手续费，显示为扣费前"
 }
 }
