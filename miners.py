@@ -303,7 +303,7 @@ def bench_card(B, mc, c):
                 continue
             pm = sum(m) / len(m)
             y = per_poi * net_m / pm * (1 - (fee or 0) / 100)
-            ratio = f"{fnum(pr['paid30'] / pr['mined30'] * 100, 0)}%" if pr and pr["mined30"] else "—"
+            ratio = f"{fnum(pr['paid30'] / pr['mined30'] * 100, 0)}%" if pr and pr["mined30"] and pr["paid30"] else "—"
             conf = ("high" if len(m) >= 100 else "medium" if len(m) >= 20 else "low") + f" · {fnum(len(m))} blocks"
             meas.append((y, line(esc(label), sub_s + ("" if fee is not None else " · fee not published, shown before fee"), y, f"{fnum(pm, 3)}×", fee_s, ratio, fnum(nb / days, 1), conf)))
         meas.sort(key=lambda x: -x[0])
@@ -359,7 +359,7 @@ def build_miner_page(B, mc, ep, c):
     prow = []
     for p in mc["pool_rows"]:
         fee = "—" if p["fee"] is None else f"{fnum(p['fee'], 0)}%"
-        ratio = f"{fnum(p['paid30'] / p['mined30'] * 100, 0)}%" if p["mined30"] else "—"
+        ratio = f"{fnum(p['paid30'] / p['mined30'] * 100, 0)}%" if p["mined30"] and p["paid30"] else "—"
         gap = B.fdur(p["gap"]) if p["gap"] else "—"
         prow.append(f"<tr><td>{esc(p['name'])}<div class='mono small'>{esc(p['addr'][:14])}…</div></td><td>{fnum(p['s24'], 1)}%</td><td><b>{fnum(p['s7'], 1)}%</b></td><td>{fnum(p['s30'], 1)}%</td>"
                     f"<td>{fnum(p['active7'])}</td><td>{fnum(p['batches7'])}</td><td>{gap}</td><td>{ago(p['last'])}</td><td>{ratio}</td><td>{fee}</td></tr>")
