@@ -16,25 +16,28 @@ REF_GPU_POI = 18.6            # RTX 5090, see costs.GPUS
 MIN_BATCH = 5                 # a send with ≥ this many recipients counts as a pool payout batch
 EPOCH_CUT = 0.6               # reward multiplier at each new epoch (−40%)
 
-# Published by the pools themselves (checked 29 Sep 2026). "alias" = explorer label of the pool's coinbase address.
+# Published by the pools themselves and on tensorcash.org/pools (checked 8 Oct 2026).
+# "alias" = explorer label of the pool's coinbase address; "addr" = payout address listed by tensorcash.org/pools
+# (used when the explorer has no label for it).
 POOL_DIR = [
-    {"name": "Tiger Pool", "alias": "Tigerpool", "url": "https://tsc-miner.tiger-pool.com/", "fee": 3.0,
-     "scheme": "PPLNS", "min": "1 TSC", "payout": "daily, 07:00–09:00 UTC"},
-    {"name": "AriaPool", "alias": None, "url": "https://pool.ariabrain.com/tsc.html", "fee": 1.0,
-     "scheme": "PPLNS (60 min window)", "min": "1 TSC", "payout": "per matured block (~17 h)"},
+    {"name": "Tiger Pool", "alias": "Tigerpool", "addr": "tc1qh3rce3jqcf7an5uljx9gnxreckdl7juf56l2rh",
+     "url": "https://tsc-miner.tiger-pool.com/", "fee": 3.0, "scheme": "PPLNS", "min": "1 TSC", "payout": "daily, 07:00–09:00 UTC"},
+    {"name": "Bob Labs", "alias": "Bob Labs", "addr": "tc1qul4c24dyrdzgjre9jkruywv9cadsel0xdn8r39",
+     "url": "https://pool.tensorcash.boblabs.eu/", "fee": 3.0, "scheme": "PPLNS", "min": "0.1 TSC", "payout": "per matured block (~17 h)"},
+    {"name": "AriaPool", "alias": "AriaPool", "addr": "tc1q80y237ksyqtdaln5zjr599l0fartmvzsykvtwv",
+     "url": "https://pool.ariabrain.com/tsc.html", "fee": 1.0, "scheme": "PPLNS (60 min window)", "min": "1 TSC", "payout": "per matured block (~17 h)"},
     {"name": "LuckyPool", "alias": "Luckypool", "url": "https://tensorcash.luckypool.io/", "fee": 3.0,
-     "scheme": "PPLNS + solo", "min": "—", "payout": "—"},
+     "scheme": "PPLNS + solo", "min": "0.1 TSC", "payout": "—"},
     {"name": "suprnova", "alias": None, "url": "https://tsc.suprnova.cc/", "fee": 0.0,
      "scheme": "PPLNS", "min": "—", "payout": "—"},
-    {"name": "TensorCash.Pool", "alias": None, "url": "https://pool.tensorcash.boblabs.eu/", "fee": None,
-     "scheme": "PPLNS (last 100k shares)", "min": "—", "payout": "—"},
 ]
-POOL_DIR_DATE = "29 Sep 2026"
+POOL_DIR_DATE = "8 Oct 2026"
+DIR_ADDR = {p["addr"]: p for p in POOL_DIR if p.get("addr")}
 
 
 def _fee_for(alias):
     for p in POOL_DIR:
-        if alias and p["alias"] and p["alias"].lower() == alias.lower():
+        if alias and alias.lower() in {(p["alias"] or "").lower(), p["name"].lower()}:
             return p["fee"]
     return None
 
@@ -57,7 +60,9 @@ def compute(con, d, c, reward_at, price):
     net_new_day = w7["new_tsc"] / 7 if w7["blocks"] else w24["new_tsc"]
     net_rate = w7["rate"] or w24["rate"]
     pays, sends = load_payouts(con)
-    aliases = d["aliases"]
+    aliases = dict(d["aliases"])
+    for a, p in DIR_ADDR.items():                          # pools whose address has no explorer label
+        aliases[a] = aliases.get(a) or p["alias"] or p["name"]
 
     # --- which crawled addresses behave like pools (batch payouts)
     batches = defaultdict(list)          # pool -> [(txid, ts, n_recipients, sent)]
@@ -73,7 +78,7 @@ def compute(con, d, c, reward_at, price):
         if len(big) >= 2 or (name and "pool" in name.lower() and big):
             pools.append(pool)
     for a, name in aliases.items():                        # labelled pools with no payouts yet
-        if name and "pool" in name.lower() and a not in pools:
+        if name and ("pool" in name.lower() or a in DIR_ADDR) and a not in pools:
             pools.append(a)
     pool_set = set(pools)
     big_tx = {(p, b[0]) for p in pools for b in batches.get(p, []) if b[2] >= MIN_BATCH}
@@ -264,7 +269,7 @@ def bench_card(B, mc, c):
         entries.append((r["name"], r["addr"][:14] + "…", r["addr"], r["fee"], r))
         listed.add((r["name"] or "").lower())
     for p in POOL_DIR:
-        if p["alias"] and p["alias"].lower() in listed:
+        if (p.get("addr") and any(r["addr"] == p["addr"] for r in mc["pool_rows"])) or (p["alias"] and p["alias"].lower() in listed):
             continue
         entries.append((p["name"], None, None, p["fee"], None))
     bodies = []
