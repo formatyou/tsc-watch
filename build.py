@@ -891,7 +891,8 @@ def build_market(d, c):
     act_card = ""
     if act:
         tx = svg_bars([(r[0], r[2]) for r in act], width=560, yfmt=lambda v: fshort(v, 0), color=PALETTE[4])
-        na = svg_bars([(r[0], r[4]) for r in act], width=560, yfmt=lambda v: fshort(v, 0), color=PALETTE[5])
+        # the explorer stopped reporting new addresses per day (Oct 2026): only days collected before remain
+        na = svg_bars([(r[0], r[4]) for r in act if r[4] is not None], width=560, yfmt=lambda v: fshort(v, 0), color=PALETTE[5])
         act_card = f"""<section class="card"><h2>Network activity (30 days)</h2><p class="sub">From the explorer: transactions and new addresses per UTC day. With exchange volume this thin, a high count of new addresses is mostly pool payouts, not new buyers.</p>
 <div class="two"><div><b>Transactions / day</b>{tx}</div><div><b>New addresses / day</b>{na}</div></div></section>"""
 
@@ -1068,9 +1069,9 @@ def build_about(d, c):
     mn = d["meta"]
     return f"""<section class="card"><h2>About the data</h2><p class="sub">Definitions, sources and limitations — so that every number can be reproduced.</p>
 <h3>Sources</h3><dl>
-<dt>Blocks</dt><dd><code>tscscan.xyz/api/blocks</code> — height, time, miner address, base and effective difficulty, PoI multiplier. In the database: {fnum(c['all']['blocks'])} blocks (0–{fnum(c['tip_h'])}), full history since genesis ({fdt(c['genesis_ts'],'%d %b %Y')}).</dd>
+<dt>Blocks</dt><dd><code>api.tscscan.xyz/v1/blocks</code> — height, time, miner address, base and effective difficulty, PoI multiplier. In the database: {fnum(c['all']['blocks'])} blocks (0–{fnum(c['tip_h'])}), full history since genesis ({fdt(c['genesis_ts'],'%d %b %Y')}).</dd>
 <dt>Price and volume</dt><dd>SafeTrade public k-line API (1h and 1d candles, TSC/USDT pair, 1 USDT ≈ $1). A thin, unsanctioned exchange — the only one with this pair. Current price and 24h volume also from <code>tscscan.xyz/api/market-summary</code>.</dd>
-<dt>Supply, holders, concentration, daily activity</dt><dd><code>tscscan.xyz/api/analytics</code> and <code>/api/home</code>; top addresses from <code>/api/holders</code>; pool aliases from <code>/api/address-aliases</code>.</dd>
+<dt>Supply, holders, concentration, daily activity</dt><dd><code>api.tscscan.xyz/v1/stats/*</code> and <code>/v1/mempool/summary</code>; top addresses from <code>/v1/addresses</code>; pool aliases from <code>/v1/addresses/aliases</code>.</dd>
 </dl>
 <h3>Definitions</h3><dl>
 <dt>Work rate</dt><dd>Sum of effective block difficulty in the window ÷ window length in seconds (proof/s). Same method as the explorer (checked: over 24h the only difference comes from the window end).</dd>
@@ -1080,7 +1081,7 @@ def build_about(d, c):
 <dt>Issuance vs. volume</dt><dd>New TSC over 24h × current price ÷ 24h volume in USD. Shows how much of the turnover miner reward sales alone could account for.</dd>
 <dt>Reward per 1 K proof/s</dt><dd>New TSC in the day × (1000 ÷ the day's work rate). Before pool fees (~1%), electricity and variance.</dd>
 {costs.about_dl()}
-<dt>Intelligence multiplier</dt><dd>Proof-v4 price of each block (proof.multiplier, 1–12×): the header target is divided by it, so a 1.2× block needs 20% more work. Mean per block finder since block 26,950; "blocks lost" = blocks × (mean − 1).</dd>
+<dt>Intelligence multiplier</dt><dd>Proof-v4 price of each block (proof.price_multiplier, 1–12×): the header target is divided by it, so a 1.2× block needs 20% more work. Mean per block finder since block 26,950; "blocks lost" = blocks × (mean − 1).</dd>
 <dt>Pools needed for a majority</dt><dd>The smallest number of addresses whose combined 7-day share of blocks exceeds 50%.</dd>
 <dt>Days and times</dt><dd>Daily aggregates use UTC days; all timestamps are shown in UTC.</dd>
 </dl>

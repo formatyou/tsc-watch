@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
 tsc-watch — collector.
-Fetches TensorCash (TSC) data from the tscscan.xyz explorer and the SafeTrade
-exchange and stores it in a local SQLite database (data/tsc.db). Standard library only.
+Fetches TensorCash (TSC) data from the tscscan.xyz explorer (data API at api.tscscan.xyz)
+and the SafeTrade exchange and stores it in a local SQLite database (data/tsc.db).
+Standard library only.
 
 Usage:
   python3 collect.py                 # incremental (new blocks, prices, snapshot)
@@ -22,7 +23,8 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(ROOT, "data")
 DB_PATH = os.path.join(DATA_DIR, "tsc.db")
 
-EXPLORER = "https://tscscan.xyz"
+EXPLORER = "https://tscscan.xyz"         # explorer site: market summary
+API = "https://api.tscscan.xyz/v1"       # explorer data API (mainnet)
 SAFETRADE = "https://safetrade.com/api/v2/trade/public"
 MARKET = "tscusdt"
 LISTING_TS = 1786900000  # ~17 Aug 2026, first daily candle on SafeTrade
@@ -44,51 +46,122 @@ def http_json(url, retries=3, timeout=40):
             req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/json"})
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 return json.loads(r.read().decode("utf-8"))
-        except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError) as e:
+        except urllib.error.HTTPError as e:
+            last = e
+            if 400 <= e.code < 500 and e.code != 429:   # a missing route or record will not appear on retry
+                break
+            time.sleep(1.5 * (attempt + 1))
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
             last = e
             time.sleep(1.5 * (attempt + 1))
     raise RuntimeError(f"GET {url} failed: {last}")
 
 
 def _fixture(url):
+    """Fixture files hold raw responses in the live API format."""
     p = urllib.parse.urlparse(url)
     q = urllib.parse.parse_qs(p.query)
     path = p.path
-    if path.startswith("/api/blocks"):
-        page = int(q.get("page", ["1"])[0])
-        f = os.path.join(FIXTURES, f"blocks_p{page}.json")
-        if not os.path.exists(f):
-            return {"items": [], "pagination": {"has_next": False, "page": page, "total_pages": page}}
-        return json.load(open(f))
-    if path.startswith("/api/home"):
-        return json.load(open(os.path.join(FIXTURES, "home.json")))
+    page = int(q.get("page", ["1"])[0])
+    empty = {"data": [], "page": {"limit": 100, "number": page, "total": 0, "total_pages": 0}}
+
+    def load(name, default=None):
+        f = os.path.join(FIXTURES, name)
+        if os.path.exists(f):
+            return json.load(open(f))
+        if default is None:
+            raise RuntimeError("no fixture for " + url)
+        return default
+
+    if path == "/v1/blocks":
+        return load(f"blocks_p{page}.json", empty)
+    if path.startswith("/v1/blocks/") and path.endswith("/proof"):
+        return load(f"proof_{path.split('/')[3][:12]}.json", {"data": {}})
+    if path.startswith("/v1/stats/") or path.startswith("/v1/mempool/"):
+        return load(path[4:].replace("/", "_") + ".json")   # stats_chain.json, mempool_summary.json, ...
+    if path == "/v1/addresses/aliases":
+        return load("aliases.json")
+    if path == "/v1/addresses":
+        return load("holders.json")
+    if path.startswith("/v1/addresses/"):
+        return load(f"addr_{path.split('/')[3][:12]}_p{page}.json", empty)
+    if path.startswith("/v1/transactions/"):
+        return load(f"outputs_{path.split('/')[3][:12]}_p{page}.json", empty)
     if path.startswith("/api/market-summary"):
-        return json.load(open(os.path.join(FIXTURES, "market_summary.json")))
-    if path.startswith("/api/analytics/mining-history"):
-        return json.load(open(os.path.join(FIXTURES, "mining_history.json")))
-    if path.startswith("/api/analytics"):
-        return json.load(open(os.path.join(FIXTURES, "analytics30d.json")))
-    if path.startswith("/api/address-aliases"):
-        return json.load(open(os.path.join(FIXTURES, "aliases.json")))
-    if path.startswith("/api/holders"):
-        return json.load(open(os.path.join(FIXTURES, "holders.json")))
+        return load("market_summary.json")
     if "k-line" in path:
         period = q.get("period", ["60"])[0]
         f = os.path.join(FIXTURES, f"kline_{period}.json")
         return json.load(open(f)) if os.path.exists(f) else []
-    if path.startswith("/api/address/"):
-        addr = path.rsplit("/", 1)[1]
-        page = int(q.get("page", ["1"])[0])
-        f = os.path.join(FIXTURES, f"addr_{addr[:12]}_p{page}.json")
-        if not os.path.exists(f):
-            return {"address": {"address": addr}, "transactions": [], "pagination": {"has_next": False, "page": page}}
-        return json.load(open(f))
     if "git.tensorcash.org" in url:
         f = os.path.join(FIXTURES, "releases.json")
         return json.load(open(f)) if os.path.exists(f) else []
-    if path.startswith("/api/block/"):
-        return {"items": [], "block": None}
     raise RuntimeError("no fixture for " + url)
+
+
+# ---------------------------------------------------------------- explorer API (api.tscscan.xyz/v1)
+# Responses are {"data": ..., "page": {"number", "total_pages", ...}} with amounts as
+# {"precision": 8, "units": "<int string>"}. These helpers map them to the field names used below.
+
+def api(path):
+    return http_json(API + path)
+
+
+def sats(amount):
+    """{"precision": 8, "units": "123"} → 123; None when missing or unknown."""
+    if not isinstance(amount, dict) or amount.get("units") is None:
+        return None
+    return int(amount["units"])
+
+
+def has_next(page):
+    return (page.get("number") or 0) < (page.get("total_pages") or 0)
+
+
+def api_blocks(page, limit=100):
+    """One page of the block list (newest first) → (items, page info)."""
+    d = api(f"/blocks?limit={limit}&page={page}")
+    items = []
+    for b in d.get("data") or []:
+        pr = b.get("proof") or {}
+        price = pr.get("price_multiplier")           # proof-v4 price; None on older blocks
+        mult = float(price or 1)
+        eff = float(b.get("difficulty") or 0)       # effective difficulty, i.e. base × price
+        items.append({
+            "height": b["height"], "timestamp": b["time"], "miner_address": b.get("miner_address"),
+            "effective_difficulty": eff, "base_difficulty": eff / mult, "effective_multiplier": mult,
+            "tx_count": b.get("tx_count"), "size": b.get("size_bytes"), "hash": b.get("hash"),
+            "proof": {"version": pr.get("version"), "multiplier": float(price) if price else None} if pr else None,
+        })
+    return items, d.get("page") or {}
+
+
+def api_address_txs(address, page, limit=100):
+    """One page of an address history (newest first) → (transactions, page info).
+    to_addresses lists only the first few outputs; to_address_count has the real number."""
+    d = api(f"/addresses/{address}/transactions?limit={limit}&page={page}")
+    txs = [{
+        "txid": t["txid"], "block_height": t.get("block_height"), "timestamp": t.get("time"),
+        "sent_sats": sats(t.get("sent")), "is_coinbase": t.get("is_coinbase"),
+        "to_addresses": [{"address": o.get("address"), "value_sats": sats(o.get("value"))} for o in t.get("to_addresses") or []],
+        "to_address_count": t.get("to_address_count"),
+    } for t in d.get("data") or []]
+    return txs, d.get("page") or {}
+
+
+def api_tx_outputs(txid):
+    """All outputs of a transaction, summed per address."""
+    out, page = {}, 1
+    while True:
+        d = api(f"/transactions/{txid}/outputs?limit=100&page={page}")
+        items = d.get("data") or []
+        for o in items:
+            if o.get("address"):
+                out[o["address"]] = out.get(o["address"], 0) + (sats(o.get("value")) or 0)
+        if not items or not has_next(d.get("page") or {}):
+            return [{"address": a, "value_sats": v} for a, v in out.items()]
+        page += 1
+        time.sleep(0.05)
 
 
 # ---------------------------------------------------------------- DB
@@ -235,21 +308,56 @@ def upsert_blocks(con, items):
     for b in items:
         pr = b.get("proof") or {}
         comp = pr.get("components") or {}
+        cnd = b.get("core_normalized_difficulty")
         rows.append((
             b["height"], b["timestamp"], b.get("miner_address"),
             float(b.get("effective_difficulty") or b.get("difficulty") or 0),
             float(b.get("base_difficulty") or b.get("difficulty") or 0),
             float(b.get("effective_multiplier") or 1.0),
-            float(b.get("core_normalized_difficulty") or 0),
+            float(cnd) if cnd is not None else None,
             b.get("tx_count"), b.get("size"), b.get("hash"),
             pr.get("version"), pr.get("multiplier"), comp.get("late"), comp.get("profile"), comp.get("state"), comp.get("pin"),
             pr.get("near_pin_count"),
         ))
-    con.executemany("""INSERT OR REPLACE INTO blocks
+    # The block list has no proof components or core-normalised difficulty: keep the stored ones
+    # unless the block at that height changed (reorg).
+    keep = ",".join(f"{c}=CASE WHEN excluded.hash IS blocks.hash THEN COALESCE(excluded.{c}, blocks.{c}) ELSE excluded.{c} END"
+                    for c in ("core_norm_difficulty", "proof_version", "proof_mult", "p_late", "p_profile", "p_state", "p_pin", "near_pin"))
+    con.executemany(f"""INSERT INTO blocks
         (height,timestamp,miner,difficulty,base_difficulty,multiplier,core_norm_difficulty,tx_count,size,hash,
          proof_version,proof_mult,p_late,p_profile,p_state,p_pin,near_pin)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", rows)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        ON CONFLICT(height) DO UPDATE SET {keep},
+          timestamp=excluded.timestamp, miner=excluded.miner, difficulty=excluded.difficulty,
+          base_difficulty=excluded.base_difficulty, multiplier=excluded.multiplier,
+          tx_count=excluded.tx_count, size=excluded.size, hash=excluded.hash""", rows)
     return len(rows)
+
+
+def fill_proof_components(con, limit=500):
+    """The block list carries only the proof-v4 price; its components come from /blocks/{hash}/proof.
+    Newest blocks first, at most `limit` per run (a full backfill catches up over a few runs)."""
+    rows = con.execute("SELECT height, hash FROM blocks WHERE height>=? AND p_late IS NULL AND hash IS NOT NULL "
+                       "ORDER BY height DESC LIMIT ?", (V4_PRICING, limit)).fetchall()
+    f = lambda x: float(x) if x is not None else None
+    n = 0
+    for h, bh in rows:
+        try:
+            d = api(f"/blocks/{bh}/proof").get("data") or {}
+        except Exception as e:
+            log(f"  proof {h}: {e}")
+            continue
+        comp = d.get("price_components") or {}
+        if not comp:
+            continue
+        con.execute("UPDATE blocks SET proof_version=COALESCE(?, proof_version), proof_mult=?, p_late=?, p_profile=?, "
+                    "p_state=?, p_pin=?, near_pin=? WHERE height=? AND hash=?",
+                    ((d.get("protocol_version") or {}).get("value"), f(d.get("price_multiplier")), f(comp.get("late")),
+                     f(comp.get("profile")), f(comp.get("state")), f(comp.get("pin")), d.get("near_pin_count"), h, bh))
+        n += 1
+        time.sleep(0.05)
+    con.commit()
+    return n
 
 
 def backfill_proofs(con, page_size=100):
@@ -259,7 +367,7 @@ def backfill_proofs(con, page_size=100):
         return 0
     page, n = 1, 0
     while True:
-        items = (http_json(f"{EXPLORER}/api/blocks?page={page}&page_size={page_size}").get("items") or [])
+        items, _ = api_blocks(page, page_size)
         if not items:
             break
         n += upsert_blocks(con, items)
@@ -303,19 +411,17 @@ def sync_blocks(con, backfill=False, page_size=100, max_pages=None):
     page = 1
     fetched = 0
     while True:
-        data = http_json(f"{EXPLORER}/api/blocks?page={page}&page_size={page_size}")
-        items = data.get("items") or []
+        items, pag = api_blocks(page, page_size)
         if not items:
             break
         fetched += upsert_blocks(con, items)
         con.commit()
         min_h = min(b["height"] for b in items)
-        pag = data.get("pagination") or {}
-        if page % 10 == 0 or not pag.get("has_next"):
+        if page % 10 == 0 or not has_next(pag):
             log(f"  blocks: page {page}/{pag.get('total_pages', '?')}, down to height {min_h}")
         if not backfill and min_h <= max_known:
             break
-        if not pag.get("has_next"):
+        if not has_next(pag):
             break
         if max_pages and page >= max_pages:
             break
@@ -325,25 +431,29 @@ def sync_blocks(con, backfill=False, page_size=100, max_pages=None):
     return fetched
 
 
-def fill_gaps(con, limit=200):
-    """Blocks can shift between pages — fetch missing heights one by one."""
+def fill_gaps(con, limit=200, page_size=100):
+    """Blocks can shift between pages — re-fetch the list pages that hold missing heights
+    (the API looks blocks up by hash only; the list is newest first, so page = (tip − height) // size + 1)."""
     mn, mx, cnt = known_range(con)
     if mn is None or cnt == mx - mn + 1:
         return 0
     have = set(r[0] for r in con.execute("SELECT height FROM blocks"))
     missing = [h for h in range(mn, mx + 1) if h not in have]
     log(f"  block gaps: {len(missing)} (fetching up to {limit})")
+    want = set(missing[:limit])
     got = 0
-    for h in missing[:limit]:
-        try:
-            d = http_json(f"{EXPLORER}/api/block/{h}?page=1&page_size=1")
-            blk = d.get("block") or d
-            if blk and blk.get("height") == h:
-                upsert_blocks(con, [blk])
-                got += 1
-        except Exception as e:
-            log(f"  block {h}: {e}")
-        time.sleep(0.1)
+    try:
+        first, _ = api_blocks(1, page_size)
+        tip = first[0]["height"] if first else mx
+        for p in sorted({(tip - h) // page_size + 1 for h in want}):
+            items, _ = api_blocks(p, page_size)
+            hit = [b for b in items if b["height"] in want]
+            upsert_blocks(con, hit)
+            want -= {b["height"] for b in hit}
+            got += len(hit)
+            time.sleep(0.1)
+    except Exception as e:
+        log(f"  block gaps: {e}")
     con.commit()
     return got
 
@@ -389,13 +499,18 @@ def sync_all_prices(con, backfill=False):
 
 # ---------------------------------------------------------------- snapshot + analytics
 
+def top_addresses(limit=100):
+    """Largest balances (rank order) from the address list."""
+    return api(f"/addresses?limit={limit}&page=1").get("data") or []
+
+
 def take_snapshot(con):
-    home = http_json(f"{EXPLORER}/api/home?range=2h")
+    chain = api("/stats/chain").get("data") or {}
+    mining = api("/stats/mining").get("data") or {}
+    reward = api("/stats/reward").get("data") or {}
+    mempool = api("/mempool/summary").get("data") or {}
+    act = api("/stats/activity?range=30d").get("data") or {}
     ms = http_json(f"{EXPLORER}/api/market-summary")
-    an = http_json(f"{EXPLORER}/api/analytics?range=30d")
-    m = home.get("metrics", {})
-    sup = an.get("supply", {})
-    conc = sup.get("concentration", {})
     now = int(time.time())
 
     def f(x):
@@ -404,30 +519,54 @@ def take_snapshot(con):
         except (TypeError, ValueError):
             return None
 
-    circ = (ms.get("circulating_supply_sats") or m.get("supply_sats") or 0) / SATS
-    total = (ms.get("total_supply_sats") or sup.get("maximum_sats") or 0) / SATS
+    tip = chain.get("latest_block") or {}
+    supply_sats = sats(chain.get("indexed_supply"))
+    m = {   # the explorer's former /api/home metrics, rebuilt from the stats endpoints
+        "height": tip.get("height"), "tip_timestamp": tip.get("time"),
+        "holders": chain.get("funded_addresses"),
+        "mempool_transactions": mempool.get("transactions") if mempool.get("state") == "available" else None,
+        "network_work_rate_24h": f((mining.get("recent_24h") or {}).get("rate")),
+        "network_work_rate_50": f((mining.get("current_50") or {}).get("rate")),
+        "difficulty": f(mining.get("tip_effective_work")),
+        "current_block_reward_sats": int(reward["current_reward_units"]) if reward.get("current_reward_units") else None,
+        "next_reward_height": reward.get("next_reduction_height"),
+        "supply_sats": supply_sats,
+    }
+    # concentration: share of the indexed supply held by the top 10 / top 100 addresses
+    top = [sats(h.get("balance")) or 0 for h in top_addresses(100)]
+    conc = {"top_10_percent": round(sum(top[:10]) / supply_sats * 100, 2) if supply_sats and top else None,
+            "top_100_percent": round(sum(top) / supply_sats * 100, 2) if supply_sats and top else None}
+    sup = {"concentration": conc, "reward": reward}   # no "epochs": build.py then uses its own reward schedule
+
+    circ = (ms.get("circulating_supply_sats") or supply_sats or 0) / SATS
+    total = (ms.get("total_supply_sats") or 0) / SATS
     con.execute("""INSERT OR REPLACE INTO snapshots VALUES
         (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", (
         now, m.get("height"), m.get("tip_timestamp"),
         f(ms.get("price_usdt")), f(ms.get("price_change_percent_24h")),
         f(ms.get("volume_24h_tsc")), f(ms.get("volume_24h_usdt")),
         circ, total, f(ms.get("circulating_market_cap_usdt")), f(ms.get("total_market_cap_usdt")),
-        m.get("holders") or sup.get("funded_addresses"), m.get("mempool_transactions"),
+        m.get("holders"), m.get("mempool_transactions"),
         m.get("network_work_rate_24h"), m.get("network_work_rate_50"),
         m.get("difficulty"), (m.get("current_block_reward_sats") or 0) / SATS,
         m.get("next_reward_height"),
         conc.get("top_10_percent"), conc.get("top_100_percent"),
         json.dumps({"metrics": m, "market": {k: v for k, v in ms.items() if k != "status"},
-                    "supply": sup, "insights": an.get("insights")}),
+                    "supply": sup, "mining": mining}),
     ))
-    # daily activity (transactions, new addresses...) — overwrite the last 30 days
-    for d in an.get("activity") or []:
-        con.execute("""INSERT OR REPLACE INTO daily_activity VALUES (?,?,?,?,?,?,?,?)""", (
-            d["timestamp"], d.get("blocks"), d.get("transactions"), d.get("transfers"),
-            d.get("new_addresses"), d.get("fees_sats"), d.get("gross_output_sats"), now))
+    # daily activity (transactions, transfers, fees...) — overwrite the last 30 days; the API no
+    # longer reports new addresses per day, so values collected earlier are kept
+    for d in act.get("series") or []:
+        con.execute("""INSERT INTO daily_activity VALUES (?,?,?,?,?,?,?,?)
+            ON CONFLICT(day) DO UPDATE SET blocks=excluded.blocks, transactions=excluded.transactions,
+              transfers=excluded.transfers, new_addresses=COALESCE(excluded.new_addresses, daily_activity.new_addresses),
+              fees_sats=excluded.fees_sats, gross_output_sats=excluded.gross_output_sats, updated_ts=excluded.updated_ts""", (
+            d["time"], d.get("blocks"), d.get("transactions"), d.get("transfers"), None,
+            int(d["fee_units"]) if d.get("fee_units") is not None else None,
+            int(d["output_units"]) if d.get("output_units") is not None else None, now))
     # pool aliases
     try:
-        al = http_json(f"{EXPLORER}/api/address-aliases").get("aliases") or {}
+        al = (api("/addresses/aliases").get("data") or {}).get("aliases") or {}
         for addr, name in al.items():
             con.execute("INSERT OR REPLACE INTO aliases VALUES (?,?,?,?)", (addr, name, "tscscan", now))
     except Exception as e:
@@ -436,20 +575,21 @@ def take_snapshot(con):
     return now, m.get("height")
 
 
-def sync_holders(con, ts, pages=4):
-    """Top 100 addresses (4 pages × 25)."""
+def sync_holders(con, ts):
+    """Top 100 addresses; supply share against the circulating supply of the snapshot taken at `ts`."""
+    row = con.execute("SELECT circ_supply FROM snapshots WHERE ts=?", (ts,)).fetchone()
+    circ = row[0] if row else None
     n = 0
-    for p in range(1, pages + 1):
-        d = http_json(f"{EXPLORER}/api/holders?page={p}&page_size=25")
-        for h in d.get("items") or []:
-            con.execute("""INSERT OR REPLACE INTO holders_snapshots VALUES (?,?,?,?,?,?,?,?,?,?)""", (
-                ts, h.get("rank"), h.get("address"), (h.get("balance_sats") or 0) / SATS,
-                (h.get("net_flow_7d_sats") or 0) / SATS if h.get("net_flow_7d_sats") is not None else None,
-                (h.get("net_flow_30d_sats") or 0) / SATS if h.get("net_flow_30d_sats") is not None else None,
-                h.get("supply_share"), h.get("tx_count"), h.get("first_seen_height"),
-                h.get("last_seen_timestamp")))
-            n += 1
-        time.sleep(0.15)
+    for rank, h in enumerate(top_addresses(100), 1):
+        bal = (sats(h.get("balance")) or 0) / SATS
+        f7, f30 = sats(h.get("net_flow_7d")), sats(h.get("net_flow_30d"))
+        con.execute("""INSERT OR REPLACE INTO holders_snapshots VALUES (?,?,?,?,?,?,?,?,?,?)""", (
+            ts, rank, h.get("address"), bal,
+            f7 / SATS if f7 is not None else None,
+            f30 / SATS if f30 is not None else None,
+            bal / circ * 100 if circ else None, h.get("transaction_count"), None,
+            (h.get("last_activity") or {}).get("time")))
+        n += 1
     con.commit()
     return n
 
@@ -475,19 +615,21 @@ def sync_pool_payouts(con, pool, page_size=100, max_pages=400):
     fresh = not known or meta_get(con, "payouts_done_" + pool) != "1"   # full history not walked yet
     page, new_tx, new_pay = 1, 0, 0
     while page <= max_pages:
-        d = http_json(f"{EXPLORER}/api/address/{pool}?page={page}&page_size={page_size}")
-        txs = d.get("transactions") or []
+        txs, pag = api_address_txs(pool, page, page_size)
         if not txs:
             break
         unseen = [t for t in txs if t.get("txid") not in known]
         for t in unseen:
             sent = (t.get("sent_sats") or 0) / SATS
+            outs = t.get("to_addresses") or []
+            if sent > 0 and not t.get("is_coinbase") and (t.get("to_address_count") or 0) > len(outs):
+                outs = api_tx_outputs(t["txid"])   # the history lists only the first outputs of a batch
             con.execute("INSERT OR IGNORE INTO pool_txs VALUES (?,?,?,?,?)",
                         (t["txid"], pool, t.get("block_height"), t.get("timestamp"), sent))
             new_tx += 1
             if sent <= 0 or t.get("is_coinbase"):
                 continue
-            for o in t.get("to_addresses") or []:
+            for o in outs:
                 a = o.get("address")
                 if not a or a == pool:
                     continue
@@ -495,10 +637,9 @@ def sync_pool_payouts(con, pool, page_size=100, max_pages=400):
                             (t["txid"], pool, a, (o.get("value_sats") or 0) / SATS, t.get("block_height"), t.get("timestamp")))
                 new_pay += 1
         con.commit()
-        pag = d.get("pagination") or {}
         if not unseen and not fresh:
             break
-        if not pag.get("has_next"):
+        if not has_next(pag):
             meta_set(con, "payouts_done_" + pool, "1")
             con.commit()
             break
@@ -609,6 +750,9 @@ def main(argv):
         k = backfill_proofs(con)
         if k:
             log(f"proof fields backfilled: {k} blocks")
+        k = fill_proof_components(con)
+        if k:
+            log(f"proof components: {k} blocks")
     except Exception as e:
         log(f"ERROR proof backfill: {e}")
 

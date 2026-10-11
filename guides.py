@@ -202,7 +202,7 @@ def proof_page(B, agg, aliases, price, reward):
 <dt>Sampling profile</dt><dd>How the proof's token-selection behaviour compares with ordinary inference. Priced above 1.0× when it looks optimised for mining rather than normal generation.</dd>
 <dt>Near-certain steps</dt><dd>Steps where the model is almost sure of the next token. 175 of 256 rejects the block outright.</dd>
 <dt>Reference</dt><dd>The project's honest prompt bank: median 1.07×, 91% of windows ≤ 1.3×.</dd></dl>
-<p class="note">Source: block headers from the explorer (proof.multiplier, proof.components, proof.near_pin_count), method from the proof-v4 blog post.</p></section>"""
+<p class="note">Source: block headers from the explorer (proof.price_multiplier, proof.price_components, proof.near_pin_count), method from the proof-v4 blog post.</p></section>"""
 
 
 def _hist(B, vals, labels, total, width=900, height=240):

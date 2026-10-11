@@ -1179,9 +1179,9 @@
 "ru": "Proof-of-inference — мультипликатор работы",
 "zh": "推理证明——工作量乘数"
 },
-"Proof-v{0} price of each block (proof.multiplier, {1}–{2}×): the header target is divided by it, so a {3}× block needs {4}% more work. Mean per block finder since block {5}; \"blocks lost\" = blocks × (mean − {6}).": {
-"ru": "Цена proof-v{0} каждого блока (proof.multiplier, {1}–{2}×): цель в заголовке делится на неё, поэтому блоку с {3}× нужно на {4}% больше работы. Среднее по каждому нашедшему с блока {5}; «потерянные блоки» = блоки × (среднее − {6}).",
-"zh": "每个区块的 Proof-v{0} 价格（proof.multiplier，{1}–{2}×）：区块头目标值要除以它，所以 {3}× 的区块需要多 {4}% 的工作量。自区块 {5} 起按出块者计算的均值；“损失区块” = 区块数 × （均值 − {6}）。"
+"Proof-v{0} price of each block (proof.price_multiplier, {1}–{2}×): the header target is divided by it, so a {3}× block needs {4}% more work. Mean per block finder since block {5}; \"blocks lost\" = blocks × (mean − {6}).": {
+"ru": "Цена proof-v{0} каждого блока (proof.price_multiplier, {1}–{2}×): цель в заголовке делится на неё, поэтому блоку с {3}× нужно на {4}% больше работы. Среднее по каждому нашедшему с блока {5}; «потерянные блоки» = блоки × (среднее − {6}).",
+"zh": "每个区块的 Proof-v{0} 价格（proof.price_multiplier，{1}–{2}×）：区块头目标值要除以它，所以 {3}× 的区块需要多 {4}% 的工作量。自区块 {5} 起按出块者计算的均值；“损失区块” = 区块数 × （均值 − {6}）。"
 },
 "Protocol": {
 "ru": "Протокол",
@@ -1407,9 +1407,9 @@
 "ru": "Исходный код",
 "zh": "源代码"
 },
-"Source: block headers from the explorer (proof.multiplier, proof.components, proof.near_pin_count), method from the proof-v{0} blog post.": {
-"ru": "Источник: заголовки блоков из обозревателя (proof.multiplier, proof.components, proof.near_pin_count), методика — из статьи о proof-v{0}.",
-"zh": "来源：浏览器中的区块头（proof.multiplier、proof.components、proof.near_pin_count），方法来自 proof-v{0} 博客文章。"
+"Source: block headers from the explorer (proof.price_multiplier, proof.price_components, proof.near_pin_count), method from the proof-v{0} blog post.": {
+"ru": "Источник: заголовки блоков из обозревателя (proof.price_multiplier, proof.price_components, proof.near_pin_count), методика — из статьи о proof-v{0}.",
+"zh": "来源：浏览器中的区块头（proof.price_multiplier、proof.price_components、proof.near_pin_count），方法来自 proof-v{0} 博客文章。"
 },
 "Sources": {
 "ru": "Источники",
