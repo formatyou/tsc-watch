@@ -2982,5 +2982,41 @@
 "· fee not published, shown before fee": {
 "ru": "· комиссия не опубликована, показано до комиссии",
 "zh": "· 未公布手续费，显示为扣费前"
+},
+"New · TensorCash Bridge": {
+"ru": "Новое · Мост TensorCash",
+"zh": "新 · TensorCash 跨链桥"
+},
+"Bridge to Base — move TSC to Base as wTSC and back; public reserves, {0}% fee. Transfers wait for TensorCash blocks: roughly {1}–{2} minutes, sometimes over an hour.": {
+"ru": "Мост в Base — переводите TSC в сеть Base как wTSC и обратно; резервы публичны, комиссия {0}%. Переводы ждут блоков TensorCash: примерно {1}–{2} минут, иногда больше часа.",
+"zh": "跨链到 Base——把 TSC 转到 Base 成为 wTSC，也可以转回；储备公开，手续费 {0}%。转账需等待 TensorCash 出块：大约 {1}–{2} 分钟，有时超过一小时。"
+},
+"Open the bridge ↗": {
+"ru": "Открыть мост ↗",
+"zh": "打开跨链桥 ↗"
+},
+"Open the TensorCash Bridge": {
+"ru": "Открыть мост TensorCash",
+"zh": "打开 TensorCash 跨链桥"
+},
+"TensorCash Bridge": {
+"ru": "Мост TensorCash",
+"zh": "TensorCash 跨链桥"
+},
+"Wallet & Bridge": {
+"ru": "Кошелёк и мост",
+"zh": "钱包与跨链桥"
+},
+"TSC ↔ wTSC on Base, made by tsc.watch": {
+"ru": "TSC ↔ wTSC в сети Base, от tsc.watch",
+"zh": "由 tsc.watch 开发：TSC ↔ Base 上的 wTSC"
+},
+"Bridge transfers wait for these blocks —": {
+"ru": "Переводы через мост ждут этих блоков —",
+"zh": "跨链桥转账需要等待这些区块——"
+},
+"see the bridge ↗": {
+"ru": "открыть мост ↗",
+"zh": "查看跨链桥 ↗"
 }
 }

@@ -540,13 +540,17 @@ WALLET_URL = "https://wallettensor.cash/"
 WALLET_LIVE = True
 WALLET_ANNOUNCE_UNTIL = 1792627200  # 2026-10-22 00:00 UTC: "New" strip announcement ends
 WALLET_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/></svg>'
+BRIDGE_URL = "https://bridge.wallettensor.cash/"   # TSC <-> wTSC on Base, same owner as the wallet
+BRIDGE_LIVE = True
+BRIDGE_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 8h15M15 4l4 4-4 4M20 16H5M9 12l-4 4 4 4"/></svg>'
 
 
 def nav_html(active):
     groups = []
+    ext = {"Resources": f'<a href="{BRIDGE_URL}" target="_blank" rel="noopener noreferrer">TensorCash Bridge <span aria-hidden="true">↗</span></a>'} if BRIDGE_LIVE else {}
     for i, (label, items) in enumerate(NAV_GROUPS):
         on = any(k == active for k, _, _ in items)
-        links = "".join(f'<a href="{h}"{" class=on aria-current=page" if k == active else ""}>{esc(l)}</a>' for k, h, l in items)
+        links = "".join(f'<a href="{h}"{" class=on aria-current=page" if k == active else ""}>{esc(l)}</a>' for k, h, l in items) + ext.get(label, "")
         groups.append(f'<div class="grp{" on" if on else ""}"><button type="button" class="gbtn" aria-expanded="false" aria-controls="dd{i}">{label}<span class="car" aria-hidden="true"></span></button>'
                       f'<div class="drop" id="dd{i}"><span class="gl">{label}</span>{links}</div></div>')
     pro = "".join(f'<a class="nlink{" on" if k == active else ""}" href="{h}"{" aria-current=page" if k == active else ""}>{esc(l)}<em>PRO</em></a>' for k, h, l in NAV_PRO)
@@ -557,8 +561,12 @@ def nav_html(active):
         wm = f'<a class="walletb wm" href="{WALLET_URL}" target="_blank" rel="noopener" aria-label="Open the TSC Watch Wallet">{WALLET_ICON}<span>Wallet</span></a>'
     else:
         soon = '<span class="soon" aria-disabled="true" title="Coming soon">Wallet<em>soon</em></span>'
+    # bridge: button next to Wallet on wide screens (>1180 px, hidden below so the bar never wraps);
+    # always listed under Resources, which is also where it sits in the mobile burger menu
+    bridge = (f'<a class="bridgeb" href="{BRIDGE_URL}" target="_blank" rel="noopener noreferrer" aria-label="Open the TensorCash Bridge">'
+              f'{BRIDGE_ICON}<span>Bridge</span></a>') if BRIDGE_LIVE else ""
     return (wm + f'<button type="button" class="burger" aria-expanded="false" aria-controls="menu" aria-label="Menu"><span></span><span></span><span></span></button>'
-            f'<nav id="menu" class="menu">{"".join(groups)}{pro}{soon}{cta}</nav>')
+            f'<nav id="menu" class="menu">{"".join(groups)}{pro}{bridge}{soon}{cta}</nav>')
 
 
 NAV_CSS = """
@@ -602,16 +610,19 @@ header{background:var(--dark);backdrop-filter:none;-webkit-backdrop-filter:none;
 .burger{background:transparent;border-color:#3A4C55;border-radius:3px}.burger span{background:#fff}
 .walletl{color:#D6DEE0;text-decoration:none;font:500 14px var(--sans);padding:7px 10px;border-radius:3px}.walletl:hover{background:rgba(255,255,255,.08);color:#fff}
 .walletb{display:inline-flex;align-items:center;gap:7px;background:#fff;color:var(--dark);text-decoration:none;font:750 13px var(--sans);padding:9px 14px;border-radius:3px;margin-left:8px}.walletb:hover{background:#E6ECEE;color:var(--dark)}.walletb svg{display:block}
+.bridgeb{display:inline-flex;align-items:center;gap:7px;color:#fff;text-decoration:none;font:750 13px var(--sans);padding:8px 13px;border:1px solid #4A5E68;border-radius:3px;margin-left:8px;white-space:nowrap}.bridgeb:hover{background:rgba(255,255,255,.08);border-color:#8FA0A6;color:#fff}.bridgeb svg{display:block}.bridgeb:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .wm{display:none}
 .strip .ann{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none}.strip .ann b{background:var(--acc);color:#fff;padding:3px 7px;font-weight:700}.strip .ann:hover .al{text-decoration:underline}.strip .as{display:none}
 .wtile{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:24px;background:#fff;border:1px solid var(--line);border-left:6px solid var(--acc);padding:22px 26px;margin-bottom:16px}
 .wtile h2{margin:4px 0 6px;font-size:26px;font-weight:710;letter-spacing:-.04em;color:#151417}.wtile h2 em{font-style:normal;font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--acc)}.wtile p{margin:0;font-size:14px;color:var(--mute)}
-@media(max-width:760px){.top{flex-wrap:nowrap;gap:8px}.brand{font-size:17px}.langs .lg{padding:7px 6px;font-size:11px}.wm{display:inline-flex;order:2;margin-left:0;height:40px;padding:0 10px;font-size:12.5px;gap:6px}.menu .walletb{display:none}.langs{order:1}.wm span{display:inline}.strip .ann .al{display:none}.strip .ann .as{display:inline}.strip>span:last-child{display:none}.wtile{grid-template-columns:1fr;border-left-width:1px;border-top:4px solid var(--acc)}.wtile .btn{display:block;text-align:center}}
+.wtile{row-gap:18px}.wtile .wt-b .btn{display:block;text-align:center}.wtile .wt-br{border-top:1px solid var(--line);padding-top:18px;align-self:stretch;display:flex;flex-direction:column;justify-content:center}.wtile .wt-br p{max-width:820px}
+@media(max-width:760px){.top{flex-wrap:nowrap;gap:8px}.brand{font-size:17px}.langs .lg{padding:7px 6px;font-size:11px}.wm{display:inline-flex;order:2;margin-left:0;height:40px;padding:0 10px;font-size:12.5px;gap:6px}.menu .walletb{display:none}.langs{order:1}.wm span{display:inline}.strip .ann .al{display:none}.strip .ann .as{display:inline}.strip>span:last-child{display:none}.wtile{grid-template-columns:1fr;border-left-width:1px;border-top:4px solid var(--acc)}.wtile .btn{display:block;text-align:center}.wtile .wt-b.wt-br{border-top:0;padding-top:0}}
 .soon{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;color:#6F8188;font:500 14px var(--sans);cursor:not-allowed;user-select:none}
 .nlink{display:inline-flex;align-items:center;gap:6px;padding:9px 11px;color:#D6DEE0;text-decoration:none;font:500 14px var(--sans);border-radius:3px;white-space:nowrap}
 .nlink:hover{color:#fff}.nlink.on{color:#fff;font-weight:600;box-shadow:inset 0 0 0 1px #3A4C55}.nlink:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .nlink em{font:700 9px var(--mono);font-style:normal;letter-spacing:.1em;background:var(--acc);color:#fff;padding:2px 5px;border-radius:2px}
 @media(min-width:761px) and (max-width:1040px){.nlink em{display:none}.nlink,.gbtn{padding-left:7px;padding-right:7px;font-size:13px}.menu .walletb span{display:none}.cta{padding-left:10px;padding-right:10px;margin-left:2px}}
+@media(max-width:1180px){.bridgeb{display:none}}
 @media(min-width:761px) and (max-width:880px){.menu .cta{display:none}.nlink,.gbtn{padding-left:5px;padding-right:5px}}
 @media(max-width:760px){.nlink{padding:13px 12px;border-bottom:1px solid #33454E;color:#E3E9EB;justify-content:space-between}}
 a.kpi.locked{cursor:pointer;text-decoration:none;display:block}a.kpi.locked:hover{border-color:var(--acc)}
@@ -810,10 +821,14 @@ def build_market(d, c):
     epochs = c["epochs"]
     cur_ep = next((e for e in epochs if e[0] <= c["tip_h"] < e[1]), epochs[-1])
 
+    bridge_row = (f'<div class="wt-t wt-br"><div class="eyebrow sm">New · TensorCash Bridge</div>'
+                  f'<p>Bridge to Base — move TSC to Base as wTSC and back; public reserves, 1% fee. '
+                  f'Transfers wait for TensorCash blocks: roughly 20–60 minutes, sometimes over an hour.</p></div>'
+                  f'<div class="wt-b wt-br"><a class="btn ghost" href="{BRIDGE_URL}" target="_blank" rel="noopener noreferrer">Open the bridge ↗</a></div>') if BRIDGE_LIVE else ""
     wallet_tile = (f'<section class="wtile"><div class="wt-t"><div class="eyebrow sm">New · TSC Watch Wallet</div>'
                    f'<h2>Your TSC, <em>in your browser.</em></h2>'
                    f'<p>Self-custody web wallet: create or restore, send and receive. Keys are created and kept on your device — no account, no email.</p></div>'
-                   f'<div class="wt-b"><a class="btn" href="{WALLET_URL}" target="_blank" rel="noopener">Open the wallet ↗</a></div></section>') if WALLET_LIVE else ""
+                   f'<div class="wt-b"><a class="btn" href="{WALLET_URL}" target="_blank" rel="noopener">Open the wallet ↗</a></div>{bridge_row}</section>') if WALLET_LIVE else ""
 
     hero = f"""
 <section class="hero hx"><div class="hx-l">
@@ -1004,9 +1019,11 @@ def build_mining(d, c):
     stack_card = f"""<section class="card"><h2>Share of blocks per UTC day</h2><p class="sub">Last {len(days)} days, top 5 addresses of the past 7 days. Today is a partial day.</p>{svg_stacked(sd, keys, labels, cols)}</section>"""
 
     dd = [(day, x["diff"] / x["blocks"]) for day, x in c["daily"].items() if x["blocks"]]
+    bridge_note = (f'<p class="note">Bridge transfers wait for these blocks — <a href="{BRIDGE_URL}" target="_blank" rel="noopener noreferrer">see the bridge ↗</a></p>'
+                   if BRIDGE_LIVE else "")
     bt = [(day, (x["last"] - x["first"]) / (x["blocks"] - 1)) for day, x in c["daily"].items() if x["blocks"] > 2]
     diff_card = f"""<section class="card"><div class="two"><div><h2>Base difficulty</h2><p class="sub">Daily average from the bits field.</p>{svg_line([{"name": "difficulty (daily avg)", "points": dd, "color": PALETTE[3]}], width=560, yfmt=lambda v: fshort(v, 1), tipfmt=lambda v: fnum(v, 0))}</div>
-<div><h2>Block time</h2><p class="sub">Average interval between blocks per UTC day; target ~600 s.</p>{svg_line([{"name": "seconds per block", "points": bt, "color": PALETTE[2]}, {"name": "600 s target", "points": [(bt[0][0], 600), (bt[-1][0], 600)] if bt else [], "color": "#999", "dash": True, "area": False}], width=560, yfmt=lambda v: fnum(v, 0))}</div></div></section>"""
+<div><h2>Block time</h2><p class="sub">Average interval between blocks per UTC day; target ~600 s.</p>{svg_line([{"name": "seconds per block", "points": bt, "color": PALETTE[2]}, {"name": "600 s target", "points": [(bt[0][0], 600), (bt[-1][0], 600)] if bt else [], "color": "#999", "dash": True, "area": False}], width=560, yfmt=lambda v: fnum(v, 0))}{bridge_note}</div></div></section>"""
 
     earn, earn_usd = [], []
     p1440 = {r[0]: r[4] for r in d["p1440"]}
@@ -1120,12 +1137,15 @@ LINKS = [
 
 def build_links(d, c):
     from urllib.parse import urlparse
+    own = (([("TSC Watch Wallet", WALLET_URL, "Self-custody web wallet made by tsc.watch")] if WALLET_LIVE else [])
+           + ([("TensorCash Bridge", BRIDGE_URL, "TSC ↔ wTSC on Base, made by tsc.watch")] if BRIDGE_LIVE else []))
+    own_title = "Wallet & Bridge" if WALLET_LIVE and BRIDGE_LIVE else ("Wallet" if WALLET_LIVE else "Bridge")
     groups = "".join(
         f'<section class="card"><h2>{esc(g)}</h2><div class="links">'
         + "".join(f'<a class="lnk" href="{esc(u)}" target="_blank" rel="noopener noreferrer nofollow">'
                   f'<span class="lt">{esc(t)} <span class="ext">↗</span></span><span class="ld">{esc(desc)}</span>'
                   f'<span class="lu">{esc(urlparse(u).netloc.removeprefix("www."))}</span></a>' for t, u, desc in items)
-        + "</div></section>" for g, items in ([("Wallet", [("TSC Watch Wallet", WALLET_URL, "Self-custody web wallet made by tsc.watch")])] if WALLET_LIVE else []) + LINKS)
+        + "</div></section>" for g, items in ([(own_title, own)] if own else []) + LINKS)
     return (f'<section class="card"><h2>Official TensorCash links</h2><p class="sub">Project websites, guides, releases and community channels. '
             f'tsc.watch is an independent dashboard and is not affiliated with the TensorCash team. Before downloading software, check the domain in your '
             f'address bar and verify release signatures at <a href="https://verify.tensorcash.org/" target="_blank" rel="noopener noreferrer nofollow">verify.tensorcash.org</a>. '
